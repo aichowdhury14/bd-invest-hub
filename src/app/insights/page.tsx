@@ -1,0 +1,171 @@
+import { BrainCircuit, Crown, TrendingUp } from "lucide-react";
+import { Container } from "@/components/Container";
+import { getCategoryStats, getTopRate, getTrendStatus, getYieldCurve } from "@/lib/insights";
+import { institutionTypeLabels } from "@/lib/labels";
+import { institutionTypeStyle } from "@/lib/institution-style";
+import { CategoryBarChart, YieldCurveChart } from "./charts";
+
+export const revalidate = 300;
+
+export default async function InsightsPage() {
+  const [fdrCurve, dpsCurve, fdrStats, dpsStats, topRate, trendStatus] = await Promise.all([
+    getYieldCurve("FDR"),
+    getYieldCurve("DPS"),
+    getCategoryStats("FDR"),
+    getCategoryStats("DPS"),
+    getTopRate(),
+    getTrendStatus(),
+  ]);
+
+  return (
+    <div>
+      <section className="brand-gradient text-white">
+        <Container className="py-10 sm:py-14 space-y-3">
+          <span className="inline-grid h-10 w-10 place-items-center rounded-xl bg-white/15">
+            <BrainCircuit className="h-5 w-5" />
+          </span>
+          <h1 className="font-display text-3xl sm:text-4xl font-bold tracking-tight">
+            Market Insights
+          </h1>
+          <p className="text-white/85 max-w-2xl">
+            Live statistics and smart comparisons computed from every rate currently tracked —
+            not predictions, just a clearer view of what&apos;s actually on offer right now.
+          </p>
+        </Container>
+      </section>
+
+      <Container className="py-10 sm:py-12 space-y-12">
+        {topRate && (
+          <section className="rounded-2xl card-surface p-6 shadow-sm flex flex-wrap items-center gap-4">
+            <span className="grid h-12 w-12 place-items-center rounded-xl bg-accent/15 text-accent shrink-0">
+              <Crown className="h-6 w-6" />
+            </span>
+            <div>
+              <p className="text-sm text-muted">Highest rate tracked right now</p>
+              <p className="font-display text-2xl font-bold">
+                {topRate.interestRatePct.toFixed(2)}%{" "}
+                <span className="text-base font-normal text-muted">
+                  — {topRate.institutionName} · {topRate.productName} ·{" "}
+                  {topRate.tenureMonths % 12 === 0
+                    ? `${topRate.tenureMonths / 12}yr`
+                    : `${topRate.tenureMonths}mo`}
+                </span>
+              </p>
+            </div>
+          </section>
+        )}
+
+        <section className="space-y-5">
+          <div>
+            <h2 className="font-display text-xl font-bold tracking-tight">
+              Fixed Deposit (FDR) yield curve
+            </h2>
+            <p className="text-sm text-muted mt-1">
+              Best FDR rate offered at each tenure, by institution type. A rising curve means
+              longer commitments pay more — compare how steeply each category rewards patience.
+            </p>
+          </div>
+          <div className="rounded-2xl card-surface p-4 sm:p-6 shadow-sm">
+            <YieldCurveChart data={fdrCurve} />
+          </div>
+        </section>
+
+        <section className="space-y-5">
+          <div>
+            <h2 className="font-display text-xl font-bold tracking-tight">
+              DPS yield curve
+            </h2>
+            <p className="text-sm text-muted mt-1">
+              Same idea for recurring monthly-deposit schemes.
+            </p>
+          </div>
+          <div className="rounded-2xl card-surface p-4 sm:p-6 shadow-sm">
+            <YieldCurveChart data={dpsCurve} />
+          </div>
+        </section>
+
+        <div className="grid gap-8 lg:grid-cols-2">
+          <section className="space-y-5">
+            <h2 className="font-display text-xl font-bold tracking-tight">FDR by category</h2>
+            <div className="rounded-2xl card-surface p-4 sm:p-6 shadow-sm">
+              <CategoryBarChart data={fdrStats} />
+            </div>
+          </section>
+          <section className="space-y-5">
+            <h2 className="font-display text-xl font-bold tracking-tight">DPS by category</h2>
+            <div className="rounded-2xl card-surface p-4 sm:p-6 shadow-sm">
+              <CategoryBarChart data={dpsStats} />
+            </div>
+          </section>
+        </div>
+
+        <section className="space-y-5">
+          <h2 className="font-display text-xl font-bold tracking-tight">By the numbers</h2>
+          <div className="grid gap-4 sm:grid-cols-3">
+            <CategoryCard type="BANK" stat={fdrStats.find((s) => s.type === "BANK")} />
+            <CategoryCard type="GOVERNMENT" stat={fdrStats.find((s) => s.type === "GOVERNMENT")} />
+            <CategoryCard type="INVESTMENT_ORG" stat={fdrStats.find((s) => s.type === "INVESTMENT_ORG")} />
+          </div>
+        </section>
+
+        <section className="rounded-2xl border border-dashed border-border p-6 sm:p-8 space-y-2">
+          <div className="flex items-center gap-2">
+            <TrendingUp className="h-5 w-5 text-muted" />
+            <h2 className="font-display text-lg font-bold">Rate trends over time</h2>
+          </div>
+          {trendStatus.hasEnoughData ? (
+            <p className="text-sm text-muted">
+              Tracking since {trendStatus.firstSnapshotAt?.toLocaleDateString()} —{" "}
+              {trendStatus.snapshotCount.toLocaleString()} snapshots across {trendStatus.daysTracked}{" "}
+              days.
+            </p>
+          ) : (
+            <p className="text-sm text-muted max-w-2xl">
+              We started tracking rate history on{" "}
+              {trendStatus.firstSnapshotAt
+                ? trendStatus.firstSnapshotAt.toLocaleDateString()
+                : "the day this feature launched"}
+              . Trend charts and rate-movement forecasts need real historical data to be honest —
+              we won&apos;t show a prediction built on guessed history. Check back as more days of
+              tracking accumulate ({trendStatus.daysTracked} day{trendStatus.daysTracked === 1 ? "" : "s"}{" "}
+              tracked so far).
+            </p>
+          )}
+        </section>
+      </Container>
+    </div>
+  );
+}
+
+function CategoryCard({
+  type,
+  stat,
+}: {
+  type: "BANK" | "GOVERNMENT" | "INVESTMENT_ORG";
+  stat?: { bestRate: number | null; avgBestRate: number | null; productCount: number };
+}) {
+  const style = institutionTypeStyle[type];
+  const Icon = style.icon;
+  return (
+    <div className="rounded-2xl card-surface p-5 shadow-sm space-y-3">
+      <div className="flex items-center gap-2.5">
+        <span className={`grid h-8 w-8 place-items-center rounded-lg ${style.iconWrap}`}>
+          <Icon className="h-4 w-4" strokeWidth={2} />
+        </span>
+        <h3 className="font-semibold">{institutionTypeLabels[type]}</h3>
+      </div>
+      {stat && stat.bestRate !== null ? (
+        <div className="space-y-1">
+          <p className="font-display text-2xl font-bold tabular-nums">{stat.bestRate.toFixed(2)}%</p>
+          <p className="text-xs text-muted">Best FDR rate found</p>
+          <p className="text-xs text-muted">
+            Avg of best rates: {stat.avgBestRate?.toFixed(2)}% across {stat.productCount} product
+            {stat.productCount === 1 ? "" : "s"}
+          </p>
+        </div>
+      ) : (
+        <p className="text-sm text-muted">No FDR data yet.</p>
+      )}
+    </div>
+  );
+}

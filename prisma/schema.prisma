@@ -78,6 +78,7 @@ model RateProduct {
   updatedAt       DateTime      @updatedAt
   rateTiers       RateTier[]
   calculatorEvents CalculatorEvent[]
+  rateHistory     RateHistory[]
 
   @@index([institutionId])
   @@index([productType])
@@ -100,6 +101,25 @@ model RateTier {
 
   @@index([productId])
   @@index([tenureMonths])
+}
+
+/// A periodic snapshot of a rate tier, written by scripts/snapshot-rate-history.ts
+/// (run on a schedule, see .github/workflows/snapshot-history.yml). This is the
+/// data foundation for real trend/forecasting features: we deliberately do not
+/// backfill fabricated history — the trend UI shows an honest "not enough data
+/// yet" state until enough real snapshots accumulate over time.
+model RateHistory {
+  id              String      @id @default(cuid())
+  productId       String
+  product         RateProduct @relation(fields: [productId], references: [id], onDelete: Cascade)
+  tenureMonths    Int
+  minAmount       Decimal     @db.Decimal(18, 2)
+  maxAmount       Decimal?    @db.Decimal(18, 2)
+  interestRatePct Decimal     @db.Decimal(6, 3)
+  recordedAt      DateTime    @default(now())
+
+  @@index([productId, tenureMonths])
+  @@index([recordedAt])
 }
 
 model ScrapeLog {

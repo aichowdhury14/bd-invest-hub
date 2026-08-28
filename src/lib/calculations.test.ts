@@ -1,5 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { calculateDPSMaturity, calculateLumpSumMaturity } from "./calculations";
+import {
+  calculateDPSMaturity,
+  calculateLumpSumMaturity,
+  dpsGrowthSeries,
+  lumpSumGrowthSeries,
+} from "./calculations";
 
 describe("calculateLumpSumMaturity", () => {
   it("computes simple interest correctly", () => {
@@ -112,5 +117,52 @@ describe("calculateDPSMaturity", () => {
         compounding: "MONTHLY",
       })
     ).toThrow(RangeError);
+  });
+});
+
+describe("lumpSumGrowthSeries", () => {
+  const input = {
+    principal: 100000,
+    annualRatePct: 8,
+    tenureMonths: 12,
+    compounding: "QUARTERLY" as const,
+  };
+
+  it("starts at the principal and ends at the maturity amount", () => {
+    const series = lumpSumGrowthSeries(input);
+    const maturity = calculateLumpSumMaturity(input);
+    expect(series[0]).toEqual({ month: 0, balance: 100000, contributed: 100000 });
+    expect(series[series.length - 1].month).toBe(12);
+    expect(series[series.length - 1].balance).toBeCloseTo(maturity.maturityAmount, 2);
+  });
+
+  it("is monotonically non-decreasing", () => {
+    const series = lumpSumGrowthSeries(input);
+    for (let i = 1; i < series.length; i++) {
+      expect(series[i].balance).toBeGreaterThanOrEqual(series[i - 1].balance);
+    }
+  });
+
+  it("caps the number of points for a long tenure", () => {
+    const series = lumpSumGrowthSeries({ ...input, tenureMonths: 240 }, 24);
+    expect(series.length).toBeLessThanOrEqual(26); // maxPoints + 1, plus the final mark
+    expect(series[series.length - 1].month).toBe(240);
+  });
+});
+
+describe("dpsGrowthSeries", () => {
+  const input = {
+    monthlyDeposit: 5000,
+    annualRatePct: 6,
+    tenureMonths: 12,
+    compounding: "MONTHLY" as const,
+  };
+
+  it("starts at zero and ends at the maturity amount", () => {
+    const series = dpsGrowthSeries(input);
+    const maturity = calculateDPSMaturity(input);
+    expect(series[0]).toEqual({ month: 0, balance: 0, contributed: 0 });
+    expect(series[series.length - 1].balance).toBeCloseTo(maturity.maturityAmount, 2);
+    expect(series[series.length - 1].contributed).toBeCloseTo(maturity.totalDeposited, 2);
   });
 });

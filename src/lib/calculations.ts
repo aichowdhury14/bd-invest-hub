@@ -116,3 +116,52 @@ export function calculateDPSMaturity(input: DPSInput): DPSResult {
 function roundToPaisa(value: number): number {
   return Math.round(value * 100) / 100;
 }
+
+export interface GrowthPoint {
+  month: number;
+  balance: number;
+  contributed: number;
+}
+
+/**
+ * Balance at a series of points between now and maturity, for a "growth over
+ * time" chart. Reuses calculateLumpSumMaturity at each partial tenure, so it
+ * inherits that function's tested correctness rather than duplicating the math.
+ */
+export function lumpSumGrowthSeries(
+  input: LumpSumInput,
+  maxPoints = 24
+): GrowthPoint[] {
+  const { principal, tenureMonths } = input;
+  const months = monthMarks(tenureMonths, maxPoints);
+  return months.map((month) => {
+    if (month === 0) return { month, balance: principal, contributed: principal };
+    const result = calculateLumpSumMaturity({ ...input, tenureMonths: month });
+    return { month, balance: result.maturityAmount, contributed: principal };
+  });
+}
+
+/** Same idea as lumpSumGrowthSeries, for a recurring DPS-style deposit. */
+export function dpsGrowthSeries(input: DPSInput, maxPoints = 24): GrowthPoint[] {
+  const { monthlyDeposit, tenureMonths } = input;
+  const months = monthMarks(tenureMonths, maxPoints);
+  return months.map((month) => {
+    if (month === 0) return { month, balance: 0, contributed: 0 };
+    const result = calculateDPSMaturity({ ...input, tenureMonths: month });
+    return { month, balance: result.maturityAmount, contributed: monthlyDeposit * month };
+  });
+}
+
+/** Evenly spaced integer month marks from 0 to tenureMonths, capped at maxPoints. */
+function monthMarks(tenureMonths: number, maxPoints: number): number[] {
+  if (tenureMonths <= maxPoints) {
+    return Array.from({ length: tenureMonths + 1 }, (_, i) => i);
+  }
+  const step = tenureMonths / maxPoints;
+  const marks = new Set<number>();
+  for (let i = 0; i <= maxPoints; i++) {
+    marks.add(Math.round(i * step));
+  }
+  marks.add(tenureMonths);
+  return Array.from(marks).sort((a, b) => a - b);
+}

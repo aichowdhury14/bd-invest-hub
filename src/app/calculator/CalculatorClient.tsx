@@ -1,14 +1,20 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { Crown, ExternalLink } from "lucide-react";
+import { Crown, ExternalLink, LineChart, ShieldCheck, Sparkles, type LucideIcon } from "lucide-react";
 import type { SerializedProduct } from "@/lib/serialize";
-import { calculateDPSMaturity, calculateLumpSumMaturity } from "@/lib/calculations";
+import {
+  calculateDPSMaturity,
+  calculateLumpSumMaturity,
+  dpsGrowthSeries,
+  lumpSumGrowthSeries,
+} from "@/lib/calculations";
 import { institutionTypeLabels, isRecurringProduct, productTypeLabels } from "@/lib/labels";
 import { institutionTypeStyle } from "@/lib/institution-style";
 import { useSessionId } from "@/lib/useSessionId";
 import { trackCalculatorUse } from "@/lib/analytics";
 import type { ProductType } from "@prisma/client";
+import { GrowthChart } from "./GrowthChart";
 
 const bdt = new Intl.NumberFormat("en-BD", {
   style: "currency",
@@ -108,6 +114,37 @@ export function CalculatorClient({ products }: { products: SerializedProduct[] }
 
   const topMaturity = rows.find((r) => r.maturityAmount !== null)?.maturityAmount ?? null;
 
+  const recommendations = useMemo(() => {
+    const offered = rows.filter((r) => r.tier !== null);
+    const bestOverall = offered[0] ?? null;
+    const safest =
+      offered.find((r) => r.product.institutionType === "GOVERNMENT") ?? null;
+    const bestBank =
+      offered.find(
+        (r) => r.product.institutionType === "BANK" && r.product.id !== bestOverall?.product.id
+      ) ?? (offered.find((r) => r.product.institutionType === "BANK") ?? null);
+    return { bestOverall, safest, bestBank };
+  }, [rows]);
+
+  const growthSeries = useMemo(() => {
+    const pick = recommendations.bestOverall;
+    if (!pick || !pick.tier || amount <= 0) return null;
+    if (isRecurringProduct(pick.product.productType)) {
+      return dpsGrowthSeries({
+        monthlyDeposit: amount,
+        annualRatePct: pick.tier.interestRatePct,
+        tenureMonths,
+        compounding: pick.product.compounding,
+      });
+    }
+    return lumpSumGrowthSeries({
+      principal: amount,
+      annualRatePct: pick.tier.interestRatePct,
+      tenureMonths,
+      compounding: pick.product.compounding,
+    });
+  }, [recommendations, amount, tenureMonths]);
+
   useEffect(() => {
     if (!sessionId || amount <= 0 || tenureMonths <= 0) return;
     const handle = setTimeout(() => {
@@ -194,6 +231,53 @@ export function CalculatorClient({ products }: { products: SerializedProduct[] }
           </div>
         </div>
       </div>
+
+      {(recommendations.bestOverall || recommendations.safest || recommendations.bestBank) && (
+        <div className="space-y-3">
+          <div className="flex items-center gap-2">
+            <Sparkles className="h-4 w-4 text-accent" />
+            <h2 className="font-display font-bold">Smart Recommendations</h2>
+            <span className="text-xs text-muted">
+              — ranked from today&apos;s live rates, not a prediction
+            </span>
+          </div>
+          <div className="grid gap-4 sm:grid-cols-3">
+            <RecommendationCard
+              icon={Crown}
+              label="Best overall return"
+              row={recommendations.bestOverall}
+              reasoning="Highest maturity amount across every tracked institution at this amount and tenure."
+            />
+            <RecommendationCard
+              icon={ShieldCheck}
+              label="Safest choice"
+              row={recommendations.safest}
+              reasoning="Government-backed — Bangladesh Bank / National Savings Directorate instruments carry sovereign backing."
+            />
+            <RecommendationCard
+              icon={LineChart}
+              label="Best at a bank"
+              row={recommendations.bestBank}
+              reasoning="Highest-rate regulated commercial bank option at this amount and tenure."
+            />
+          </div>
+        </div>
+      )}
+
+      {growthSeries && recommendations.bestOverall && (
+        <div className="rounded-2xl card-surface p-5 sm:p-7 shadow-sm space-y-3">
+          <div>
+            <h2 className="font-display font-bold">
+              How your money grows — {recommendations.bestOverall.product.institutionName}
+            </h2>
+            <p className="text-sm text-muted mt-0.5">
+              {recommendations.bestOverall.product.name}, {recommendations.bestOverall.tier?.interestRatePct.toFixed(2)}%
+              over {formatTenure(tenureMonths)}
+            </p>
+          </div>
+          <GrowthChart series={growthSeries} />
+        </div>
+      )}
 
       <div className="overflow-x-auto rounded-2xl card-surface shadow-sm">
         <table className="w-full text-sm">
@@ -297,4 +381,53 @@ function FilterChip({
 function isRecurringProductType(filter: ProductType | "ALL") {
   if (filter === "ALL") return false;
   return isRecurringProduct(filter);
+}
+
+function RecommendationCard({
+  icon: Icon,
+  label,
+  row,
+  reasoning,
+}: {
+  icon: LucideIcon;
+  label: string;
+  row: Row | null;
+  reasoning: string;
+}) {
+  if (!row || !row.tier) {
+    return (
+      <div className="rounded-2xl border border-dashed border-border p-4 text-sm text-muted">
+        <div className="flex items-center gap-2 font-medium text-foreground/70">
+          <Icon className="h-4 w-4" />
+          {label}
+        </div>
+        <p className="mt-2">No matching option at this amount/tenure.</p>
+      </div>
+    );
+  }
+
+  const style = institutionTypeStyle[row.product.institutionType];
+
+  return (
+    <div className="rounded-2xl card-surface p-4 shadow-sm space-y-2">
+      <div className="flex items-center gap-2 text-sm font-medium text-muted">
+        <Icon className="h-4 w-4 text-accent" />
+        {label}
+      </div>
+      <div>
+        <p className="font-display font-bold leading-snug">{row.product.institutionName}</p>
+        <p className="text-xs text-muted">{row.product.name}</p>
+      </div>
+      <div className="flex items-baseline gap-2">
+        <span className="font-display text-xl font-bold tabular-nums">
+          {row.tier.interestRatePct.toFixed(2)}%
+        </span>
+        <span className={`rounded-full px-2 py-0.5 text-[11px] font-medium ${style.badge}`}>
+          {institutionTypeLabels[row.product.institutionType]}
+        </span>
+      </div>
+      <p className="text-sm tabular-nums font-semibold">{bdt.format(row.maturityAmount ?? 0)}</p>
+      <p className="text-xs text-muted leading-relaxed">{reasoning}</p>
+    </div>
+  );
 }

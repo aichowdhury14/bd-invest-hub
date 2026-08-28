@@ -1,11 +1,12 @@
 import Link from "next/link";
-import { Landmark, Calculator, GitCompareArrows } from "lucide-react";
+import { Landmark, Calculator, GitCompareArrows, BrainCircuit } from "lucide-react";
 import { Container } from "./Container";
 
 const links = [
   { href: "/", label: "Home", icon: Landmark },
   { href: "/calculator", label: "Calculator", icon: Calculator },
   { href: "/compare", label: "Compare", icon: GitCompareArrows },
+  { href: "/insights", label: "Insights", icon: BrainCircuit },
 ];
 
 export function NavBar() {
