@@ -1,8 +1,10 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { Search, X } from "lucide-react";
 import type { SerializedProduct } from "@/lib/serialize";
 import { institutionTypeLabels, productTypeLabels } from "@/lib/labels";
+import { institutionTypeStyle } from "@/lib/institution-style";
 
 const MAX_SELECTED = 4;
 
@@ -33,7 +35,7 @@ export function CompareClient({ products }: { products: SerializedProduct[] }) {
 
   if (products.length === 0) {
     return (
-      <div className="rounded-lg border border-dashed border-black/20 dark:border-white/20 p-8 text-center text-black/60 dark:text-white/60">
+      <div className="rounded-2xl border border-dashed border-border p-10 text-center text-muted">
         No rate data has been added yet.
       </div>
     );
@@ -41,23 +43,27 @@ export function CompareClient({ products }: { products: SerializedProduct[] }) {
 
   return (
     <div className="space-y-6">
-      <input
-        type="text"
-        placeholder="Search institution or product…"
-        value={query}
-        onChange={(e) => setQuery(e.target.value)}
-        className="w-full rounded-md border border-black/15 dark:border-white/15 bg-transparent px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-600"
-      />
+      <div className="relative">
+        <Search className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted" />
+        <input
+          type="text"
+          placeholder="Search institution or product…"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          className="w-full rounded-xl border border-border bg-transparent pl-10 pr-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-brand-end"
+        />
+      </div>
 
-      <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3 max-h-72 overflow-y-auto rounded-lg border border-black/10 dark:border-white/10 p-3">
+      <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3 max-h-80 overflow-y-auto rounded-2xl card-surface p-3 shadow-sm">
         {filtered.map((product) => {
           const checked = selectedIds.includes(product.id);
           const disabled = !checked && selectedIds.length >= MAX_SELECTED;
+          const style = institutionTypeStyle[product.institutionType];
           return (
             <label
               key={product.id}
-              className={`flex items-start gap-2 rounded-md p-2 text-sm ${
-                disabled ? "opacity-40" : "hover:bg-black/5 dark:hover:bg-white/5 cursor-pointer"
+              className={`flex items-start gap-2.5 rounded-xl p-2.5 text-sm transition-colors ${
+                checked ? "bg-brand-end/10" : disabled ? "opacity-40" : "hover:bg-foreground/5 cursor-pointer"
               }`}
             >
               <input
@@ -65,11 +71,12 @@ export function CompareClient({ products }: { products: SerializedProduct[] }) {
                 checked={checked}
                 disabled={disabled}
                 onChange={() => toggle(product.id)}
-                className="mt-1 accent-emerald-700"
+                className="mt-1 accent-current"
+                style={{ color: "var(--brand-end)" }}
               />
               <span>
-                <span className="block font-medium">{product.institutionName}</span>
-                <span className="block text-black/50 dark:text-white/50 text-xs">
+                <span className="block font-semibold">{product.institutionName}</span>
+                <span className={`inline-block mt-1 rounded-full px-2 py-0.5 text-[11px] font-medium ${style.badge}`}>
                   {productTypeLabels[product.productType]}
                 </span>
               </span>
@@ -79,36 +86,48 @@ export function CompareClient({ products }: { products: SerializedProduct[] }) {
       </div>
 
       {selected.length > 0 && (
-        <div className="grid gap-4" style={{ gridTemplateColumns: `repeat(${selected.length}, minmax(220px, 1fr))` }}>
-          {selected.map((product) => (
-            <div key={product.id} className="rounded-lg border border-black/10 dark:border-white/10 p-4 space-y-3">
-              <div>
-                <h3 className="font-semibold">{product.institutionName}</h3>
-                <p className="text-xs text-black/50 dark:text-white/50">
-                  {institutionTypeLabels[product.institutionType]} ·{" "}
-                  {productTypeLabels[product.productType]}
-                </p>
-              </div>
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="text-left text-black/50 dark:text-white/50">
-                    <th className="pb-1 font-medium">Tenure</th>
-                    <th className="pb-1 font-medium text-right">Rate</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {product.rateTiers.map((tier) => (
-                    <tr key={tier.id} className="border-t border-black/10 dark:border-white/10">
-                      <td className="py-1.5">{tier.tenureMonths} mo</td>
-                      <td className="py-1.5 text-right tabular-nums">
-                        {tier.interestRatePct.toFixed(2)}%
-                      </td>
+        <div
+          className="grid gap-4"
+          style={{ gridTemplateColumns: `repeat(auto-fit, minmax(230px, 1fr))` }}
+        >
+          {selected.map((product) => {
+            const style = institutionTypeStyle[product.institutionType];
+            return (
+              <div key={product.id} className="rounded-2xl card-surface p-5 space-y-3 shadow-sm relative">
+                <button
+                  onClick={() => toggle(product.id)}
+                  aria-label="Remove from comparison"
+                  className="absolute top-3 right-3 grid h-6 w-6 place-items-center rounded-full text-muted hover:text-foreground hover:bg-foreground/5"
+                >
+                  <X className="h-3.5 w-3.5" />
+                </button>
+                <div className="pr-6">
+                  <h3 className="font-display font-semibold leading-snug">{product.institutionName}</h3>
+                  <span className={`inline-block mt-1.5 rounded-full px-2 py-0.5 text-[11px] font-medium ${style.badge}`}>
+                    {institutionTypeLabels[product.institutionType]} · {productTypeLabels[product.productType]}
+                  </span>
+                </div>
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="text-left text-muted">
+                      <th className="pb-1.5 font-medium">Tenure</th>
+                      <th className="pb-1.5 font-medium text-right">Rate</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          ))}
+                  </thead>
+                  <tbody>
+                    {product.rateTiers.map((tier) => (
+                      <tr key={tier.id} className="border-t border-border">
+                        <td className="py-2">{tier.tenureMonths} mo</td>
+                        <td className="py-2 text-right tabular-nums font-semibold">
+                          {tier.interestRatePct.toFixed(2)}%
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            );
+          })}
         </div>
       )}
     </div>

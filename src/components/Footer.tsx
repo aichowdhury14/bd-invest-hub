@@ -1,15 +1,22 @@
 import { Disclaimer } from "./Disclaimer";
+import { Container } from "./Container";
 
 export function Footer() {
   return (
-    <footer className="mt-auto border-t border-black/10 dark:border-white/10">
-      <div className="mx-auto max-w-6xl px-4 sm:px-6 py-6 space-y-3">
+    <footer className="mt-auto border-t border-border bg-surface">
+      <Container className="py-10 space-y-4">
+        <div className="flex items-center gap-2">
+          <span className="grid h-7 w-7 place-items-center rounded-lg brand-gradient text-white font-display font-bold text-sm">
+            ৳
+          </span>
+          <span className="font-display font-semibold">BD Invest Hub</span>
+        </div>
         <Disclaimer />
-        <p className="text-xs text-black/40 dark:text-white/40">
-          BD Invest Hub — an independent comparison tool, not affiliated with any bank, Bangladesh
-          Bank, or investment organization listed.
+        <p className="text-xs text-muted">
+          An independent comparison tool, not affiliated with any bank, Bangladesh Bank, or
+          investment organization listed.
         </p>
-      </div>
+      </Container>
     </footer>
   );
 }

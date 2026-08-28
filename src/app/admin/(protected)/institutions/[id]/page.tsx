@@ -36,7 +36,7 @@ export default async function AdminInstitutionDetailPage({
   return (
     <div className="space-y-8">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold tracking-tight">{institution.name}</h1>
+        <h1 className="font-display text-2xl font-bold tracking-tight">{institution.name}</h1>
         <form
           action={async () => {
             "use server";
@@ -49,7 +49,7 @@ export default async function AdminInstitutionDetailPage({
 
       <form
         action={updateInstitutionWithId}
-        className="rounded-lg border border-black/10 dark:border-white/10 p-4 grid gap-3 sm:grid-cols-4 items-end"
+        className="rounded-2xl card-surface shadow-sm p-5 grid gap-3 sm:grid-cols-4 items-end"
       >
         <div className="space-y-1 sm:col-span-2">
           <label className="text-sm font-medium">Name</label>
@@ -57,7 +57,7 @@ export default async function AdminInstitutionDetailPage({
             name="name"
             defaultValue={institution.name}
             required
-            className="w-full rounded-md border border-black/15 dark:border-white/15 bg-transparent px-3 py-2"
+            className="w-full rounded-xl border border-border bg-transparent px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand-end"
           />
         </div>
         <div className="space-y-1">
@@ -65,7 +65,7 @@ export default async function AdminInstitutionDetailPage({
           <select
             name="type"
             defaultValue={institution.type}
-            className="w-full rounded-md border border-black/15 dark:border-white/15 bg-transparent px-3 py-2"
+            className="w-full rounded-xl border border-border bg-transparent px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand-end"
           >
             <option value="BANK">Bank</option>
             <option value="GOVERNMENT">Government</option>
@@ -77,12 +77,12 @@ export default async function AdminInstitutionDetailPage({
           <input
             name="website"
             defaultValue={institution.website ?? ""}
-            className="w-full rounded-md border border-black/15 dark:border-white/15 bg-transparent px-3 py-2"
+            className="w-full rounded-xl border border-border bg-transparent px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand-end"
           />
         </div>
         <button
           type="submit"
-          className="rounded-md bg-emerald-700 px-4 py-2 text-white text-sm font-medium hover:bg-emerald-800"
+          className="rounded-xl brand-gradient px-4 py-2 text-white text-sm font-semibold shadow-sm hover:opacity-90 transition-opacity"
         >
           Save changes
         </button>
@@ -90,11 +90,11 @@ export default async function AdminInstitutionDetailPage({
       </form>
 
       <section className="space-y-4">
-        <h2 className="text-lg font-semibold">Products</h2>
+        <h2 className="font-display text-lg font-bold">Products</h2>
 
         <form
           action={createProduct.bind(null, id)}
-          className="rounded-lg border border-black/10 dark:border-white/10 p-4 grid gap-3 sm:grid-cols-6 items-end"
+          className="rounded-2xl card-surface shadow-sm p-5 grid gap-3 sm:grid-cols-6 items-end"
         >
           <div className="space-y-1 sm:col-span-2">
             <label className="text-sm font-medium">Product name</label>
@@ -102,14 +102,14 @@ export default async function AdminInstitutionDetailPage({
               name="name"
               required
               placeholder="e.g. Regular FDR"
-              className="w-full rounded-md border border-black/15 dark:border-white/15 bg-transparent px-3 py-2"
+              className="w-full rounded-xl border border-border bg-transparent px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand-end"
             />
           </div>
           <div className="space-y-1">
             <label className="text-sm font-medium">Type</label>
             <select
               name="productType"
-              className="w-full rounded-md border border-black/15 dark:border-white/15 bg-transparent px-3 py-2"
+              className="w-full rounded-xl border border-border bg-transparent px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand-end"
             >
               {Object.entries(productTypeLabels).map(([value, label]) => (
                 <option key={value} value={value}>
@@ -123,7 +123,7 @@ export default async function AdminInstitutionDetailPage({
             <select
               name="compounding"
               defaultValue="QUARTERLY"
-              className="w-full rounded-md border border-black/15 dark:border-white/15 bg-transparent px-3 py-2"
+              className="w-full rounded-xl border border-border bg-transparent px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand-end"
             >
               <option value="SIMPLE">Simple</option>
               <option value="MONTHLY">Monthly</option>
@@ -139,7 +139,7 @@ export default async function AdminInstitutionDetailPage({
               min={1}
               defaultValue={3}
               required
-              className="w-full rounded-md border border-black/15 dark:border-white/15 bg-transparent px-3 py-2"
+              className="w-full rounded-xl border border-border bg-transparent px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand-end"
             />
           </div>
           <div className="space-y-1">
@@ -150,23 +150,23 @@ export default async function AdminInstitutionDetailPage({
               min={1}
               defaultValue={36}
               required
-              className="w-full rounded-md border border-black/15 dark:border-white/15 bg-transparent px-3 py-2"
+              className="w-full rounded-xl border border-border bg-transparent px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand-end"
             />
           </div>
           <button
             type="submit"
-            className="sm:col-span-6 justify-self-start rounded-md bg-emerald-700 px-4 py-2 text-white text-sm font-medium hover:bg-emerald-800"
+            className="sm:col-span-6 justify-self-start rounded-xl brand-gradient px-4 py-2 text-white text-sm font-semibold shadow-sm hover:opacity-90 transition-opacity"
           >
             Add product
           </button>
         </form>
 
         {institution.products.map((product) => (
-          <div key={product.id} className="rounded-lg border border-black/10 dark:border-white/10 p-4 space-y-4">
+          <div key={product.id} className="rounded-2xl card-surface shadow-sm p-5 space-y-4">
             <div className="flex items-center justify-between">
               <div>
                 <h3 className="font-medium">{product.name}</h3>
-                <p className="text-xs text-black/50 dark:text-white/50">
+                <p className="text-xs text-muted">
                   {productTypeLabels[product.productType]} · {product.compounding} compounding ·{" "}
                   {product.minTenureMonths}–{product.maxTenureMonths} mo
                 </p>
@@ -178,7 +178,7 @@ export default async function AdminInstitutionDetailPage({
                     await toggleProductActive(product.id, id, !product.isActive);
                   }}
                 >
-                  <button className="text-black/60 dark:text-white/60 hover:underline">
+                  <button className="text-muted hover:underline">
                     {product.isActive ? "Hide" : "Show"}
                   </button>
                 </form>
@@ -195,7 +195,7 @@ export default async function AdminInstitutionDetailPage({
 
             <table className="w-full text-sm">
               <thead>
-                <tr className="text-left text-black/50 dark:text-white/50">
+                <tr className="text-left text-muted">
                   <th className="pb-1 font-medium">Tenure</th>
                   <th className="pb-1 font-medium">Min amount</th>
                   <th className="pb-1 font-medium">Max amount</th>
@@ -206,7 +206,7 @@ export default async function AdminInstitutionDetailPage({
               </thead>
               <tbody>
                 {product.rateTiers.map((tier) => (
-                  <tr key={tier.id} className="border-t border-black/10 dark:border-white/10">
+                  <tr key={tier.id} className="border-t border-border">
                     <td className="py-1.5">{tier.tenureMonths} mo</td>
                     <td className="py-1.5">{Number(tier.minAmount).toLocaleString()}</td>
                     <td className="py-1.5">
@@ -240,7 +240,7 @@ export default async function AdminInstitutionDetailPage({
                   type="number"
                   min={1}
                   required
-                  className="w-full rounded-md border border-black/15 dark:border-white/15 bg-transparent px-2 py-1.5"
+                  className="w-full rounded-xl border border-border bg-transparent px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-brand-end"
                 />
               </div>
               <div className="space-y-1">
@@ -251,7 +251,7 @@ export default async function AdminInstitutionDetailPage({
                   min={0}
                   defaultValue={0}
                   required
-                  className="w-full rounded-md border border-black/15 dark:border-white/15 bg-transparent px-2 py-1.5"
+                  className="w-full rounded-xl border border-border bg-transparent px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-brand-end"
                 />
               </div>
               <div className="space-y-1">
@@ -260,7 +260,7 @@ export default async function AdminInstitutionDetailPage({
                   name="maxAmount"
                   type="number"
                   min={0}
-                  className="w-full rounded-md border border-black/15 dark:border-white/15 bg-transparent px-2 py-1.5"
+                  className="w-full rounded-xl border border-border bg-transparent px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-brand-end"
                 />
               </div>
               <div className="space-y-1">
@@ -272,19 +272,19 @@ export default async function AdminInstitutionDetailPage({
                   max={100}
                   step="0.01"
                   required
-                  className="w-full rounded-md border border-black/15 dark:border-white/15 bg-transparent px-2 py-1.5"
+                  className="w-full rounded-xl border border-border bg-transparent px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-brand-end"
                 />
               </div>
               <div className="space-y-1">
                 <label className="text-xs font-medium">Source URL (opt.)</label>
                 <input
                   name="sourceUrl"
-                  className="w-full rounded-md border border-black/15 dark:border-white/15 bg-transparent px-2 py-1.5"
+                  className="w-full rounded-xl border border-border bg-transparent px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-brand-end"
                 />
               </div>
               <button
                 type="submit"
-                className="sm:col-span-5 justify-self-start rounded-md bg-black/80 dark:bg-white/80 dark:text-black px-3 py-1.5 text-white text-xs font-medium hover:opacity-90"
+                className="sm:col-span-5 justify-self-start rounded-lg bg-foreground text-background px-3 py-1.5 text-xs font-semibold hover:opacity-90 transition-opacity"
               >
                 Add rate tier
               </button>
@@ -304,7 +304,7 @@ function ToggleActiveButton({ id, isActive }: { id: string; isActive: boolean })
         await toggleInstitutionActive(id, !isActive);
       }}
     >
-      <button className="text-sm text-black/60 dark:text-white/60 hover:underline">
+      <button className="text-sm text-muted hover:underline">
         {isActive ? "Hide from site" : "Show on site"}
       </button>
     </form>

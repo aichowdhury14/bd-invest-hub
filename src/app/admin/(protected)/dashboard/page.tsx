@@ -5,9 +5,9 @@ export const dynamic = "force-dynamic";
 
 function StatTile({ label, value }: { label: string; value: number }) {
   return (
-    <div className="rounded-lg border border-black/10 dark:border-white/10 p-4">
-      <p className="text-xs text-black/50 dark:text-white/50">{label}</p>
-      <p className="text-2xl font-semibold tabular-nums mt-1">{value.toLocaleString()}</p>
+    <div className="rounded-2xl card-surface p-4 shadow-sm">
+      <p className="text-xs text-muted">{label}</p>
+      <p className="font-display text-2xl font-bold tabular-nums mt-1">{value.toLocaleString()}</p>
     </div>
   );
 }
@@ -17,7 +17,7 @@ export default async function AdminDashboardPage() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold tracking-tight">Dashboard</h1>
+      <h1 className="font-display text-2xl font-bold tracking-tight">Dashboard</h1>
 
       <div className="grid gap-4 grid-cols-2 sm:grid-cols-3 lg:grid-cols-6">
         <StatTile label="Institutions" value={stats.institutionCount} />
@@ -30,16 +30,16 @@ export default async function AdminDashboardPage() {
 
       <AnalyticsChart data={stats.dailySeries} />
 
-      <div className="rounded-lg border border-black/10 dark:border-white/10 p-4">
-        <h3 className="text-sm font-medium mb-3">Most-viewed pages (14d)</h3>
+      <div className="rounded-2xl card-surface p-4 shadow-sm">
+        <h3 className="text-sm font-semibold mb-3">Most-viewed pages (14d)</h3>
         {stats.topPaths.length === 0 ? (
-          <p className="text-sm text-black/50 dark:text-white/50">No page views recorded yet.</p>
+          <p className="text-sm text-muted">No page views recorded yet.</p>
         ) : (
           <ul className="space-y-1.5 text-sm">
             {stats.topPaths.map((p) => (
               <li key={p.path} className="flex items-center justify-between">
                 <span className="font-mono text-xs">{p.path}</span>
-                <span className="tabular-nums text-black/60 dark:text-white/60">{p.views}</span>
+                <span className="tabular-nums text-muted">{p.views}</span>
               </li>
             ))}
           </ul>

@@ -13,25 +13,25 @@ export default async function AdminInstitutionsPage() {
 
   return (
     <div className="space-y-8">
-      <h1 className="text-2xl font-bold tracking-tight">Institutions</h1>
+      <h1 className="font-display text-2xl font-bold tracking-tight">Institutions</h1>
 
       <form
         action={createInstitution}
-        className="rounded-lg border border-black/10 dark:border-white/10 p-4 grid gap-3 sm:grid-cols-4 items-end"
+        className="rounded-2xl card-surface shadow-sm p-5 grid gap-3 sm:grid-cols-4 items-end"
       >
         <div className="space-y-1 sm:col-span-2">
-          <label className="text-sm font-medium">Name</label>
+          <label className="text-sm font-semibold">Name</label>
           <input
             name="name"
             required
-            className="w-full rounded-md border border-black/15 dark:border-white/15 bg-transparent px-3 py-2"
+            className="w-full rounded-xl border border-border bg-transparent px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand-end"
           />
         </div>
         <div className="space-y-1">
-          <label className="text-sm font-medium">Type</label>
+          <label className="text-sm font-semibold">Type</label>
           <select
             name="type"
-            className="w-full rounded-md border border-black/15 dark:border-white/15 bg-transparent px-3 py-2"
+            className="w-full rounded-xl border border-border bg-transparent px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand-end"
           >
             <option value="BANK">Bank</option>
             <option value="GOVERNMENT">Government</option>
@@ -39,49 +39,49 @@ export default async function AdminInstitutionsPage() {
           </select>
         </div>
         <div className="space-y-1">
-          <label className="text-sm font-medium">Website (optional)</label>
+          <label className="text-sm font-semibold">Website (optional)</label>
           <input
             name="website"
             placeholder="https://…"
-            className="w-full rounded-md border border-black/15 dark:border-white/15 bg-transparent px-3 py-2"
+            className="w-full rounded-xl border border-border bg-transparent px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand-end"
           />
         </div>
         <button
           type="submit"
-          className="sm:col-span-4 justify-self-start rounded-md bg-emerald-700 px-4 py-2 text-white text-sm font-medium hover:bg-emerald-800"
+          className="sm:col-span-4 justify-self-start rounded-xl brand-gradient px-4 py-2 text-white text-sm font-semibold shadow-sm hover:opacity-90 transition-opacity"
         >
           Add institution
         </button>
       </form>
 
-      <div className="overflow-x-auto rounded-lg border border-black/10 dark:border-white/10">
+      <div className="overflow-x-auto rounded-2xl card-surface shadow-sm">
         <table className="w-full text-sm">
-          <thead className="bg-black/5 dark:bg-white/5 text-left">
+          <thead className="bg-foreground/[0.03] text-left">
             <tr>
-              <th className="px-4 py-3 font-medium">Name</th>
-              <th className="px-4 py-3 font-medium">Type</th>
-              <th className="px-4 py-3 font-medium">Products</th>
-              <th className="px-4 py-3 font-medium">Status</th>
+              <th className="px-4 py-3 font-semibold">Name</th>
+              <th className="px-4 py-3 font-semibold">Type</th>
+              <th className="px-4 py-3 font-semibold">Products</th>
+              <th className="px-4 py-3 font-semibold">Status</th>
               <th className="px-4 py-3" />
             </tr>
           </thead>
           <tbody>
             {institutions.map((inst) => (
-              <tr key={inst.id} className="border-t border-black/10 dark:border-white/10">
-                <td className="px-4 py-3 font-medium">{inst.name}</td>
+              <tr key={inst.id} className="border-t border-border">
+                <td className="px-4 py-3 font-semibold">{inst.name}</td>
                 <td className="px-4 py-3">{institutionTypeLabels[inst.type]}</td>
                 <td className="px-4 py-3">{inst._count.products}</td>
                 <td className="px-4 py-3">
                   {inst.isActive ? (
-                    <span className="text-emerald-700 dark:text-emerald-400">Active</span>
+                    <span className="text-emerald-600 dark:text-emerald-400">Active</span>
                   ) : (
-                    <span className="text-black/40 dark:text-white/40">Hidden</span>
+                    <span className="text-muted">Hidden</span>
                   )}
                 </td>
                 <td className="px-4 py-3 text-right">
                   <Link
                     href={`/admin/institutions/${inst.id}`}
-                    className="text-emerald-700 dark:text-emerald-400 hover:underline"
+                    className="text-emerald-600 dark:text-emerald-400 hover:underline font-medium"
                   >
                     Manage
                   </Link>
@@ -90,7 +90,7 @@ export default async function AdminInstitutionsPage() {
             ))}
             {institutions.length === 0 && (
               <tr>
-                <td colSpan={5} className="px-4 py-6 text-center text-black/50 dark:text-white/50">
+                <td colSpan={5} className="px-4 py-6 text-center text-muted">
                   No institutions yet — add one above.
                 </td>
               </tr>

@@ -19,8 +19,8 @@ interface DailyPoint {
 }
 
 const palette = {
-  light: { series1: "#2a78d6", series2: "#eb6834", muted: "#898781", grid: "#e1e0d9", surface: "#fcfcfb", ink: "#0b0b0b" },
-  dark: { series1: "#3987e5", series2: "#d95926", muted: "#898781", grid: "#2c2c2a", surface: "#1a1a19", ink: "#ffffff" },
+  light: { series1: "#2a78d6", series2: "#b8790f", muted: "#5b6b62", grid: "#e6e8e2", surface: "#ffffff", ink: "#10201a" },
+  dark: { series1: "#3987e5", series2: "#c98500", muted: "#9db3a9", grid: "#22322b", surface: "#101c18", ink: "#f3f6f4" },
 };
 
 export function AnalyticsChart({ data }: { data: DailyPoint[] }) {
@@ -28,8 +28,8 @@ export function AnalyticsChart({ data }: { data: DailyPoint[] }) {
   const c = isDark ? palette.dark : palette.light;
 
   return (
-    <div className="rounded-lg border border-black/10 dark:border-white/10 p-4">
-      <h3 className="text-sm font-medium mb-4">Daily visitors &amp; calculator uses (last 14 days)</h3>
+    <div className="rounded-2xl card-surface p-4 shadow-sm">
+      <h3 className="text-sm font-semibold mb-4">Daily visitors &amp; calculator uses (last 14 days)</h3>
       <ResponsiveContainer width="100%" height={280}>
         <LineChart data={data} margin={{ top: 4, right: 8, left: -16, bottom: 0 }}>
           <CartesianGrid stroke={c.grid} vertical={false} />

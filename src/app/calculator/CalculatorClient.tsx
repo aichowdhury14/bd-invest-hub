@@ -1,9 +1,11 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { Crown, ExternalLink } from "lucide-react";
 import type { SerializedProduct } from "@/lib/serialize";
 import { calculateDPSMaturity, calculateLumpSumMaturity } from "@/lib/calculations";
 import { institutionTypeLabels, isRecurringProduct, productTypeLabels } from "@/lib/labels";
+import { institutionTypeStyle } from "@/lib/institution-style";
 import { useSessionId } from "@/lib/useSessionId";
 import { trackCalculatorUse } from "@/lib/analytics";
 import type { ProductType } from "@prisma/client";
@@ -104,6 +106,8 @@ export function CalculatorClient({ products }: { products: SerializedProduct[] }
       .sort((a, b) => (b.maturityAmount ?? -1) - (a.maturityAmount ?? -1));
   }, [products, typeFilter, tenureMonths, amount]);
 
+  const topMaturity = rows.find((r) => r.maturityAmount !== null)?.maturityAmount ?? null;
+
   useEffect(() => {
     if (!sessionId || amount <= 0 || tenureMonths <= 0) return;
     const handle = setTimeout(() => {
@@ -114,7 +118,7 @@ export function CalculatorClient({ products }: { products: SerializedProduct[] }
 
   if (tenureOptions.length === 0) {
     return (
-      <div className="rounded-lg border border-dashed border-black/20 dark:border-white/20 p-8 text-center text-black/60 dark:text-white/60">
+      <div className="rounded-2xl border border-dashed border-border p-10 text-center text-muted">
         No rate data has been added yet, so there is nothing to calculate. Check back once the
         admin has added institutions and rates.
       </div>
@@ -123,32 +127,37 @@ export function CalculatorClient({ products }: { products: SerializedProduct[] }
 
   return (
     <div className="space-y-6">
-      <div className="rounded-lg border border-black/10 dark:border-white/10 p-4 sm:p-6 grid gap-6 sm:grid-cols-2">
+      <div className="rounded-2xl card-surface p-5 sm:p-7 shadow-sm grid gap-7 sm:grid-cols-2">
         <div className="space-y-2">
-          <label htmlFor="amount" className="text-sm font-medium">
+          <label htmlFor="amount" className="text-sm font-semibold">
             {typeFilter === "ALL"
               ? "Amount (lump sum — treated as the monthly deposit for DPS rows)"
-              : isRecurringProductType(typeFilter, products)
+              : isRecurringProductType(typeFilter)
                 ? "Amount (per month)"
                 : "Amount (BDT)"}
           </label>
-          <input
-            id="amount"
-            type="number"
-            min={0}
-            step={1000}
-            value={amount}
-            onChange={(e) => setAmount(Number(e.target.value))}
-            className="w-full rounded-md border border-black/15 dark:border-white/15 bg-transparent px-3 py-2 text-lg tabular-nums focus:outline-none focus:ring-2 focus:ring-emerald-600"
-          />
+          <div className="relative">
+            <span className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-muted font-display font-semibold">
+              ৳
+            </span>
+            <input
+              id="amount"
+              type="number"
+              min={0}
+              step={1000}
+              value={amount}
+              onChange={(e) => setAmount(Number(e.target.value))}
+              className="w-full rounded-xl border border-border bg-transparent pl-8 pr-3 py-2.5 text-lg font-semibold tabular-nums focus:outline-none focus:ring-2 focus:ring-brand-end"
+            />
+          </div>
         </div>
 
         <div className="space-y-2">
           <div className="flex items-center justify-between text-sm">
-            <label htmlFor="tenure" className="font-medium">
+            <label htmlFor="tenure" className="font-semibold">
               Tenure
             </label>
-            <span className="tabular-nums text-black/70 dark:text-white/70">
+            <span className="tabular-nums rounded-full bg-foreground/5 px-2.5 py-0.5 text-xs font-semibold">
               {formatTenure(tenureMonths)}
             </span>
           </div>
@@ -160,101 +169,97 @@ export function CalculatorClient({ products }: { products: SerializedProduct[] }
             step={1}
             value={tenureIndex}
             onChange={(e) => setTenureIndex(Number(e.target.value))}
-            className="w-full accent-emerald-700"
+            className="w-full accent-current h-2 mt-3.5"
+            style={{ color: "var(--brand-end)" }}
           />
-          <div className="flex justify-between text-xs text-black/40 dark:text-white/40">
+          <div className="flex justify-between text-xs text-muted">
             <span>{formatTenure(tenureOptions[0])}</span>
             <span>{formatTenure(tenureOptions[tenureOptions.length - 1])}</span>
           </div>
         </div>
 
         <div className="space-y-2 sm:col-span-2">
-          <label htmlFor="type" className="text-sm font-medium">
+          <label htmlFor="type" className="text-sm font-semibold">
             Product type
           </label>
-          <select
-            id="type"
-            value={typeFilter}
-            onChange={(e) => setTypeFilter(e.target.value as ProductType | "ALL")}
-            className="w-full sm:w-64 rounded-md border border-black/15 dark:border-white/15 bg-transparent px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-600"
-          >
-            <option value="ALL">All types</option>
+          <div className="flex flex-wrap gap-2">
+            <FilterChip active={typeFilter === "ALL"} onClick={() => setTypeFilter("ALL")}>
+              All types
+            </FilterChip>
             {productTypes.map((type) => (
-              <option key={type} value={type}>
+              <FilterChip key={type} active={typeFilter === type} onClick={() => setTypeFilter(type)}>
                 {productTypeLabels[type]}
-              </option>
+              </FilterChip>
             ))}
-          </select>
+          </div>
         </div>
       </div>
 
-      <div className="overflow-x-auto rounded-lg border border-black/10 dark:border-white/10">
+      <div className="overflow-x-auto rounded-2xl card-surface shadow-sm">
         <table className="w-full text-sm">
-          <thead className="bg-black/5 dark:bg-white/5 text-left">
+          <thead className="bg-foreground/[0.03] text-left">
             <tr>
-              <th className="px-4 py-3 font-medium">Institution</th>
-              <th className="px-4 py-3 font-medium">Product</th>
-              <th className="px-4 py-3 font-medium text-right">Rate</th>
-              <th className="px-4 py-3 font-medium text-right">Maturity amount</th>
-              <th className="px-4 py-3 font-medium text-right">Interest earned</th>
-              <th className="px-4 py-3 font-medium">Source</th>
+              <th className="px-4 py-3.5 font-semibold">Institution</th>
+              <th className="px-4 py-3.5 font-semibold">Product</th>
+              <th className="px-4 py-3.5 font-semibold text-right">Rate</th>
+              <th className="px-4 py-3.5 font-semibold text-right">Maturity amount</th>
+              <th className="px-4 py-3.5 font-semibold text-right">Interest earned</th>
+              <th className="px-4 py-3.5 font-semibold">Source</th>
             </tr>
           </thead>
           <tbody>
-            {rows.map((row) => (
-              <tr
-                key={row.product.id}
-                className="border-t border-black/10 dark:border-white/10"
-              >
-                <td className="px-4 py-3">
-                  <div className="font-medium">{row.product.institutionName}</div>
-                  <div className="text-xs text-black/50 dark:text-white/50">
-                    {institutionTypeLabels[row.product.institutionType]}
-                  </div>
-                </td>
-                <td className="px-4 py-3">
-                  {productTypeLabels[row.product.productType]}
-                  {isRecurringProduct(row.product.productType) && (
-                    <span className="block text-xs text-black/40 dark:text-white/40">
-                      amount = monthly deposit
-                    </span>
-                  )}
-                </td>
-                {row.tier ? (
-                  <>
-                    <td className="px-4 py-3 text-right tabular-nums">
-                      {row.tier.interestRatePct.toFixed(2)}%
-                    </td>
-                    <td className="px-4 py-3 text-right tabular-nums font-medium">
-                      {bdt.format(row.maturityAmount ?? 0)}
-                    </td>
-                    <td className="px-4 py-3 text-right tabular-nums text-emerald-700 dark:text-emerald-400">
-                      {bdt.format(row.totalInterest ?? 0)}
-                    </td>
-                    <td className="px-4 py-3 text-xs text-black/50 dark:text-white/50">
-                      {row.tier.source === "SCRAPED" ? "Scraped" : "Manual"}
-                      {row.tier.sourceUrl && (
-                        <>
-                          {" · "}
+            {rows.map((row) => {
+              const style = institutionTypeStyle[row.product.institutionType];
+              const isTop = row.maturityAmount !== null && row.maturityAmount === topMaturity;
+              return (
+                <tr key={row.product.id} className={`border-t border-border ${isTop ? "bg-accent/10" : ""}`}>
+                  <td className="px-4 py-3.5">
+                    <div className="flex items-center gap-2">
+                      {isTop && <Crown className="h-4 w-4 text-accent shrink-0" strokeWidth={2.25} />}
+                      <div>
+                        <div className="font-semibold">{row.product.institutionName}</div>
+                        <span
+                          className={`inline-block mt-0.5 rounded-full px-2 py-0.5 text-[11px] font-medium ${style.badge}`}
+                        >
+                          {institutionTypeLabels[row.product.institutionType]}
+                        </span>
+                      </div>
+                    </div>
+                  </td>
+                  <td className="px-4 py-3.5">{productTypeLabels[row.product.productType]}</td>
+                  {row.tier ? (
+                    <>
+                      <td className="px-4 py-3.5 text-right tabular-nums font-medium">
+                        {row.tier.interestRatePct.toFixed(2)}%
+                      </td>
+                      <td className="px-4 py-3.5 text-right tabular-nums font-display font-bold text-base">
+                        {bdt.format(row.maturityAmount ?? 0)}
+                      </td>
+                      <td className="px-4 py-3.5 text-right tabular-nums text-emerald-600 dark:text-emerald-400 font-medium">
+                        +{bdt.format(row.totalInterest ?? 0)}
+                      </td>
+                      <td className="px-4 py-3.5 text-xs text-muted">
+                        {row.tier.source === "SCRAPED" ? "Scraped" : "Manual"}
+                        {row.tier.sourceUrl && (
                           <a
                             href={row.tier.sourceUrl}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="underline hover:text-emerald-700 dark:hover:text-emerald-400"
+                            className="inline-flex items-center gap-0.5 ml-1.5 underline decoration-dotted hover:text-foreground"
                           >
-                            source
+                            source <ExternalLink className="h-3 w-3" />
                           </a>
-                        </>
-                      )}
+                        )}
+                      </td>
+                    </>
+                  ) : (
+                    <td colSpan={4} className="px-4 py-3.5 text-muted italic">
+                      Not offered at this amount/tenure
                     </td>
-                  </>
-                ) : (
-                  <td colSpan={4} className="px-4 py-3 text-black/40 dark:text-white/40 italic">
-                    Not offered at this amount/tenure
-                  </td>
-                )}
-              </tr>
-            ))}
+                  )}
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>
@@ -262,7 +267,31 @@ export function CalculatorClient({ products }: { products: SerializedProduct[] }
   );
 }
 
-function isRecurringProductType(filter: ProductType | "ALL", products: SerializedProduct[]) {
+function FilterChip({
+  active,
+  onClick,
+  children,
+}: {
+  active: boolean;
+  onClick: () => void;
+  children: React.ReactNode;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`rounded-full px-3.5 py-1.5 text-sm font-medium transition-colors ${
+        active
+          ? "brand-gradient text-white shadow-sm"
+          : "bg-foreground/5 text-muted hover:bg-foreground/10 hover:text-foreground"
+      }`}
+    >
+      {children}
+    </button>
+  );
+}
+
+function isRecurringProductType(filter: ProductType | "ALL") {
   if (filter === "ALL") return false;
   return isRecurringProduct(filter);
 }
