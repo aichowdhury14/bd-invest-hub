@@ -65,6 +65,10 @@ async function main() {
     });
     await ensureProductShell(inst.id, "FDR", "Fixed Deposit Receipt", 3, 36);
     await ensureProductShell(inst.id, "DPS", "Deposit Pension Scheme", 12, 120);
+    // The City Bank additionally runs a distinct long-tenure insurance-linked DPS
+    if (name === "The City Bank") {
+      await ensureProductShell(inst.id, "DPS", "Insurance-Backed DPS", 60, 240);
+    }
   }
 
   // --- Government instruments (structure only, no rates) ----------------------

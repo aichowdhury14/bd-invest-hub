@@ -417,6 +417,111 @@ fixes — result: zero gaps remaining. Every institution/product either has a
 real sourced rate or does not exist in the database at all (no institution is
 left showing a permanently empty row for no reason).
 
+## THIRD FOLLOW-UP (2026-08-29): UCB, Jamuna Bank, and a full long-tenure re-audit
+
+User added two banks with specific URLs, then asked for a broader check: many BD
+banks run DPS schemes out to 15-20 years and FDR out to 10-15 years, and the
+concern was that earlier research may have truncated to short/common tenures.
+
+### United Commercial Bank (UCB) — NEW
+FDR: https://www.ucb.com.bd/banking/retail-banking/ucb-earning-plus-fixed-deposit-uepfd/
+UEPFD, quarterly-payout column, tenor explicitly "1 to 10 years": 1-3yr @10.00%,
+4-10yr @8.25%. Entered at 12/24/36mo and 48/60/84/120mo.
+DPS: https://www.ucb.com.bd/banking/retail-banking/ucb-superflex-dps/
+Super Flex DPS publishes only ONE maturity-value example per tenure (not
+multiple amounts like Dhaka Bank), so back-solved rate has lower confidence —
+no cross-validation was possible. Tenures 1/2/3/5/10yr, back-solved rates
+11.20/10.30/10.28/10.31/10.14%. Re-audit (2026-08-29) confirmed both tenure
+lists are complete (nothing beyond 10yr for either product) and confirmed no
+second data point exists anywhere on the site to improve DPS confidence.
+
+### Jamuna Bank — NEW
+DPS: user-supplied PDF, https://jamunabankbd.com/wp-content/uploads/2026/08/Rates-of-Deposit-Schemes_PP-1.pdf
+This PDF is a large "Deposit Schemes" deck with ~15 named schemes (Education,
+NRB Monthly Saving, Marriage up to 18yr, Rural up to 18yr, Millionaire,
+Kotipati, Pension, Hajj, etc.) — only "Monthly Savings Scheme" was entered
+(the generic/general one), cross-validated at 2 deposit amounts per tenure
+(500 and 1000 Tk), confirmed a clean fit: 3yr 9.50%, 5/8/10yr 9.00% flat.
+Re-audit (2026-08-29) confirmed this scheme tops out at 10 years, matching.
+FDR: NOT entered. The bank's FDR/MTDR sheet (originally found: March 2025,
+superseded during re-audit by a newer Aug 9 2026 doc) publishes only
+tenure-tiered RANGES (e.g. 3mo: 7.25-9.75%), never a specific rate, and no
+tenure beyond 12 months exists on either version — same reasoning as
+Standard Chartered's exclusion.
+
+### Full long-tenure re-audit (5 parallel research passes against the exact
+same sources already on file, hunting specifically for tenures beyond what
+was captured)
+
+**Confirmed already complete, no changes** (the "common tenures" originally
+captured turned out to be the bank's actual full range): Sonali Bank, Janata
+Bank, Agrani Bank, Rupali Bank, Islami Bank Bangladesh, Dutch-Bangla Bank FDR,
+Eastern Bank FDR, Prime Bank FDR, Bank Asia (both), IFIC DPS, IDLC FDR,
+LankaBangla FDR (also corrected effective-date label: source now reads
+"Effective From April 27, 2026", not April 2025), IPDC (both), UCB (both).
+
+**Extended with newly-found longer tenures, same product, same source:**
+- Dutch-Bangla Bank DPS: added 96mo (8yr) @ 9.50% — scheme runs 3/5/8/10yr
+- BRAC Bank FDR (FRABR): added 60/84mo @ 8.25% — full list is 6/12/14/18/24/36/60/84mo
+- BRAC Bank DPS (FRFLX): added 60/84/120mo @ 9.00% — confirmed open-ended to 10yr at the Year-3+ rate
+- Eastern Bank DPS (EBL Confidence): added 48/72/96/108/120/144/168/180mo — full published table runs 1-15yr, 9.00% through yr6 then 8.75% yr7+
+- Prime Bank DPS (Kotipoti): added 84/144/180mo — exact tenure set is 60/84/120/144/180mo only (36/48/240 explicitly "not offered")
+- NCC Bank DPS (Kotipoti/Millionaire): added 36/48/180/240mo — full list is 2/3/4/5/10/15/20yr, flat 10.00%
+- Southeast Bank FDR: added the 6-month tier (5 amount bands) — this data was already captured during original research but never entered into the import script, an oversight now fixed
+- IFIC Bank FDR: added 1mo flat rate + full 6/24/36mo tiered tables — original entries only covered 3mo/12mo despite the source having a complete 1/3/6/12/24/36mo x 6-bracket table
+- The City Bank: extended General DPS to 60/120mo (confirmed step at month 37: 8.50% through 36mo, 9.00% from 37mo to 120mo)
+- Bangladesh Treasury Bond: added 3yr tenor @ 9.90% (current auction schedule includes 2/3/5/10/15/20yr, not just the 5 previously captured)
+- IDLC Finance DPS: added 120/300mo — confirmed flat 9.00% across the entire published "2 to 25 years" range, no step-ups
+
+**New product added:** The City Bank "Insurance-Backed DPS" — a distinct
+long-tenure product (not a tenure extension of General DPS), individuals only,
+flat 8.50% across 5/10/15/20yr. Added as its own RateProduct since mixing it
+into General DPS's numbers would have misrepresented two different products
+as one continuum.
+
+**Dhaka Bank FDR — switched products.** Was using "Special FD (SME & Corp)"
+(capped at 12mo). Re-audit found "Regular Fixed Deposit" is the more
+representative general-public product and extends to 24 months: 1/3/6/12/18/24mo
+@ 4.00/7.75/8.00/8.25/8.25/8.25%. Confirmed via re-audit that NO Dhaka Bank FDR
+product (Regular/Plus/Senior Citizen/Aroni/Obiram/Corporate Supreme) exceeds 24
+months — that is the genuine ceiling, not a truncation.
+
+**Deliberately NOT added** (imprecise, ambiguous, or unverifiable data —
+consistent with the "only enter what's verifiable" rule):
+- Mutual Trust Bank's additional 1/2/6/9-month and day-based FDR tenures — agent
+  could only get an approximate range ("~3.5-8.5%"), not exact per-bracket figures
+- NCC Bank FDR 24/36-month tiers — agent confirmed they exist but could only give
+  an approximate range, not exact per-bracket numbers matching the existing 4-tier structure
+- Uttara Bank's FDR Platinum tiers (Tk 2-25+ Crore brackets) — real, but scoped to
+  ultra-high-net-worth deposits far beyond this app's typical user; skipped as niche,
+  consistent with skipping other banks' senior-citizen/women-only/pension variants
+- Uttara Bank's day-based FDR variants (100/200/300-day) — rates given only as an
+  unresolved range, not exact per-tier numbers
+- Uttara Bank's "Uttaran Kotipoti Deposit Scheme" — the only rate table is embedded
+  as an image (Kotipoti DS(2).png), not machine-readable; would need a human to
+  view it directly
+- Trust Bank's "Trust ECHO" family (a longer-tenure flat-rate alternative to the
+  base tiered FDR) — not added as a separate product to avoid clutter; noted for
+  a future admin-panel addition if wanted
+- The City Bank's day-count FDR variants (91-95 day, 335-380 day, etc.) — the
+  re-audit agent flagged its own extraction as noisy/possibly-scrambled across
+  individual/non-individual/NRB variants; needs a cleaner re-read before trusting
+- The City Bank's "Monthly Interest Paying FD Account" (6mo-5yr) — a distinct
+  product not yet captured, flagged for a future addition
+- Jamuna Bank's FDR — still only published as ranges (see above), not entered
+- Many differently-named long-tenure schemes surfaced during re-audit (Sonali's
+  Millionaire Scheme 4-20yr, Janata's Kotipati/Millionaire/Hajj schemes up to
+  20yr, Rupali's Kotipoti/Lakhpoti/Millionaire family, Islami Bank's Hajj/
+  Education/Housing/Umrah schemes up to 25yr, Prime Bank's Edu DPS/Deposit
+  Premium/Business DPS, Agrani's Pension/Double Benefit/Probash schemes) — these
+  are all real products at real banks but were NOT added, to avoid diluting the
+  cross-bank comparison with dozens of narrowly-eligible variants. A "browse all
+  named products per institution" admin feature would be the right way to
+  surface these later, rather than picking one arbitrarily as if it were "the"
+  bank's rate.
+
+Net result: 299 rate tiers across 54 products, 25 institutions.
+
 ---
 
 ## GROUP 3: The City Bank, Mutual Trust Bank, Standard Chartered BD, Pubali Bank, Uttara Bank
