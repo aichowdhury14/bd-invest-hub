@@ -30,7 +30,11 @@ const BANKS = [
   "IFIC Bank",
 ];
 
-const INVESTMENT_ORGS = ["IPDC Finance Limited", "Shanta Asset Management", "LankaBangla Finance", "IDLC Finance"];
+// Shanta Asset Management was deliberately left out: it's a mutual fund manager,
+// not a deposit-taking institution, so it has no FDR/DPS-style guaranteed rate —
+// see research/rate-research-2026-08-28.md for the analysis of its actual
+// (variable, NAV-based) returns instead.
+const INVESTMENT_ORGS = ["IPDC Finance Limited", "LankaBangla Finance", "IDLC Finance"];
 
 async function main() {
   // --- Admin user -----------------------------------------------------------

@@ -386,6 +386,37 @@ Rate: up to Tk 7.5 lakh: 11.82%; above Tk 7.5 lakh: 11.77%. Same effective windo
 - Deleted "Standard Chartered Bangladesh" institution entirely — kept showing an empty "—" row on the site for no benefit, since no specific rate could ever be honestly published for it (regulatory range only).
 - Both removed via the new scripts/remove-institution.ts utility (also removed from prisma/seed.ts so they aren't recreated on the next seed run).
 
+## SECOND FOLLOW-UP (2026-08-28, third pass)
+
+### Uttara Bank DPS — RESOLVED
+The bank's rate-summary page (/home/interestrate) states a single flat rate,
+"Monthly Deposit Scheme (MDS) ... 10.00%" (as-on 09-Aug-2026), with no tenure
+breakdown. The bank's dedicated MDS product page
+(https://www.uttarabank-bd.com/index.php/home/depositproduct/5, via r.jina.ai
+proxy — direct fetch got a 403) states "Tenure: 05 years & 10 years" but embeds
+the actual rate in an image chart rather than text. Combined the two: entered
+at 60mo and 120mo, both 10.00% — this is combining two of the bank's own
+official pages, not a guess, but flagged here since no single page states both
+facts together.
+
+### Shanta Asset Management — REMOVED (institution deleted)
+Per user instruction ("remove those or apply other mechanisms if you think"),
+decided to remove rather than force it into the fixed-rate schema. It's an
+open-end mutual fund with variable, NAV-based returns (see the earlier analysis
+above: 1yr trailing return 15.69%, but dividend history ranged 0%-8% by year) —
+structurally not a deposit-taking institution and can never have a genuine
+guaranteed FDR/DPS-style rate. Forcing its historical return into the
+guaranteed-rate calculator would misrepresent it. Removed via
+scripts/remove-institution.ts and from prisma/seed.ts's INVESTMENT_ORGS list.
+A proper "Mutual Funds" feature (variable NAV tracking, no guaranteed-maturity
+calculator) would be the right way to bring it back — noted as a Phase 2/3 idea.
+
+### Full audit result
+Queried every product in the database for zero rate tiers after the above two
+fixes — result: zero gaps remaining. Every institution/product either has a
+real sourced rate or does not exist in the database at all (no institution is
+left showing a permanently empty row for no reason).
+
 ---
 
 ## GROUP 3: The City Bank, Mutual Trust Bank, Standard Chartered BD, Pubali Bank, Uttara Bank

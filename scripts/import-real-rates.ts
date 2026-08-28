@@ -282,6 +282,11 @@ const entries: RateEntry[] = [
   { institutionName: "Uttara Bank", productType: "FDR", tenureMonths: 12, minAmount: 0, interestRatePct: 9.0, sourceUrl: "https://www.uttarabank-bd.com/home/interestrate" },
   { institutionName: "Uttara Bank", productType: "FDR", tenureMonths: 24, minAmount: 0, interestRatePct: 9.0, sourceUrl: "https://www.uttarabank-bd.com/home/interestrate" },
   { institutionName: "Uttara Bank", productType: "FDR", tenureMonths: 36, minAmount: 0, interestRatePct: 9.0, sourceUrl: "https://www.uttarabank-bd.com/home/interestrate" },
+  // Monthly Deposit Scheme (MDS): tenure (5/10yr) came from the dedicated product
+  // page, rate (flat 10.00%, no per-tenure breakdown given) from the bank's rate
+  // summary page — combining two of the bank's own official pages, not a guess.
+  { institutionName: "Uttara Bank", productType: "DPS", tenureMonths: 60, minAmount: 0, interestRatePct: 10.0, sourceUrl: "https://www.uttarabank-bd.com/index.php/home/depositproduct/5" },
+  { institutionName: "Uttara Bank", productType: "DPS", tenureMonths: 120, minAmount: 0, interestRatePct: 10.0, sourceUrl: "https://www.uttarabank-bd.com/index.php/home/depositproduct/5" },
 
   // --- The City Bank --- fetched via rendering proxy (JS-only SPA, no static HTML); no effective date stated on page, verified live 2026-08-28
   { institutionName: "The City Bank", productType: "FDR", tenureMonths: 3, minAmount: 0, maxAmount: 50 * LAC, interestRatePct: 8.0, sourceUrl: "https://www.citybankplc.com/gsi/conventional-banking-products" },
