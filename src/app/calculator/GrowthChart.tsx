@@ -14,8 +14,8 @@ import { useIsDark } from "@/lib/useIsDark";
 import type { GrowthPoint } from "@/lib/calculations";
 
 const palette = {
-  light: { contributed: "#5b6b62", interest: "#0a5a45", muted: "#5b6b62", grid: "#e6e8e2", surface: "#ffffff", ink: "#10201a" },
-  dark: { contributed: "#9db3a9", interest: "#1fae82", muted: "#9db3a9", grid: "#22322b", surface: "#101c18", ink: "#f3f6f4" },
+  light: { contributed: "#d99a2b", interest: "#1baf7a", muted: "#5b6b62", grid: "#e6e8e2", surface: "#ffffff", ink: "#10201a" },
+  dark: { contributed: "#c98500", interest: "#199e70", muted: "#9db3a9", grid: "#22322b", surface: "#101c18", ink: "#f3f6f4" },
 };
 
 const bdt = new Intl.NumberFormat("en-BD", {

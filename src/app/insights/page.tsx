@@ -1,20 +1,51 @@
-import { BrainCircuit, Crown, TrendingUp } from "lucide-react";
+import { BrainCircuit, Crown, LayoutGrid, TrendingUp, Trophy } from "lucide-react";
 import { Container } from "@/components/Container";
-import { getCategoryStats, getTopRate, getTrendStatus, getYieldCurve } from "@/lib/insights";
+import {
+  getCategoryStats,
+  getFDRHeatmap,
+  getGovernmentInstrumentRates,
+  getInstitutionComposition,
+  getTopRate,
+  getTopRates,
+  getTrendStatus,
+  getYieldCurve,
+} from "@/lib/insights";
 import { institutionTypeLabels } from "@/lib/labels";
 import { institutionTypeStyle } from "@/lib/institution-style";
-import { CategoryBarChart, YieldCurveChart } from "./charts";
+import {
+  CategoryBarChart,
+  CompositionDonut,
+  GovtInstrumentsChart,
+  RateHeatmap,
+  TopRatesLeaderboard,
+  YieldCurveChart,
+} from "./charts";
 
 export const revalidate = 300;
 
 export default async function InsightsPage() {
-  const [fdrCurve, dpsCurve, fdrStats, dpsStats, topRate, trendStatus] = await Promise.all([
+  const [
+    fdrCurve,
+    dpsCurve,
+    fdrStats,
+    dpsStats,
+    topRate,
+    topRates,
+    trendStatus,
+    composition,
+    govtRates,
+    heatmap,
+  ] = await Promise.all([
     getYieldCurve("FDR"),
     getYieldCurve("DPS"),
     getCategoryStats("FDR"),
     getCategoryStats("DPS"),
     getTopRate(),
+    getTopRates(10),
     getTrendStatus(),
+    getInstitutionComposition(),
+    getGovernmentInstrumentRates(),
+    getFDRHeatmap(),
   ]);
 
   return (
@@ -56,6 +87,21 @@ export default async function InsightsPage() {
         )}
 
         <section className="space-y-5">
+          <div className="flex items-center gap-2">
+            <Trophy className="h-5 w-5 text-accent" />
+            <h2 className="font-display text-xl font-bold tracking-tight">
+              Top 10 rates right now
+            </h2>
+          </div>
+          <p className="text-sm text-muted -mt-3">
+            The single best-paying options across every institution, product, and tenure we track.
+          </p>
+          <div className="rounded-2xl card-surface p-4 sm:p-6 shadow-sm">
+            <TopRatesLeaderboard data={topRates} />
+          </div>
+        </section>
+
+        <section className="space-y-5">
           <div>
             <h2 className="font-display text-xl font-bold tracking-tight">
               Fixed Deposit (FDR) yield curve
@@ -72,9 +118,7 @@ export default async function InsightsPage() {
 
         <section className="space-y-5">
           <div>
-            <h2 className="font-display text-xl font-bold tracking-tight">
-              DPS yield curve
-            </h2>
+            <h2 className="font-display text-xl font-bold tracking-tight">DPS yield curve</h2>
             <p className="text-sm text-muted mt-1">
               Same idea for recurring monthly-deposit schemes.
             </p>
@@ -100,13 +144,52 @@ export default async function InsightsPage() {
         </div>
 
         <section className="space-y-5">
-          <h2 className="font-display text-xl font-bold tracking-tight">By the numbers</h2>
-          <div className="grid gap-4 sm:grid-cols-3">
-            <CategoryCard type="BANK" stat={fdrStats.find((s) => s.type === "BANK")} />
-            <CategoryCard type="GOVERNMENT" stat={fdrStats.find((s) => s.type === "GOVERNMENT")} />
-            <CategoryCard type="INVESTMENT_ORG" stat={fdrStats.find((s) => s.type === "INVESTMENT_ORG")} />
+          <div className="flex items-center gap-2">
+            <LayoutGrid className="h-5 w-5 text-muted" />
+            <h2 className="font-display text-xl font-bold tracking-tight">
+              FDR rate heatmap
+            </h2>
+          </div>
+          <p className="text-sm text-muted -mt-3">
+            Top institutions by best rate, across the most commonly offered tenures. Darker means
+            a higher rate.
+          </p>
+          <div className="rounded-2xl card-surface p-4 sm:p-6 shadow-sm">
+            <RateHeatmap data={heatmap} />
           </div>
         </section>
+
+        <section className="space-y-5">
+          <h2 className="font-display text-xl font-bold tracking-tight">
+            Government instruments compared
+          </h2>
+          <p className="text-sm text-muted -mt-3">
+            Sanchayapatro variants, Treasury Bonds, and Treasury Bills, side by side.
+          </p>
+          <div className="rounded-2xl card-surface p-4 sm:p-6 shadow-sm">
+            <GovtInstrumentsChart data={govtRates} />
+          </div>
+        </section>
+
+        <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_2fr]">
+          <section className="space-y-5">
+            <h2 className="font-display text-xl font-bold tracking-tight">Who we track</h2>
+            <div className="rounded-2xl card-surface p-4 sm:p-6 shadow-sm">
+              <CompositionDonut data={composition} />
+            </div>
+          </section>
+          <section className="space-y-5">
+            <h2 className="font-display text-xl font-bold tracking-tight">By the numbers</h2>
+            <div className="grid gap-4 sm:grid-cols-3">
+              <CategoryCard type="BANK" stat={fdrStats.find((s) => s.type === "BANK")} />
+              <CategoryCard type="GOVERNMENT" stat={fdrStats.find((s) => s.type === "GOVERNMENT")} />
+              <CategoryCard
+                type="INVESTMENT_ORG"
+                stat={fdrStats.find((s) => s.type === "INVESTMENT_ORG")}
+              />
+            </div>
+          </section>
+        </div>
 
         <section className="rounded-2xl border border-dashed border-border p-6 sm:p-8 space-y-2">
           <div className="flex items-center gap-2">

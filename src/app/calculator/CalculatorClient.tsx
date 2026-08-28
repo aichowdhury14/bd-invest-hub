@@ -1,7 +1,18 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { Crown, ExternalLink, LineChart, ShieldCheck, Sparkles, type LucideIcon } from "lucide-react";
+import {
+  Crown,
+  ExternalLink,
+  Gauge,
+  LineChart,
+  Percent,
+  ShieldCheck,
+  Sparkles,
+  TrendingUp,
+  Zap,
+  type LucideIcon,
+} from "lucide-react";
 import type { SerializedProduct } from "@/lib/serialize";
 import {
   calculateDPSMaturity,
@@ -14,7 +25,16 @@ import { institutionTypeStyle } from "@/lib/institution-style";
 import { useSessionId } from "@/lib/useSessionId";
 import { trackCalculatorUse } from "@/lib/analytics";
 import type { ProductType } from "@prisma/client";
+import {
+  AIT_RATES,
+  CURRENT_INFLATION,
+  aitRateForStatus,
+  realRatePct,
+  type TaxStatus,
+} from "@/lib/economic-context";
 import { GrowthChart } from "./GrowthChart";
+
+type RiskProfile = "CONSERVATIVE" | "BALANCED" | "GROWTH";
 
 const bdt = new Intl.NumberFormat("en-BD", {
   style: "currency",
@@ -59,6 +79,8 @@ export function CalculatorClient({ products }: { products: SerializedProduct[] }
     return defaultIdx >= 0 ? defaultIdx : 0;
   });
   const [typeFilter, setTypeFilter] = useState<ProductType | "ALL">("ALL");
+  const [riskProfile, setRiskProfile] = useState<RiskProfile>("BALANCED");
+  const [taxStatus, setTaxStatus] = useState<TaxStatus>("TIN");
   const sessionId = useSessionId();
 
   const tenureMonths = tenureOptions[tenureIndex] ?? 0;
@@ -114,20 +136,51 @@ export function CalculatorClient({ products }: { products: SerializedProduct[] }
 
   const topMaturity = rows.find((r) => r.maturityAmount !== null)?.maturityAmount ?? null;
 
-  const recommendations = useMemo(() => {
+  const picks = useMemo(() => {
     const offered = rows.filter((r) => r.tier !== null);
+    const byType = (type: "GOVERNMENT" | "BANK" | "INVESTMENT_ORG") =>
+      offered.find((r) => r.product.institutionType === type) ?? null;
     const bestOverall = offered[0] ?? null;
-    const safest =
-      offered.find((r) => r.product.institutionType === "GOVERNMENT") ?? null;
-    const bestBank =
-      offered.find(
-        (r) => r.product.institutionType === "BANK" && r.product.id !== bestOverall?.product.id
-      ) ?? (offered.find((r) => r.product.institutionType === "BANK") ?? null);
-    return { bestOverall, safest, bestBank };
+    const safest = byType("GOVERNMENT");
+    const bestBank = byType("BANK");
+    const bestNBFI = byType("INVESTMENT_ORG");
+    const bestSafe =
+      [safest, bestBank]
+        .filter((r): r is Row => r !== null)
+        .sort((a, b) => (b.maturityAmount ?? -1) - (a.maturityAmount ?? -1))[0] ?? null;
+    return { bestOverall, safest, bestBank, bestNBFI, bestSafe };
   }, [rows]);
 
+  /**
+   * Which 3 cards to show depends on the chosen risk tolerance — a transparent,
+   * rule-based reordering of the same live-rate data, not a hidden scoring model.
+   */
+  const recommendations = useMemo(() => {
+    if (riskProfile === "CONSERVATIVE") {
+      return [
+        { key: "safe", icon: ShieldCheck, label: "Capital-safe pick", row: picks.bestSafe, reasoning: "Best rate among government and bank options only — no NBFI/investment-org risk." },
+        { key: "safest", icon: Gauge, label: "Safest choice", row: picks.safest, reasoning: "Government-backed — Bangladesh Bank / National Savings Directorate instruments carry sovereign backing." },
+        { key: "bank", icon: LineChart, label: "Best at a bank", row: picks.bestBank, reasoning: "Highest-rate regulated commercial bank option at this amount and tenure." },
+      ];
+    }
+    if (riskProfile === "GROWTH") {
+      return [
+        { key: "overall", icon: Crown, label: "Best overall return", row: picks.bestOverall, reasoning: "Highest maturity amount across every tracked institution at this amount and tenure." },
+        { key: "nbfi", icon: Zap, label: "Highest-rate NBFI", row: picks.bestNBFI, reasoning: "Investment organizations/NBFIs often price above banks — carries different risk than a bank or government instrument." },
+        { key: "bank", icon: LineChart, label: "Best at a bank", row: picks.bestBank, reasoning: "Highest-rate regulated commercial bank option at this amount and tenure." },
+      ];
+    }
+    return [
+      { key: "overall", icon: Crown, label: "Best overall return", row: picks.bestOverall, reasoning: "Highest maturity amount across every tracked institution at this amount and tenure." },
+      { key: "safest", icon: ShieldCheck, label: "Safest choice", row: picks.safest, reasoning: "Government-backed — Bangladesh Bank / National Savings Directorate instruments carry sovereign backing." },
+      { key: "bank", icon: LineChart, label: "Best at a bank", row: picks.bestBank, reasoning: "Highest-rate regulated commercial bank option at this amount and tenure." },
+    ];
+  }, [riskProfile, picks]);
+
+  const topPick = picks.bestOverall;
+
   const growthSeries = useMemo(() => {
-    const pick = recommendations.bestOverall;
+    const pick = topPick;
     if (!pick || !pick.tier || amount <= 0) return null;
     if (isRecurringProduct(pick.product.productType)) {
       return dpsGrowthSeries({
@@ -143,7 +196,24 @@ export function CalculatorClient({ products }: { products: SerializedProduct[] }
       tenureMonths,
       compounding: pick.product.compounding,
     });
-  }, [recommendations, amount, tenureMonths]);
+  }, [topPick, amount, tenureMonths]);
+
+  /** Net-of-tax and inflation-adjusted context for the top pick — real, sourced figures. */
+  const taxAndInflation = useMemo(() => {
+    if (!topPick || !topPick.tier || topPick.totalInterest === null || topPick.maturityAmount === null) {
+      return null;
+    }
+    const aitPct = aitRateForStatus(taxStatus);
+    const netInterest = topPick.totalInterest * (1 - aitPct / 100);
+    const netMaturity = (topPick.totalContribution ?? 0) + netInterest;
+    return {
+      aitPct,
+      netInterest,
+      netMaturity,
+      nominalRatePct: topPick.tier.interestRatePct,
+      realRatePct: realRatePct(topPick.tier.interestRatePct),
+    };
+  }, [topPick, taxStatus]);
 
   useEffect(() => {
     if (!sessionId || amount <= 0 || tenureMonths <= 0) return;
@@ -230,52 +300,114 @@ export function CalculatorClient({ products }: { products: SerializedProduct[] }
             ))}
           </div>
         </div>
+
+        <div className="space-y-2">
+          <label className="text-sm font-semibold flex items-center gap-1.5">
+            <Gauge className="h-3.5 w-3.5 text-muted" />
+            Risk tolerance
+          </label>
+          <div className="flex flex-wrap gap-2">
+            <FilterChip active={riskProfile === "CONSERVATIVE"} onClick={() => setRiskProfile("CONSERVATIVE")}>
+              Conservative
+            </FilterChip>
+            <FilterChip active={riskProfile === "BALANCED"} onClick={() => setRiskProfile("BALANCED")}>
+              Balanced
+            </FilterChip>
+            <FilterChip active={riskProfile === "GROWTH"} onClick={() => setRiskProfile("GROWTH")}>
+              Growth
+            </FilterChip>
+          </div>
+        </div>
+
+        <div className="space-y-2">
+          <label className="text-sm font-semibold flex items-center gap-1.5">
+            <Percent className="h-3.5 w-3.5 text-muted" />
+            Tax status (for net-of-tax figures)
+          </label>
+          <div className="flex flex-wrap gap-2">
+            <FilterChip active={taxStatus === "TIN"} onClick={() => setTaxStatus("TIN")}>
+              Have TIN ({AIT_RATES.withTin}%)
+            </FilterChip>
+            <FilterChip active={taxStatus === "NO_TIN"} onClick={() => setTaxStatus("NO_TIN")}>
+              No TIN ({AIT_RATES.withoutTin}%)
+            </FilterChip>
+            <FilterChip active={taxStatus === "EXEMPT"} onClick={() => setTaxStatus("EXEMPT")}>
+              Tax-exempt
+            </FilterChip>
+          </div>
+        </div>
       </div>
 
-      {(recommendations.bestOverall || recommendations.safest || recommendations.bestBank) && (
+      {recommendations.some((r) => r.row) && (
         <div className="space-y-3">
           <div className="flex items-center gap-2">
             <Sparkles className="h-4 w-4 text-accent" />
             <h2 className="font-display font-bold">Smart Recommendations</h2>
             <span className="text-xs text-muted">
-              — ranked from today&apos;s live rates, not a prediction
+              — ranked from today&apos;s live rates for a {riskProfile.toLowerCase()} profile, not a
+              prediction
             </span>
           </div>
           <div className="grid gap-4 sm:grid-cols-3">
-            <RecommendationCard
-              icon={Crown}
-              label="Best overall return"
-              row={recommendations.bestOverall}
-              reasoning="Highest maturity amount across every tracked institution at this amount and tenure."
-            />
-            <RecommendationCard
-              icon={ShieldCheck}
-              label="Safest choice"
-              row={recommendations.safest}
-              reasoning="Government-backed — Bangladesh Bank / National Savings Directorate instruments carry sovereign backing."
-            />
-            <RecommendationCard
-              icon={LineChart}
-              label="Best at a bank"
-              row={recommendations.bestBank}
-              reasoning="Highest-rate regulated commercial bank option at this amount and tenure."
-            />
+            {recommendations.map((rec) => (
+              <RecommendationCard
+                key={rec.key}
+                icon={rec.icon}
+                label={rec.label}
+                row={rec.row}
+                reasoning={rec.reasoning}
+              />
+            ))}
           </div>
         </div>
       )}
 
-      {growthSeries && recommendations.bestOverall && (
-        <div className="rounded-2xl card-surface p-5 sm:p-7 shadow-sm space-y-3">
+      {growthSeries && topPick && (
+        <div className="rounded-2xl card-surface p-5 sm:p-7 shadow-sm space-y-4">
           <div>
             <h2 className="font-display font-bold">
-              How your money grows — {recommendations.bestOverall.product.institutionName}
+              How your money grows — {topPick.product.institutionName}
             </h2>
             <p className="text-sm text-muted mt-0.5">
-              {recommendations.bestOverall.product.name}, {recommendations.bestOverall.tier?.interestRatePct.toFixed(2)}%
-              over {formatTenure(tenureMonths)}
+              {topPick.product.name}, {topPick.tier?.interestRatePct.toFixed(2)}% over{" "}
+              {formatTenure(tenureMonths)}
             </p>
           </div>
           <GrowthChart series={growthSeries} />
+
+          {taxAndInflation && (
+            <div className="grid gap-4 sm:grid-cols-2 pt-2 border-t border-border">
+              <div className="flex items-start gap-2.5">
+                <span className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-foreground/5 text-muted">
+                  <TrendingUp className="h-4 w-4" />
+                </span>
+                <div>
+                  <p className="text-sm font-semibold">
+                    Real return: {taxAndInflation.realRatePct.toFixed(2)}%
+                  </p>
+                  <p className="text-xs text-muted leading-relaxed">
+                    {taxAndInflation.nominalRatePct.toFixed(2)}% nominal minus{" "}
+                    {CURRENT_INFLATION.ratePct}% inflation ({CURRENT_INFLATION.period}, {CURRENT_INFLATION.source}
+                    ) — approximate, not compounded.
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-start gap-2.5">
+                <span className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-foreground/5 text-muted">
+                  <Percent className="h-4 w-4" />
+                </span>
+                <div>
+                  <p className="text-sm font-semibold">
+                    After tax ({taxAndInflation.aitPct}% AIT): {bdt.format(taxAndInflation.netMaturity)}
+                  </p>
+                  <p className="text-xs text-muted leading-relaxed">
+                    Net interest {bdt.format(taxAndInflation.netInterest)} — source tax under NBR Income
+                    Tax Ordinance s.53F, deducted at the bank before payout.
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       )}
 
