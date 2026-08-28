@@ -76,6 +76,7 @@ export function CompareClient({ products }: { products: SerializedProduct[] }) {
               />
               <span>
                 <span className="block font-semibold">{product.institutionName}</span>
+                <span className="block text-xs text-muted">{product.name}</span>
                 <span className={`inline-block mt-1 rounded-full px-2 py-0.5 text-[11px] font-medium ${style.badge}`}>
                   {productTypeLabels[product.productType]}
                 </span>
@@ -103,6 +104,7 @@ export function CompareClient({ products }: { products: SerializedProduct[] }) {
                 </button>
                 <div className="pr-6">
                   <h3 className="font-display font-semibold leading-snug">{product.institutionName}</h3>
+                  <p className="text-xs text-muted mt-0.5">{product.name}</p>
                   <span className={`inline-block mt-1.5 rounded-full px-2 py-0.5 text-[11px] font-medium ${style.badge}`}>
                     {institutionTypeLabels[product.institutionType]} · {productTypeLabels[product.productType]}
                   </span>

@@ -226,7 +226,10 @@ export function CalculatorClient({ products }: { products: SerializedProduct[] }
                       </div>
                     </div>
                   </td>
-                  <td className="px-4 py-3.5">{productTypeLabels[row.product.productType]}</td>
+                  <td className="px-4 py-3.5">
+                    <div className="font-medium">{row.product.name}</div>
+                    <div className="text-xs text-muted">{productTypeLabels[row.product.productType]}</div>
+                  </td>
                   {row.tier ? (
                     <>
                       <td className="px-4 py-3.5 text-right tabular-nums font-medium">

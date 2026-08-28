@@ -140,8 +140,10 @@ export default async function HomePage() {
                         {inst.products.map((product) => {
                           const best = bestRateForProduct(product.rateTiers);
                           return (
-                            <li key={product.id} className="flex items-center justify-between text-sm">
-                              <span className="text-muted">{productTypeLabels[product.productType]}</span>
+                            <li key={product.id} className="flex items-center justify-between text-sm gap-2">
+                              <span className="text-muted truncate" title={product.name}>
+                                {product.name}
+                              </span>
                               {best !== null ? (
                                 <span
                                   className={`rounded-full px-2.5 py-0.5 text-xs font-semibold tabular-nums ${style.badge}`}
