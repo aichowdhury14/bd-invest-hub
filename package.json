@@ -14,7 +14,8 @@
     "db:generate": "prisma generate",
     "db:migrate": "prisma migrate dev",
     "db:seed": "tsx prisma/seed.ts",
-    "scrape": "tsx scripts/scrapers/run-all.ts"
+    "scrape": "tsx scripts/scrapers/run-all.ts",
+    "import-rates": "tsx scripts/import-real-rates.ts"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"
