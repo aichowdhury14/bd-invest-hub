@@ -1,0 +1,148 @@
+// Bangladesh Investment Comparison Platform - Database Schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+enum InstitutionType {
+  BANK
+  GOVERNMENT
+  INVESTMENT_ORG
+}
+
+enum ProductType {
+  FDR
+  DPS
+  SANCHAYPATRO
+  TBOND
+  TBILL
+  OTHER
+}
+
+enum Compounding {
+  SIMPLE
+  MONTHLY
+  QUARTERLY
+  YEARLY
+}
+
+enum RateSource {
+  MANUAL
+  SCRAPED
+}
+
+enum ScrapeStatus {
+  SUCCESS
+  FAILURE
+  PARTIAL
+}
+
+enum AdminRole {
+  OWNER
+  EDITOR
+}
+
+model Institution {
+  id          String            @id @default(cuid())
+  name        String
+  type        InstitutionType
+  logoUrl     String?
+  website     String?
+  isActive    Boolean           @default(true)
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+  products    RateProduct[]
+  scrapeLogs  ScrapeLog[]
+
+  @@index([type])
+}
+
+model RateProduct {
+  id              String        @id @default(cuid())
+  institutionId   String
+  institution     Institution   @relation(fields: [institutionId], references: [id], onDelete: Cascade)
+  productType     ProductType
+  name            String
+  compounding     Compounding   @default(QUARTERLY)
+  minTenureMonths Int
+  maxTenureMonths Int
+  minAmount       Decimal?      @db.Decimal(18, 2)
+  isActive        Boolean       @default(true)
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  rateTiers       RateTier[]
+  calculatorEvents CalculatorEvent[]
+
+  @@index([institutionId])
+  @@index([productType])
+}
+
+model RateTier {
+  id               String      @id @default(cuid())
+  productId        String
+  product          RateProduct @relation(fields: [productId], references: [id], onDelete: Cascade)
+  tenureMonths     Int
+  minAmount        Decimal     @db.Decimal(18, 2)
+  maxAmount        Decimal?    @db.Decimal(18, 2)
+  interestRatePct  Decimal     @db.Decimal(6, 3)
+  effectiveFrom    DateTime    @default(now())
+  source           RateSource  @default(MANUAL)
+  sourceUrl        String?
+  scrapedAt        DateTime?
+  createdAt        DateTime    @default(now())
+  updatedAt        DateTime    @updatedAt
+
+  @@index([productId])
+  @@index([tenureMonths])
+}
+
+model ScrapeLog {
+  id            String        @id @default(cuid())
+  institutionId String?
+  institution   Institution?  @relation(fields: [institutionId], references: [id], onDelete: SetNull)
+  status        ScrapeStatus
+  message       String?
+  runAt         DateTime      @default(now())
+
+  @@index([institutionId])
+  @@index([runAt])
+}
+
+model CalculatorEvent {
+  id           String       @id @default(cuid())
+  productId    String?
+  product      RateProduct? @relation(fields: [productId], references: [id], onDelete: SetNull)
+  productType  ProductType?
+  amount       Decimal      @db.Decimal(18, 2)
+  tenureMonths Int
+  sessionId    String
+  createdAt    DateTime     @default(now())
+
+  @@index([createdAt])
+  @@index([sessionId])
+}
+
+model PageViewEvent {
+  id        String   @id @default(cuid())
+  path      String
+  referrer  String?
+  sessionId String
+  createdAt DateTime @default(now())
+
+  @@index([createdAt])
+  @@index([path])
+}
+
+model AdminUser {
+  id           String    @id @default(cuid())
+  email        String    @unique
+  passwordHash String
+  role         AdminRole @default(EDITOR)
+  createdAt    DateTime  @default(now())
+}

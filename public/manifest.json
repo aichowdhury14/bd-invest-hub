@@ -1,0 +1,23 @@
+{
+  "name": "BD Invest Hub",
+  "short_name": "BD Invest",
+  "description": "Compare FDR, DPS, Sanchaypatro and investment rates across Bangladesh",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#047857",
+  "icons": [
+    {
+      "src": "/icons/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-maskable.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    }
+  ]
+}
