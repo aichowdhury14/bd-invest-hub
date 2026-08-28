@@ -522,6 +522,21 @@ consistent with the "only enter what's verifiable" rule):
 
 Net result: 299 rate tiers across 54 products, 25 institutions.
 
+## FOURTH FOLLOW-UP (2026-08-29): Jamuna Bank FD Freedom
+
+User supplied a second image containing a specific-rate FDR product, "FD
+Freedom" — resolves the earlier Jamuna Bank FDR gap (the base "FDR/MTDR"
+product was range-only, so nothing was entered for it). FD Freedom is tiered
+by amount (up to 1 Crore / above 1 Crore) across day-count tenures, mapped to
+the nearest month:
+- 91 days (~3mo): 9.80% / 9.90%
+- 120 days (~4mo): 9.70% / 9.80%
+- 182 days (~6mo): 9.40% / 9.60%
+- 270 days (~9mo): 9.35% / 9.50%
+- 364 days (~12mo): 9.30% / 9.40%
+Entered as Jamuna Bank's FDR product (source: user-supplied image, no URL).
+Net result: 309 rate tiers across 55 products, 25 institutions.
+
 ---
 
 ## GROUP 3: The City Bank, Mutual Trust Bank, Standard Chartered BD, Pubali Bank, Uttara Bank

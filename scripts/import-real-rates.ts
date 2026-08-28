@@ -331,10 +331,21 @@ const entries: RateEntry[] = [
 
   // --- Jamuna Bank --- Monthly Savings Scheme DPS (from official "Deposit
   // Schemes" PDF, cross-validated at two deposit amounts per tenure — clean fit).
-  // FDR/MTDR is NOT entered: the bank's only FDR sheet publishes a negotiated
-  // RANGE (7.00-11.00% for 3mo, 7.00-10.50% for 6/12mo), not a specific
-  // advertised rate, and no tenure beyond 12 months is published at all — same
-  // reasoning as Standard Chartered's exclusion.
+  // FDR/MTDR (the bank's base product) is NOT entered: it only publishes a
+  // negotiated RANGE (7.00-11.00% for 3mo, 7.00-10.50% for 6/12mo), not a
+  // specific advertised rate — same reasoning as Standard Chartered's exclusion.
+  // "FD Freedom" is a SEPARATE, specific-rate product (user-supplied image,
+  // day-count tenures mapped to the nearest month), tiered by amount:
+  { institutionName: "Jamuna Bank", productType: "FDR", tenureMonths: 3, minAmount: 0, maxAmount: 1 * CRORE, interestRatePct: 9.8, sourceUrl: "jamuna-bank-fd-freedom-table (user-supplied image)" },
+  { institutionName: "Jamuna Bank", productType: "FDR", tenureMonths: 3, minAmount: 1 * CRORE, interestRatePct: 9.9, sourceUrl: "jamuna-bank-fd-freedom-table (user-supplied image)" },
+  { institutionName: "Jamuna Bank", productType: "FDR", tenureMonths: 4, minAmount: 0, maxAmount: 1 * CRORE, interestRatePct: 9.7, sourceUrl: "jamuna-bank-fd-freedom-table (user-supplied image)" },
+  { institutionName: "Jamuna Bank", productType: "FDR", tenureMonths: 4, minAmount: 1 * CRORE, interestRatePct: 9.8, sourceUrl: "jamuna-bank-fd-freedom-table (user-supplied image)" },
+  { institutionName: "Jamuna Bank", productType: "FDR", tenureMonths: 6, minAmount: 0, maxAmount: 1 * CRORE, interestRatePct: 9.4, sourceUrl: "jamuna-bank-fd-freedom-table (user-supplied image)" },
+  { institutionName: "Jamuna Bank", productType: "FDR", tenureMonths: 6, minAmount: 1 * CRORE, interestRatePct: 9.6, sourceUrl: "jamuna-bank-fd-freedom-table (user-supplied image)" },
+  { institutionName: "Jamuna Bank", productType: "FDR", tenureMonths: 9, minAmount: 0, maxAmount: 1 * CRORE, interestRatePct: 9.35, sourceUrl: "jamuna-bank-fd-freedom-table (user-supplied image)" },
+  { institutionName: "Jamuna Bank", productType: "FDR", tenureMonths: 9, minAmount: 1 * CRORE, interestRatePct: 9.5, sourceUrl: "jamuna-bank-fd-freedom-table (user-supplied image)" },
+  { institutionName: "Jamuna Bank", productType: "FDR", tenureMonths: 12, minAmount: 0, maxAmount: 1 * CRORE, interestRatePct: 9.3, sourceUrl: "jamuna-bank-fd-freedom-table (user-supplied image)" },
+  { institutionName: "Jamuna Bank", productType: "FDR", tenureMonths: 12, minAmount: 1 * CRORE, interestRatePct: 9.4, sourceUrl: "jamuna-bank-fd-freedom-table (user-supplied image)" },
   { institutionName: "Jamuna Bank", productType: "DPS", tenureMonths: 36, minAmount: 0, interestRatePct: 9.5, sourceUrl: "https://jamunabankbd.com/wp-content/uploads/2026/08/Rates-of-Deposit-Schemes_PP-1.pdf" },
   { institutionName: "Jamuna Bank", productType: "DPS", tenureMonths: 60, minAmount: 0, interestRatePct: 9.0, sourceUrl: "https://jamunabankbd.com/wp-content/uploads/2026/08/Rates-of-Deposit-Schemes_PP-1.pdf" },
   { institutionName: "Jamuna Bank", productType: "DPS", tenureMonths: 96, minAmount: 0, interestRatePct: 9.0, sourceUrl: "https://jamunabankbd.com/wp-content/uploads/2026/08/Rates-of-Deposit-Schemes_PP-1.pdf" },
