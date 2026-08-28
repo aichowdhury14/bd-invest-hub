@@ -1,10 +1,11 @@
-import { BrainCircuit, Crown, LayoutGrid, TrendingUp, Trophy } from "lucide-react";
+import { BrainCircuit, Crown, LayoutGrid, Lightbulb, TrendingUp, Trophy } from "lucide-react";
 import { Container } from "@/components/Container";
 import {
   getCategoryStats,
   getFDRHeatmap,
   getGovernmentInstrumentRates,
   getInstitutionComposition,
+  getMarketInsights,
   getTopRate,
   getTopRates,
   getTrendStatus,
@@ -35,6 +36,7 @@ export default async function InsightsPage() {
     composition,
     govtRates,
     heatmap,
+    marketInsights,
   ] = await Promise.all([
     getYieldCurve("FDR"),
     getYieldCurve("DPS"),
@@ -46,6 +48,7 @@ export default async function InsightsPage() {
     getInstitutionComposition(),
     getGovernmentInstrumentRates(),
     getFDRHeatmap(),
+    getMarketInsights(),
   ]);
 
   return (
@@ -82,6 +85,29 @@ export default async function InsightsPage() {
                     : `${topRate.tenureMonths}mo`}
                 </span>
               </p>
+            </div>
+          </section>
+        )}
+
+        {marketInsights.length > 0 && (
+          <section className="space-y-5">
+            <div className="flex items-center gap-2">
+              <Lightbulb className="h-5 w-5 text-accent" />
+              <h2 className="font-display text-xl font-bold tracking-tight">
+                Smart Market Insights
+              </h2>
+            </div>
+            <p className="text-sm text-muted -mt-3">
+              Auto-generated from today&apos;s tracked rates — a rule-based reading of the numbers,
+              not a forecast of where rates are headed.
+            </p>
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              {marketInsights.map((insight, i) => (
+                <div key={i} className="rounded-2xl card-surface p-5 shadow-sm space-y-1.5">
+                  <p className="font-semibold leading-snug">{insight.title}</p>
+                  <p className="text-sm text-muted leading-relaxed">{insight.detail}</p>
+                </div>
+              ))}
             </div>
           </section>
         )}

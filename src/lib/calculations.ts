@@ -24,6 +24,19 @@ export interface LumpSumResult {
   principal: number;
 }
 
+/** The multiplier applied to principal to reach maturity — factored out so the forward and reverse (goal-planning) calculations can never drift apart. */
+function lumpSumGrowthFactor(
+  annualRatePct: number,
+  tenureMonths: number,
+  compounding: Compounding
+): number {
+  const r = annualRatePct / 100;
+  const t = tenureMonths / 12;
+  if (compounding === "SIMPLE") return 1 + r * t;
+  const n = PERIODS_PER_YEAR[compounding];
+  return Math.pow(1 + r / n, n * t);
+}
+
 /**
  * Lump-sum maturity value for products like FDR, Sanchaypatro, T-Bond held to maturity.
  * Simple interest: A = P(1 + rt)
@@ -35,22 +48,31 @@ export function calculateLumpSumMaturity(input: LumpSumInput): LumpSumResult {
     throw new RangeError("principal, annualRatePct must be >= 0 and tenureMonths > 0");
   }
 
-  const r = annualRatePct / 100;
-  const t = tenureMonths / 12;
-
-  let maturityAmount: number;
-  if (compounding === "SIMPLE") {
-    maturityAmount = principal * (1 + r * t);
-  } else {
-    const n = PERIODS_PER_YEAR[compounding];
-    maturityAmount = principal * Math.pow(1 + r / n, n * t);
-  }
+  const maturityAmount = principal * lumpSumGrowthFactor(annualRatePct, tenureMonths, compounding);
 
   return {
     maturityAmount: roundToPaisa(maturityAmount),
     totalInterest: roundToPaisa(maturityAmount - principal),
     principal,
   };
+}
+
+/**
+ * Goal-planning inverse of calculateLumpSumMaturity: the principal that must be
+ * deposited today, at this rate and tenure, to reach a target maturity amount.
+ */
+export function requiredLumpSumPrincipal(
+  targetMaturityAmount: number,
+  annualRatePct: number,
+  tenureMonths: number,
+  compounding: Compounding
+): number {
+  if (targetMaturityAmount < 0 || annualRatePct < 0 || tenureMonths <= 0) {
+    throw new RangeError("targetMaturityAmount, annualRatePct must be >= 0 and tenureMonths > 0");
+  }
+  return roundToPaisa(
+    targetMaturityAmount / lumpSumGrowthFactor(annualRatePct, tenureMonths, compounding)
+  );
 }
 
 export interface DPSInput {
@@ -67,6 +89,26 @@ export interface DPSResult {
   totalInterest: number;
 }
 
+/** The multiplier applied to a 1-unit monthly deposit to reach maturity — maturityAmount is linear in monthlyDeposit under both the simple and compound models, so this single factor drives both the forward and reverse (goal-planning) calculations. */
+function dpsGrowthFactor(annualRatePct: number, tenureMonths: number, compounding: Compounding): number {
+  const r = annualRatePct / 100;
+  if (r === 0) return tenureMonths;
+  if (compounding === "SIMPLE") {
+    // Simple interest on each installment for its remaining tenure.
+    let total = 0;
+    for (let month = 1; month <= tenureMonths; month++) {
+      const remainingMonths = tenureMonths - month + 1;
+      total += 1 + r * (remainingMonths / 12);
+    }
+    return total;
+  }
+  // Monthly deposits, compounded at the product's periodic rate, using a monthly
+  // effective rate derived from the nominal annual rate.
+  const n = PERIODS_PER_YEAR[compounding];
+  const monthlyRate = Math.pow(1 + r / n, n / 12) - 1;
+  return monthlyRate === 0 ? tenureMonths : (Math.pow(1 + monthlyRate, tenureMonths) - 1) / monthlyRate;
+}
+
 /**
  * Future value of a recurring monthly deposit (DPS-style product), using the
  * ordinary annuity formula with the deposit compounded at the product's stated
@@ -81,35 +123,31 @@ export function calculateDPSMaturity(input: DPSInput): DPSResult {
   }
 
   const totalDeposited = monthlyDeposit * tenureMonths;
-  const r = annualRatePct / 100;
-
-  let maturityAmount: number;
-  if (r === 0) {
-    maturityAmount = totalDeposited;
-  } else if (compounding === "SIMPLE") {
-    // Simple interest on each installment for its remaining tenure.
-    let total = 0;
-    for (let month = 1; month <= tenureMonths; month++) {
-      const remainingMonths = tenureMonths - month + 1;
-      total += monthlyDeposit * (1 + r * (remainingMonths / 12));
-    }
-    maturityAmount = total;
-  } else {
-    // Monthly deposits, compounded at the product's periodic rate, using a monthly
-    // effective rate derived from the nominal annual rate.
-    const n = PERIODS_PER_YEAR[compounding];
-    const monthlyRate = Math.pow(1 + r / n, n / 12) - 1;
-    maturityAmount =
-      monthlyRate === 0
-        ? totalDeposited
-        : monthlyDeposit * ((Math.pow(1 + monthlyRate, tenureMonths) - 1) / monthlyRate);
-  }
+  const maturityAmount = monthlyDeposit * dpsGrowthFactor(annualRatePct, tenureMonths, compounding);
 
   return {
     maturityAmount: roundToPaisa(maturityAmount),
     totalDeposited: roundToPaisa(totalDeposited),
     totalInterest: roundToPaisa(maturityAmount - totalDeposited),
   };
+}
+
+/**
+ * Goal-planning inverse of calculateDPSMaturity: the fixed monthly deposit
+ * needed, at this rate and tenure, to reach a target maturity amount.
+ */
+export function requiredMonthlyDeposit(
+  targetMaturityAmount: number,
+  annualRatePct: number,
+  tenureMonths: number,
+  compounding: Compounding
+): number {
+  if (targetMaturityAmount < 0 || annualRatePct < 0 || tenureMonths <= 0) {
+    throw new RangeError("targetMaturityAmount, annualRatePct must be >= 0 and tenureMonths > 0");
+  }
+  return roundToPaisa(
+    targetMaturityAmount / dpsGrowthFactor(annualRatePct, tenureMonths, compounding)
+  );
 }
 
 /** Round to 2 decimal places (nearest paisa) to avoid floating-point noise in the UI. */

@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import type { InstitutionType, ProductType } from "@prisma/client";
+import { CURRENT_INFLATION } from "@/lib/economic-context";
 
 const TYPES: InstitutionType[] = ["BANK", "GOVERNMENT", "INVESTMENT_ORG"];
 
@@ -201,10 +202,18 @@ export interface RateHeatmapData {
 }
 
 /**
+ * Always shown in the FDR heatmap regardless of rank — both are among the most
+ * recognized private banks in Bangladesh, so users expect to see them for
+ * comparison even when their published rate isn't table-topping.
+ */
+const HEATMAP_PINNED_INSTITUTIONS = ["BRAC Bank", "The City Bank"];
+
+/**
  * FDR rates for the top institutions (by best rate) across the most commonly
  * offered tenures — a compact grid for a heatmap. Deliberately capped in size
  * (topN institutions x common tenures) rather than the full matrix, which would
- * be mostly-empty and unreadable.
+ * be mostly-empty and unreadable. A small set of well-known banks is pinned in
+ * (see HEATMAP_PINNED_INSTITUTIONS) even if their rate falls outside topN.
  */
 export async function getFDRHeatmap(topN = 14): Promise<RateHeatmapData> {
   const products = await prisma.rateProduct.findMany({
@@ -229,7 +238,7 @@ export async function getFDRHeatmap(topN = 14): Promise<RateHeatmapData> {
     .sort((a, b) => a - b);
   const tenureSet = new Set(tenures);
 
-  const withBest = products
+  const allInstitutions = products
     .map((product) => {
       const rates: Record<number, number> = {};
       for (const tier of product.rateTiers) {
@@ -243,8 +252,13 @@ export async function getFDRHeatmap(topN = 14): Promise<RateHeatmapData> {
       return { name: product.institution.name, rates, bestRate: best.length > 0 ? Math.max(...best) : -1 };
     })
     .filter((p) => p.bestRate >= 0)
-    .sort((a, b) => b.bestRate - a.bestRate)
-    .slice(0, topN);
+    .sort((a, b) => b.bestRate - a.bestRate);
+
+  const pinned = allInstitutions.filter((p) => HEATMAP_PINNED_INSTITUTIONS.includes(p.name));
+  const rest = allInstitutions.filter((p) => !HEATMAP_PINNED_INSTITUTIONS.includes(p.name));
+  const withBest = [...pinned, ...rest.slice(0, Math.max(0, topN - pinned.length))].sort(
+    (a, b) => b.bestRate - a.bestRate
+  );
 
   const rates: Record<string, Record<number, number>> = {};
   for (const p of withBest) rates[p.name] = p.rates;
@@ -275,4 +289,112 @@ export async function getTrendStatus(): Promise<TrendStatus> {
     snapshotCount,
     daysTracked,
   };
+}
+
+interface InflationBeatStat {
+  beatingCount: number;
+  totalCount: number;
+  bestMarginPct: number | null;
+}
+
+/** How many currently tracked rate tiers clear the latest published inflation figure. */
+async function getInflationBeatStat(): Promise<InflationBeatStat> {
+  const tiers = await prisma.rateTier.findMany({
+    where: { product: { isActive: true, institution: { isActive: true } } },
+    select: { interestRatePct: true },
+  });
+  const rates = tiers.map((t) => Number(t.interestRatePct));
+  const beating = rates.filter((r) => r > CURRENT_INFLATION.ratePct);
+  return {
+    beatingCount: beating.length,
+    totalCount: rates.length,
+    bestMarginPct: beating.length > 0 ? Math.max(...beating) - CURRENT_INFLATION.ratePct : null,
+  };
+}
+
+export interface MarketInsight {
+  title: string;
+  detail: string;
+}
+
+function tenureLabel(months: number): string {
+  return months % 12 === 0 ? `${months / 12}yr` : `${months}mo`;
+}
+
+/**
+ * Short, auto-generated observations computed purely from rates already in the
+ * database (no hidden model, no future-rate guessing) — a rule-based reading of
+ * today's numbers, in the same spirit as the calculator's Smart Recommendations.
+ */
+export async function getMarketInsights(): Promise<MarketInsight[]> {
+  const [fdrCurve, fdrStats, dpsStats, inflationStat] = await Promise.all([
+    getYieldCurve("FDR"),
+    getCategoryStats("FDR"),
+    getCategoryStats("DPS"),
+    getInflationBeatStat(),
+  ]);
+
+  const insights: MarketInsight[] = [];
+
+  const bothQuoted = fdrCurve.filter((p) => p.BANK !== null && p.GOVERNMENT !== null);
+  if (bothQuoted.length > 0) {
+    const point = bothQuoted[bothQuoted.length - 1];
+    const spread = point.BANK! - point.GOVERNMENT!;
+    const label = tenureLabel(point.tenureMonths);
+    insights.push({
+      title:
+        spread > 0.001
+          ? `Banks out-pay government instruments by ${spread.toFixed(2)} pts at ${label}`
+          : spread < -0.001
+            ? `Government instruments out-pay banks by ${Math.abs(spread).toFixed(2)} pts at ${label}`
+            : `Banks and government instruments are tied at ${label}`,
+      detail: `Best bank FDR: ${point.BANK!.toFixed(2)}% · Best government rate: ${point.GOVERNMENT!.toFixed(2)}%, both at ${label} tenure.`,
+    });
+  }
+
+  const fdrBank = fdrStats.find((s) => s.type === "BANK");
+  const dpsBank = dpsStats.find((s) => s.type === "BANK");
+  if (fdrBank?.bestRate != null && dpsBank?.bestRate != null) {
+    const gap = dpsBank.bestRate - fdrBank.bestRate;
+    insights.push({
+      title:
+        gap > 0.001
+          ? `Bank DPS plans out-price lump-sum FDR by ${gap.toFixed(2)} pts`
+          : gap < -0.001
+            ? `Bank FDR out-prices recurring DPS by ${Math.abs(gap).toFixed(2)} pts`
+            : `Bank FDR and DPS are priced the same right now`,
+      detail: `Best tracked bank FDR rate: ${fdrBank.bestRate.toFixed(2)}%. Best tracked bank DPS rate: ${dpsBank.bestRate.toFixed(2)}%.`,
+    });
+  }
+
+  insights.push({
+    title:
+      inflationStat.beatingCount > 0
+        ? `${inflationStat.beatingCount} of ${inflationStat.totalCount} tracked rates beat current inflation`
+        : `No tracked rate currently beats inflation`,
+    detail:
+      inflationStat.bestMarginPct !== null
+        ? `Best margin above ${CURRENT_INFLATION.ratePct}% inflation (${CURRENT_INFLATION.period}, ${CURRENT_INFLATION.source}): +${inflationStat.bestMarginPct.toFixed(2)} pts.`
+        : `Inflation reference: ${CURRENT_INFLATION.ratePct}% (${CURRENT_INFLATION.period}, ${CURRENT_INFLATION.source}).`,
+  });
+
+  const bankPoints = fdrCurve.filter((p) => p.BANK !== null);
+  if (bankPoints.length >= 2) {
+    const first = bankPoints[0];
+    const last = bankPoints[bankPoints.length - 1];
+    const rateDiff = last.BANK! - first.BANK!;
+    const shortLabel = tenureLabel(first.tenureMonths);
+    const longLabel = tenureLabel(last.tenureMonths);
+    insights.push({
+      title:
+        rateDiff > 0.001
+          ? `Locking longer pays: ${shortLabel} to ${longLabel} bank FDR gains ${rateDiff.toFixed(2)} pts`
+          : rateDiff < -0.001
+            ? `Shorter locks pay more: ${shortLabel} bank FDR beats ${longLabel} by ${Math.abs(rateDiff).toFixed(2)} pts`
+            : `Bank FDR rates are flat from ${shortLabel} to ${longLabel}`,
+      detail: `${shortLabel}: ${first.BANK!.toFixed(2)}% · ${longLabel}: ${last.BANK!.toFixed(2)}%, best tracked bank rate at each tenure.`,
+    });
+  }
+
+  return insights;
 }
