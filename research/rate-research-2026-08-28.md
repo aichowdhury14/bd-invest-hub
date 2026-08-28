@@ -322,9 +322,30 @@ Effective date on page: April 27, 2025 (could not confirm more recent revision �
 - Classic TDR: 100d/3mo 10.00%, 6mo 10.50%, 1yr 10.75%, 2-4yr 10.50%
 - Money Builder DPS: ~10.75% across 2/3/4/5/10yr
 
-### IDLC Finance
-NOT FOUND — official page is a JS SPA with no rates in static HTML; brochure PDF lists product names only, no numeric rates.
-Reference only (NOT a specific product rate, do not use as an FDR/DPS entry): Bangladesh Bank NBFI weighted-average deposit rate for IDLC = 10.12% (June 2026), institution-wide average, not tenure-specific.
+### IDLC Finance — RESOLVED (2026-08-28, follow-up via r.jina.ai proxy)
+Source: https://www.idlc.com/term-deposit (JS SPA, extracted via rendering proxy)
+Effective: 16 August 2026
+
+FDR (Regular Term Deposit):
+- 3-5mo: 9.00% (entered at 3mo)
+- 6-11mo: 9.25% (entered at 6mo)
+- 12mo+: 9.00% (entered at 12/24/36mo)
+(Also: 100/500-day variants, Monthly/Quarterly Earner, Double/Triple Money, Interest First — all secondary products, not entered)
+
+DPS (Offline DPS, 2-25yr): 9.00% flat (entered at 24/36/60mo)
+Note: +0.10% premium for female/senior-citizen account holders on several products — not modeled (schema has no such dimension).
+
+## FOLLOW-UP RESEARCH (2026-08-28, same day, second pass)
+User supplied City Bank's correct URL and asked for another push on the remaining gaps.
+
+### Standard Chartered Bangladesh — CONFIRMED still no specific rate
+Re-checked official matrix PDF + retail product page. SC Bangladesh genuinely does not publish a specific advertised FDR rate anywhere public — only the 0.05%-5.00% regulatory range. Still not entered as a rate tier (would misrepresent).
+
+### Bank Asia DPS — CONFIRMED still NOT FOUND
+DPS Plus page still shows only a maturity-value table, no percentage. Bank Asia's public "Interest Rates" page only serves a lending-rate PDF, not deposit rates. Still not entered.
+
+### Pubali Bank — CONFIRMED still blocked
+Tried r.jina.ai proxy + direct fetch on 5 different URLs (main rate page, 2 PDF variants, legacy site, alternate product page) — Cloudflare bot-challenge (403/CAPTCHA) held on every single path, unlike City Bank which the same proxy technique successfully cracked. Genuinely inaccessible with available tools. Google's snippet index confirms a real rate table exists in their PDF but none of it could be read. Still NOT FOUND — would need a human to open it in a real browser, or the bank's API/call center.
 
 ---
 
@@ -378,8 +399,22 @@ DPS:
 - Double Benefit Deposit Scheme (8yr maturity): 9.00%
 - Various named schemes (Millionaire/Lakhpoti/Kotipoti/etc.): 10.00-10.25%
 
-### The City Bank — NOT FOUND
-Official rates page is a JS-rendered SPA (no data in static HTML); only PDFs found are stale (2019, 2021). No current verifiable figure.
+### The City Bank — RESOLVED (2026-08-28, follow-up)
+User supplied the correct rates URL: https://www.citybankplc.com/gsi/conventional-banking-products
+Confirmed JS-rendered SPA as before, but successfully extracted via https://r.jina.ai/ rendering proxy.
+No effective date stated on the page itself (caveat).
+
+FDR (Individuals):
+- 90 days (~3mo), <50L: 8.00%
+- 90 days (~3mo), 50L-<1Cr: 8.00%
+- 90 days (~3mo), 1Cr-<5Cr: 8.25%
+- 365 days (~12mo), <1Cr: 8.25%
+- 1yr/2yr/3yr, <1Cr: 8.25% (flat)
+
+DPS (General DPS):
+- 6-12 months: 8.50%
+- 37-48 months: 9.00% (entered at 48mo, the stated upper bound, to stay within the verified range)
+Also: Insurance-Backed DPS 8.50% flat, 5-20yr (not entered — secondary/niche product)
 
 ### Pubali Bank — NOT FOUND
 Official site blocked by Cloudflare bot-challenge (403) on all attempts including PDF direct link, legacy site, Google Docs viewer, and Scribd mirrors. A search snippet suggested a PDF dated 07-05-2026 with 3mo ~8.50%, 6mo ~8.75%, 1yr ~8.50% but this was NEVER independently opened/confirmed — explicitly NOT to be published as verified data.
