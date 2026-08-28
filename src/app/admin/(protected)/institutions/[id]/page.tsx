@@ -49,7 +49,7 @@ export default async function AdminInstitutionDetailPage({
 
       <form
         action={updateInstitutionWithId}
-        className="rounded-2xl card-surface shadow-sm p-5 grid gap-3 sm:grid-cols-4 items-end"
+        className="rounded-2xl card-surface shadow-sm p-5 grid grid-cols-1 gap-3 sm:grid-cols-4 items-end"
       >
         <div className="space-y-1 sm:col-span-2">
           <label className="text-sm font-medium">Name</label>
@@ -94,7 +94,7 @@ export default async function AdminInstitutionDetailPage({
 
         <form
           action={createProduct.bind(null, id)}
-          className="rounded-2xl card-surface shadow-sm p-5 grid gap-3 sm:grid-cols-6 items-end"
+          className="rounded-2xl card-surface shadow-sm p-5 grid grid-cols-1 gap-3 sm:grid-cols-6 items-end"
         >
           <div className="space-y-1 sm:col-span-2">
             <label className="text-sm font-medium">Product name</label>
@@ -231,7 +231,7 @@ export default async function AdminInstitutionDetailPage({
 
             <form
               action={createRateTier.bind(null, product.id, id)}
-              className="grid gap-2 sm:grid-cols-5 items-end text-sm"
+              className="grid grid-cols-1 gap-2 sm:grid-cols-5 items-end text-sm"
             >
               <div className="space-y-1">
                 <label className="text-xs font-medium">Tenure (mo)</label>

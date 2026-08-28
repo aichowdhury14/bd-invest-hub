@@ -128,7 +128,7 @@ export default async function InsightsPage() {
           </div>
         </section>
 
-        <div className="grid gap-8 lg:grid-cols-2">
+        <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
           <section className="space-y-5">
             <h2 className="font-display text-xl font-bold tracking-tight">FDR by category</h2>
             <div className="rounded-2xl card-surface p-4 sm:p-6 shadow-sm">
@@ -171,7 +171,7 @@ export default async function InsightsPage() {
           </div>
         </section>
 
-        <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_2fr]">
+        <div className="grid grid-cols-1 gap-8 lg:grid-cols-[minmax(0,1fr)_2fr]">
           <section className="space-y-5">
             <h2 className="font-display text-xl font-bold tracking-tight">Who we track</h2>
             <div className="rounded-2xl card-surface p-4 sm:p-6 shadow-sm">
@@ -180,7 +180,7 @@ export default async function InsightsPage() {
           </section>
           <section className="space-y-5">
             <h2 className="font-display text-xl font-bold tracking-tight">By the numbers</h2>
-            <div className="grid gap-4 sm:grid-cols-3">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
               <CategoryCard type="BANK" stat={fdrStats.find((s) => s.type === "BANK")} />
               <CategoryCard type="GOVERNMENT" stat={fdrStats.find((s) => s.type === "GOVERNMENT")} />
               <CategoryCard

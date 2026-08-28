@@ -348,7 +348,7 @@ export function CalculatorClient({ products }: { products: SerializedProduct[] }
               prediction
             </span>
           </div>
-          <div className="grid gap-4 sm:grid-cols-3">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
             {recommendations.map((rec) => (
               <RecommendationCard
                 key={rec.key}
@@ -376,7 +376,7 @@ export function CalculatorClient({ products }: { products: SerializedProduct[] }
           <GrowthChart series={growthSeries} />
 
           {taxAndInflation && (
-            <div className="grid gap-4 sm:grid-cols-2 pt-2 border-t border-border">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 pt-2 border-t border-border">
               <div className="flex items-start gap-2.5">
                 <span className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-foreground/5 text-muted">
                   <TrendingUp className="h-4 w-4" />

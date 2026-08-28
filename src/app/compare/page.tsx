@@ -21,7 +21,8 @@ export default async function ComparePage() {
             Compare Products
           </h1>
           <p className="text-white/85 max-w-xl">
-            Pick up to 4 products to see their full tenure and rate tiers side by side.
+            Filter, sort, and pick up to 6 products to see maturity amounts and full rate tiers
+            side by side — for any amount and tenure you choose.
           </p>
         </Container>
       </section>

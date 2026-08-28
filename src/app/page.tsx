@@ -113,7 +113,7 @@ export default async function HomePage() {
                 </h2>
                 <span className="text-sm text-muted">{list.length}</span>
               </div>
-              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
                 {list.map((inst) => (
                   <div
                     key={inst.id}
@@ -141,17 +141,17 @@ export default async function HomePage() {
                           const best = bestRateForProduct(product.rateTiers);
                           return (
                             <li key={product.id} className="flex items-center justify-between text-sm gap-2">
-                              <span className="text-muted truncate" title={product.name}>
+                              <span className="min-w-0 flex-1 truncate text-muted" title={product.name}>
                                 {product.name}
                               </span>
                               {best !== null ? (
                                 <span
-                                  className={`rounded-full px-2.5 py-0.5 text-xs font-semibold tabular-nums ${style.badge}`}
+                                  className={`shrink-0 rounded-full px-2.5 py-0.5 text-xs font-semibold tabular-nums ${style.badge}`}
                                 >
                                   up to {best.toFixed(2)}%
                                 </span>
                               ) : (
-                                <span className="text-muted">—</span>
+                                <span className="shrink-0 text-muted">—</span>
                               )}
                             </li>
                           );

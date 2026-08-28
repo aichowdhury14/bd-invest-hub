@@ -17,7 +17,7 @@ export default async function AdminInstitutionsPage() {
 
       <form
         action={createInstitution}
-        className="rounded-2xl card-surface shadow-sm p-5 grid gap-3 sm:grid-cols-4 items-end"
+        className="rounded-2xl card-surface shadow-sm p-5 grid grid-cols-1 gap-3 sm:grid-cols-4 items-end"
       >
         <div className="space-y-1 sm:col-span-2">
           <label className="text-sm font-semibold">Name</label>
