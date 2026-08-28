@@ -4,8 +4,6 @@ import {
   calculateLumpSumMaturity,
   dpsGrowthSeries,
   lumpSumGrowthSeries,
-  requiredLumpSumPrincipal,
-  requiredMonthlyDeposit,
 } from "./calculations";
 
 describe("calculateLumpSumMaturity", () => {
@@ -149,63 +147,6 @@ describe("lumpSumGrowthSeries", () => {
     const series = lumpSumGrowthSeries({ ...input, tenureMonths: 240 }, 24);
     expect(series.length).toBeLessThanOrEqual(26); // maxPoints + 1, plus the final mark
     expect(series[series.length - 1].month).toBe(240);
-  });
-});
-
-describe("requiredLumpSumPrincipal", () => {
-  it("inverts calculateLumpSumMaturity exactly (round trip)", () => {
-    const input = {
-      principal: 250000,
-      annualRatePct: 8.5,
-      tenureMonths: 18,
-      compounding: "QUARTERLY" as const,
-    };
-    const { maturityAmount } = calculateLumpSumMaturity(input);
-    const principal = requiredLumpSumPrincipal(
-      maturityAmount,
-      input.annualRatePct,
-      input.tenureMonths,
-      input.compounding
-    );
-    expect(principal).toBeCloseTo(input.principal, 1);
-  });
-
-  it("matches the textbook formula directly for simple interest", () => {
-    // P = A / (1 + rt) = 108000 / (1 + 0.08*1) = 100000
-    const principal = requiredLumpSumPrincipal(108000, 8, 12, "SIMPLE");
-    expect(principal).toBeCloseTo(100000, 2);
-  });
-
-  it("rejects a non-positive tenure", () => {
-    expect(() => requiredLumpSumPrincipal(100000, 5, 0, "YEARLY")).toThrow(RangeError);
-  });
-});
-
-describe("requiredMonthlyDeposit", () => {
-  it("inverts calculateDPSMaturity exactly (round trip)", () => {
-    const input = {
-      monthlyDeposit: 7500,
-      annualRatePct: 6.5,
-      tenureMonths: 36,
-      compounding: "MONTHLY" as const,
-    };
-    const { maturityAmount } = calculateDPSMaturity(input);
-    const deposit = requiredMonthlyDeposit(
-      maturityAmount,
-      input.annualRatePct,
-      input.tenureMonths,
-      input.compounding
-    );
-    expect(deposit).toBeCloseTo(input.monthlyDeposit, 1);
-  });
-
-  it("divides evenly at a zero rate", () => {
-    const deposit = requiredMonthlyDeposit(60000, 0, 12, "MONTHLY");
-    expect(deposit).toBeCloseTo(5000, 2);
-  });
-
-  it("rejects a non-positive tenure", () => {
-    expect(() => requiredMonthlyDeposit(60000, 5, -3, "MONTHLY")).toThrow(RangeError);
   });
 });
 

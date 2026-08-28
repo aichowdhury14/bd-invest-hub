@@ -9,7 +9,6 @@ import {
   Percent,
   ShieldCheck,
   Sparkles,
-  Target,
   TrendingUp,
   Zap,
   type LucideIcon,
@@ -20,8 +19,6 @@ import {
   calculateLumpSumMaturity,
   dpsGrowthSeries,
   lumpSumGrowthSeries,
-  requiredLumpSumPrincipal,
-  requiredMonthlyDeposit,
 } from "@/lib/calculations";
 import { institutionTypeLabels, isRecurringProduct, productTypeLabels } from "@/lib/labels";
 import { institutionTypeStyle } from "@/lib/institution-style";
@@ -85,7 +82,6 @@ export function CalculatorClient({ products }: { products: SerializedProduct[] }
   const [typeFilter, setTypeFilter] = useState<ProductType | "ALL">("ALL");
   const [riskProfile, setRiskProfile] = useState<RiskProfile>("BALANCED");
   const [taxStatus, setTaxStatus] = useState<TaxStatus>("TIN");
-  const { amount: goalTarget, raw: goalRaw, onChange: onGoalChange } = useAmountInput(1000000);
   const sessionId = useSessionId();
 
   const tenureMonths = tenureOptions[tenureIndex] ?? 0;
@@ -140,58 +136,6 @@ export function CalculatorClient({ products }: { products: SerializedProduct[] }
   }, [products, typeFilter, tenureMonths, amount]);
 
   const topMaturity = rows.find((r) => r.maturityAmount !== null)?.maturityAmount ?? null;
-
-  /**
-   * Goal-planning rows: for a target maturity amount, the required principal
-   * (FDR-style) or monthly deposit (DPS-style) at each product's rate for the
-   * selected tenure. A product's tiers are bracketed by amount (minAmount/
-   * maxAmount), so which tier actually applies depends on the very number
-   * we're solving for — resolved here by checking self-consistency: only a
-   * tier whose bracket actually contains the required amount it implies is
-   * shown, never a rate that wouldn't really apply at that investment size.
-   */
-  const goalRows: Row[] = useMemo(() => {
-    return products
-      .filter((p) => typeFilter === "ALL" || p.productType === typeFilter)
-      .map((product) => {
-        if (goalTarget <= 0) {
-          return { product, tier: null, maturityAmount: null, totalContribution: null, totalInterest: null };
-        }
-        const candidates = product.rateTiers.filter((t) => t.tenureMonths === tenureMonths);
-        for (const tier of candidates) {
-          const recurring = isRecurringProduct(product.productType);
-          const required = recurring
-            ? requiredMonthlyDeposit(goalTarget, tier.interestRatePct, tenureMonths, product.compounding)
-            : requiredLumpSumPrincipal(goalTarget, tier.interestRatePct, tenureMonths, product.compounding);
-          const withinBracket = required >= tier.minAmount && (tier.maxAmount === null || required <= tier.maxAmount);
-          if (!withinBracket) continue;
-          const totalContribution = recurring ? required * tenureMonths : required;
-          return {
-            product,
-            tier,
-            maturityAmount: required,
-            totalContribution,
-            totalInterest: goalTarget - totalContribution,
-          };
-        }
-        return { product, tier: null, maturityAmount: null, totalContribution: null, totalInterest: null };
-      })
-      .filter((r) => r.tier !== null)
-      // Rank by total money actually put in, not the raw required-amount field —
-      // that field is a *monthly* deposit for DPS rows but a *one-time* principal
-      // for FDR rows, so comparing it directly would always make DPS look cheaper.
-      .sort((a, b) => (a.totalContribution ?? Infinity) - (b.totalContribution ?? Infinity));
-  }, [products, typeFilter, tenureMonths, goalTarget]);
-
-  const goalPicks = useMemo(() => {
-    const byType = (type: "GOVERNMENT" | "BANK" | "INVESTMENT_ORG") =>
-      goalRows.find((r) => r.product.institutionType === type) ?? null;
-    return {
-      cheapest: goalRows[0] ?? null,
-      safest: byType("GOVERNMENT"),
-      bestBank: byType("BANK"),
-    };
-  }, [goalRows]);
 
   const picks = useMemo(() => {
     const offered = rows.filter((r) => r.tier !== null);
@@ -420,67 +364,6 @@ export function CalculatorClient({ products }: { products: SerializedProduct[] }
         </div>
       )}
 
-      <div className="rounded-2xl card-surface p-5 sm:p-7 shadow-sm space-y-5">
-        <div className="flex items-center gap-2">
-          <Target className="h-4 w-4 text-accent" />
-          <h2 className="font-display font-bold">Goal-based planner</h2>
-          <span className="text-xs text-muted">
-            — how much you&apos;d need to invest for {formatTenure(tenureMonths)} to reach a target
-          </span>
-        </div>
-        <div className="max-w-xs space-y-2">
-          <label htmlFor="goal-amount" className="text-sm font-semibold">
-            Target amount at maturity
-          </label>
-          <div className="relative">
-            <span className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-muted font-display font-semibold">
-              ৳
-            </span>
-            <input
-              id="goal-amount"
-              type="text"
-              inputMode="numeric"
-              pattern="[0-9]*"
-              value={goalRaw}
-              onChange={(e) => onGoalChange(e.target.value)}
-              className="w-full rounded-xl border border-border bg-transparent pl-8 pr-3 py-2.5 text-lg font-semibold tabular-nums focus:outline-none focus:ring-2 focus:ring-brand-end"
-            />
-          </div>
-        </div>
-        {goalRows.length > 0 ? (
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-            <GoalRecommendationCard
-              icon={Crown}
-              label="Cheapest path to this goal"
-              row={goalPicks.cheapest}
-              reasoning="Lowest total investment across every tracked institution at this tenure."
-            />
-            <GoalRecommendationCard
-              icon={ShieldCheck}
-              label="Safest choice"
-              row={goalPicks.safest}
-              reasoning="Government-backed — Bangladesh Bank / National Savings Directorate instruments carry sovereign backing."
-            />
-            <GoalRecommendationCard
-              icon={LineChart}
-              label="Best at a bank"
-              row={goalPicks.bestBank}
-              reasoning="Lowest required investment among regulated commercial banks at this tenure."
-            />
-          </div>
-        ) : (
-          <p className="text-sm text-muted">
-            No tracked product has a rate tier at {formatTenure(tenureMonths)} that stays valid for
-            this target amount. Try a different tenure or target.
-          </p>
-        )}
-        <p className="text-xs text-muted leading-relaxed border-t border-border pt-3">
-          Reverse-solved from each product&apos;s real published rate for this tenure — not a
-          forecast. Where a bank prices differently by deposit size, a rate only appears here if it
-          would genuinely apply at the investment size it implies.
-        </p>
-      </div>
-
       {growthSeries && topPick && (
         <div className="rounded-2xl card-surface p-5 sm:p-7 shadow-sm space-y-4">
           <div>
@@ -690,65 +573,6 @@ function RecommendationCard({
           {bdt.format(netMaturity)} after {aitPct}% tax
         </p>
       )}
-      <p className="text-xs text-muted leading-relaxed">{reasoning}</p>
-    </div>
-  );
-}
-
-/**
- * Goal-mode card: `row.maturityAmount` here holds the *required investment*
- * (principal or monthly deposit) that reaches the user's target — a different
- * meaning from the forward-calculator RecommendationCard, so it gets its own
- * component rather than overloading that one with a mode flag.
- */
-function GoalRecommendationCard({
-  icon: Icon,
-  label,
-  row,
-  reasoning,
-}: {
-  icon: LucideIcon;
-  label: string;
-  row: Row | null;
-  reasoning: string;
-}) {
-  if (!row || !row.tier) {
-    return (
-      <div className="rounded-2xl border border-dashed border-border p-4 text-sm text-muted">
-        <div className="flex items-center gap-2 font-medium text-foreground/70">
-          <Icon className="h-4 w-4" />
-          {label}
-        </div>
-        <p className="mt-2">No matching option for this goal/tenure.</p>
-      </div>
-    );
-  }
-
-  const style = institutionTypeStyle[row.product.institutionType];
-  const recurring = isRecurringProduct(row.product.productType);
-
-  return (
-    <div className="rounded-2xl card-surface p-4 shadow-sm space-y-2">
-      <div className="flex items-center gap-2 text-sm font-medium text-muted">
-        <Icon className="h-4 w-4 text-accent" />
-        {label}
-      </div>
-      <div>
-        <p className="font-display font-bold leading-snug">{row.product.institutionName}</p>
-        <p className="text-xs text-muted">{row.product.name}</p>
-      </div>
-      <div className="flex items-baseline gap-2">
-        <span className="font-display text-xl font-bold tabular-nums">
-          {row.tier.interestRatePct.toFixed(2)}%
-        </span>
-        <span className={`rounded-full px-2 py-0.5 text-[11px] font-medium ${style.badge}`}>
-          {institutionTypeLabels[row.product.institutionType]}
-        </span>
-      </div>
-      <p className="text-sm tabular-nums font-semibold">
-        {bdt.format(row.maturityAmount ?? 0)}
-        <span className="text-xs font-normal text-muted">{recurring ? "/month" : " once"}</span>
-      </p>
       <p className="text-xs text-muted leading-relaxed">{reasoning}</p>
     </div>
   );

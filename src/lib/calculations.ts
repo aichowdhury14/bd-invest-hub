@@ -24,7 +24,7 @@ export interface LumpSumResult {
   principal: number;
 }
 
-/** The multiplier applied to principal to reach maturity — factored out so the forward and reverse (goal-planning) calculations can never drift apart. */
+/** The multiplier applied to principal to reach maturity. */
 function lumpSumGrowthFactor(
   annualRatePct: number,
   tenureMonths: number,
@@ -57,24 +57,6 @@ export function calculateLumpSumMaturity(input: LumpSumInput): LumpSumResult {
   };
 }
 
-/**
- * Goal-planning inverse of calculateLumpSumMaturity: the principal that must be
- * deposited today, at this rate and tenure, to reach a target maturity amount.
- */
-export function requiredLumpSumPrincipal(
-  targetMaturityAmount: number,
-  annualRatePct: number,
-  tenureMonths: number,
-  compounding: Compounding
-): number {
-  if (targetMaturityAmount < 0 || annualRatePct < 0 || tenureMonths <= 0) {
-    throw new RangeError("targetMaturityAmount, annualRatePct must be >= 0 and tenureMonths > 0");
-  }
-  return roundToPaisa(
-    targetMaturityAmount / lumpSumGrowthFactor(annualRatePct, tenureMonths, compounding)
-  );
-}
-
 export interface DPSInput {
   /** Fixed amount deposited each month, e.g. a DPS installment. */
   monthlyDeposit: number;
@@ -89,7 +71,7 @@ export interface DPSResult {
   totalInterest: number;
 }
 
-/** The multiplier applied to a 1-unit monthly deposit to reach maturity — maturityAmount is linear in monthlyDeposit under both the simple and compound models, so this single factor drives both the forward and reverse (goal-planning) calculations. */
+/** The multiplier applied to a 1-unit monthly deposit to reach maturity. */
 function dpsGrowthFactor(annualRatePct: number, tenureMonths: number, compounding: Compounding): number {
   const r = annualRatePct / 100;
   if (r === 0) return tenureMonths;
@@ -130,24 +112,6 @@ export function calculateDPSMaturity(input: DPSInput): DPSResult {
     totalDeposited: roundToPaisa(totalDeposited),
     totalInterest: roundToPaisa(maturityAmount - totalDeposited),
   };
-}
-
-/**
- * Goal-planning inverse of calculateDPSMaturity: the fixed monthly deposit
- * needed, at this rate and tenure, to reach a target maturity amount.
- */
-export function requiredMonthlyDeposit(
-  targetMaturityAmount: number,
-  annualRatePct: number,
-  tenureMonths: number,
-  compounding: Compounding
-): number {
-  if (targetMaturityAmount < 0 || annualRatePct < 0 || tenureMonths <= 0) {
-    throw new RangeError("targetMaturityAmount, annualRatePct must be >= 0 and tenureMonths > 0");
-  }
-  return roundToPaisa(
-    targetMaturityAmount / dpsGrowthFactor(annualRatePct, tenureMonths, compounding)
-  );
 }
 
 /** Round to 2 decimal places (nearest paisa) to avoid floating-point noise in the UI. */
