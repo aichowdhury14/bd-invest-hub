@@ -36,6 +36,9 @@ yarn-error.log*
 # vercel
 .vercel
 
+# local-only secrets reference (never commit credentials)
+DEPLOYMENT-CREDENTIALS.md
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts
