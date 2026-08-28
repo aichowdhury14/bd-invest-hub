@@ -7,6 +7,7 @@ import { institutionTypeLabels, isRecurringProduct, productTypeLabels } from "@/
 import { institutionTypeStyle } from "@/lib/institution-style";
 import { calculateDPSMaturity, calculateLumpSumMaturity } from "@/lib/calculations";
 import type { InstitutionType, ProductType } from "@prisma/client";
+import { useAmountInput } from "@/lib/useAmountInput";
 import { ComparisonChart, type ComparisonBar } from "./ComparisonChart";
 
 const MAX_SELECTED = 6;
@@ -34,7 +35,7 @@ export function CompareClient({ products }: { products: SerializedProduct[] }) {
     return Array.from(set).sort((a, b) => a - b);
   }, [products]);
 
-  const [amount, setAmount] = useState(100000);
+  const { amount, raw: amountRaw, onChange: onAmountChange } = useAmountInput(100000);
   const [tenureIndex, setTenureIndex] = useState(() => {
     const idx = tenureOptions.indexOf(12);
     return idx >= 0 ? idx : 0;
@@ -142,11 +143,11 @@ export function CompareClient({ products }: { products: SerializedProduct[] }) {
             </span>
             <input
               id="cmp-amount"
-              type="number"
-              min={0}
-              step={1000}
-              value={amount}
-              onChange={(e) => setAmount(Number(e.target.value))}
+              type="text"
+              inputMode="numeric"
+              pattern="[0-9]*"
+              value={amountRaw}
+              onChange={(e) => onAmountChange(e.target.value)}
               className="w-full rounded-xl border border-border bg-transparent pl-8 pr-3 py-2.5 text-lg font-semibold tabular-nums focus:outline-none focus:ring-2 focus:ring-brand-end"
             />
           </div>

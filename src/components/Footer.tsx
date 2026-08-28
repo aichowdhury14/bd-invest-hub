@@ -16,6 +16,9 @@ export function Footer() {
           An independent comparison tool, not affiliated with any bank, Bangladesh Bank, or
           investment organization listed.
         </p>
+        <p className="text-xs text-muted/80 pt-2 border-t border-border">
+          &copy; {new Date().getFullYear()} BD Invest Hub. Built by Atiqul Islam Chowdhury.
+        </p>
       </Container>
     </footer>
   );

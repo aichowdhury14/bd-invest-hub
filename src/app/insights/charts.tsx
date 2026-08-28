@@ -17,7 +17,7 @@ import {
 } from "recharts";
 import { useIsDark } from "@/lib/useIsDark";
 import { institutionTypeLabels, productTypeLabels } from "@/lib/labels";
-import { chartPalette } from "@/lib/chart-palette";
+import { chartPalette, seriesColor } from "@/lib/chart-palette";
 import type {
   CategoryStat,
   CompositionStat,
@@ -115,6 +115,7 @@ export function CategoryBarChart({ data }: { data: CategoryStat[] }) {
 /** Horizontal bar leaderboard of the very best rates across every institution/product. */
 export function TopRatesLeaderboard({ data }: { data: TopRate[] }) {
   const c = useChartColors();
+  const isDark = useIsDark();
   if (data.length === 0) return <EmptyState label="No rate data available yet." />;
 
   const chartData = data.map((d) => ({
@@ -145,7 +146,7 @@ export function TopRatesLeaderboard({ data }: { data: TopRate[] }) {
         />
         <Bar dataKey="rate" radius={[0, 4, 4, 0]} maxBarSize={20}>
           {chartData.map((entry, i) => (
-            <Cell key={i} fill={c[entry.key as "BANK" | "GOVERNMENT" | "INVESTMENT_ORG"]} />
+            <Cell key={i} fill={seriesColor(i, isDark)} />
           ))}
         </Bar>
       </BarChart>

@@ -29,3 +29,22 @@ export const chartPalette = {
 } as const;
 
 export type ChartColors = typeof chartPalette.light;
+
+/**
+ * The dataviz skill's full validated 8-hue categorical series (order is the
+ * CVD-safety mechanism — kept as documented, not re-sorted). Used where each
+ * data point needs its own distinct identity color (e.g. "10 different banks
+ * in one leaderboard") rather than being grouped by institution type. With
+ * >8 items the palette cycles — acceptable here since every bar also carries
+ * a direct text label, so color is a visual aid, not the only way to tell
+ * two bars apart.
+ */
+export const seriesPalette = {
+  light: ["#2a78d6", "#eb6834", "#1baf7a", "#eda100", "#e87ba4", "#008300", "#4a3aa7", "#e34948"],
+  dark: ["#3987e5", "#d95926", "#199e70", "#c98500", "#d55181", "#008300", "#9085e9", "#e66767"],
+} as const;
+
+export function seriesColor(index: number, isDark: boolean): string {
+  const ramp = isDark ? seriesPalette.dark : seriesPalette.light;
+  return ramp[index % ramp.length];
+}

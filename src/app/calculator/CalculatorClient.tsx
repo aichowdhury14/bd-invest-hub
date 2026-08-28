@@ -32,6 +32,7 @@ import {
   realRatePct,
   type TaxStatus,
 } from "@/lib/economic-context";
+import { useAmountInput } from "@/lib/useAmountInput";
 import { GrowthChart } from "./GrowthChart";
 
 type RiskProfile = "CONSERVATIVE" | "BALANCED" | "GROWTH";
@@ -73,7 +74,7 @@ export function CalculatorClient({ products }: { products: SerializedProduct[] }
     return Array.from(set);
   }, [products]);
 
-  const [amount, setAmount] = useState(100000);
+  const { amount, raw: amountRaw, onChange: onAmountChange } = useAmountInput(100000);
   const [tenureIndex, setTenureIndex] = useState(() => {
     const defaultIdx = tenureOptions.indexOf(12);
     return defaultIdx >= 0 ? defaultIdx : 0;
@@ -249,11 +250,11 @@ export function CalculatorClient({ products }: { products: SerializedProduct[] }
             </span>
             <input
               id="amount"
-              type="number"
-              min={0}
-              step={1000}
-              value={amount}
-              onChange={(e) => setAmount(Number(e.target.value))}
+              type="text"
+              inputMode="numeric"
+              pattern="[0-9]*"
+              value={amountRaw}
+              onChange={(e) => onAmountChange(e.target.value)}
               className="w-full rounded-xl border border-border bg-transparent pl-8 pr-3 py-2.5 text-lg font-semibold tabular-nums focus:outline-none focus:ring-2 focus:ring-brand-end"
             />
           </div>
@@ -356,6 +357,7 @@ export function CalculatorClient({ products }: { products: SerializedProduct[] }
                 label={rec.label}
                 row={rec.row}
                 reasoning={rec.reasoning}
+                taxStatus={taxStatus}
               />
             ))}
           </div>
@@ -520,11 +522,13 @@ function RecommendationCard({
   label,
   row,
   reasoning,
+  taxStatus,
 }: {
   icon: LucideIcon;
   label: string;
   row: Row | null;
   reasoning: string;
+  taxStatus: TaxStatus;
 }) {
   if (!row || !row.tier) {
     return (
@@ -539,6 +543,11 @@ function RecommendationCard({
   }
 
   const style = institutionTypeStyle[row.product.institutionType];
+  const aitPct = aitRateForStatus(taxStatus);
+  const netMaturity =
+    row.maturityAmount !== null && row.totalInterest !== null && row.totalContribution !== null
+      ? row.totalContribution + row.totalInterest * (1 - aitPct / 100)
+      : null;
 
   return (
     <div className="rounded-2xl card-surface p-4 shadow-sm space-y-2">
@@ -559,6 +568,11 @@ function RecommendationCard({
         </span>
       </div>
       <p className="text-sm tabular-nums font-semibold">{bdt.format(row.maturityAmount ?? 0)}</p>
+      {netMaturity !== null && (
+        <p className="text-xs tabular-nums text-muted">
+          {bdt.format(netMaturity)} after {aitPct}% tax
+        </p>
+      )}
       <p className="text-xs text-muted leading-relaxed">{reasoning}</p>
     </div>
   );
