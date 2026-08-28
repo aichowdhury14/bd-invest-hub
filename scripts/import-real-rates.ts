@@ -258,6 +258,37 @@ const entries: RateEntry[] = [
   { institutionName: "IFIC Bank", productType: "DPS", tenureMonths: 60, minAmount: 0, interestRatePct: 10.0, sourceUrl: "https://ificbank.com.bd/public/assets/home/interest/1786857538_Latest%20Deposit%20Advance%20Rate__16.08.2026.pdf" },
   { institutionName: "IFIC Bank", productType: "DPS", tenureMonths: 120, minAmount: 0, interestRatePct: 10.0, sourceUrl: "https://ificbank.com.bd/public/assets/home/interest/1786857538_Latest%20Deposit%20Advance%20Rate__16.08.2026.pdf" },
 
+  // --- United Commercial Bank (UCB) --- UEPFD (Earning Plus FD, quarterly-payout
+  // column) + Super Flex DPS. UEPFD explicitly states tenor "1 to 10 years."
+  { institutionName: "United Commercial Bank", productType: "FDR", tenureMonths: 12, minAmount: 0, interestRatePct: 10.0, sourceUrl: "https://www.ucb.com.bd/banking/retail-banking/ucb-earning-plus-fixed-deposit-uepfd/" },
+  { institutionName: "United Commercial Bank", productType: "FDR", tenureMonths: 24, minAmount: 0, interestRatePct: 10.0, sourceUrl: "https://www.ucb.com.bd/banking/retail-banking/ucb-earning-plus-fixed-deposit-uepfd/" },
+  { institutionName: "United Commercial Bank", productType: "FDR", tenureMonths: 36, minAmount: 0, interestRatePct: 10.0, sourceUrl: "https://www.ucb.com.bd/banking/retail-banking/ucb-earning-plus-fixed-deposit-uepfd/" },
+  { institutionName: "United Commercial Bank", productType: "FDR", tenureMonths: 48, minAmount: 0, interestRatePct: 8.25, sourceUrl: "https://www.ucb.com.bd/banking/retail-banking/ucb-earning-plus-fixed-deposit-uepfd/" },
+  { institutionName: "United Commercial Bank", productType: "FDR", tenureMonths: 60, minAmount: 0, interestRatePct: 8.25, sourceUrl: "https://www.ucb.com.bd/banking/retail-banking/ucb-earning-plus-fixed-deposit-uepfd/" },
+  { institutionName: "United Commercial Bank", productType: "FDR", tenureMonths: 84, minAmount: 0, interestRatePct: 8.25, sourceUrl: "https://www.ucb.com.bd/banking/retail-banking/ucb-earning-plus-fixed-deposit-uepfd/" },
+  { institutionName: "United Commercial Bank", productType: "FDR", tenureMonths: 120, minAmount: 0, interestRatePct: 8.25, sourceUrl: "https://www.ucb.com.bd/banking/retail-banking/ucb-earning-plus-fixed-deposit-uepfd/" },
+  // Super Flex DPS: the page gives only a maturity-VALUE example (one deposit
+  // amount per tenure, not several), so this is back-solved from a single data
+  // point per tenure — lower confidence than Dhaka Bank's DPS (which had 3
+  // amounts per tenure to cross-check). Regular-customer rates used (not the
+  // senior-citizen preferential tier).
+  { institutionName: "United Commercial Bank", productType: "DPS", tenureMonths: 12, minAmount: 0, interestRatePct: 11.2, sourceUrl: "ucb-superflex-dps-maturity-example (back-solved, single data point, lower confidence)" },
+  { institutionName: "United Commercial Bank", productType: "DPS", tenureMonths: 24, minAmount: 0, interestRatePct: 10.3, sourceUrl: "ucb-superflex-dps-maturity-example (back-solved, single data point, lower confidence)" },
+  { institutionName: "United Commercial Bank", productType: "DPS", tenureMonths: 36, minAmount: 0, interestRatePct: 10.28, sourceUrl: "ucb-superflex-dps-maturity-example (back-solved, single data point, lower confidence)" },
+  { institutionName: "United Commercial Bank", productType: "DPS", tenureMonths: 60, minAmount: 0, interestRatePct: 10.31, sourceUrl: "ucb-superflex-dps-maturity-example (back-solved, single data point, lower confidence)" },
+  { institutionName: "United Commercial Bank", productType: "DPS", tenureMonths: 120, minAmount: 0, interestRatePct: 10.14, sourceUrl: "ucb-superflex-dps-maturity-example (back-solved, single data point, lower confidence)" },
+
+  // --- Jamuna Bank --- Monthly Savings Scheme DPS (from official "Deposit
+  // Schemes" PDF, cross-validated at two deposit amounts per tenure — clean fit).
+  // FDR/MTDR is NOT entered: the bank's only FDR sheet publishes a negotiated
+  // RANGE (7.00-11.00% for 3mo, 7.00-10.50% for 6/12mo), not a specific
+  // advertised rate, and no tenure beyond 12 months is published at all — same
+  // reasoning as Standard Chartered's exclusion.
+  { institutionName: "Jamuna Bank", productType: "DPS", tenureMonths: 36, minAmount: 0, interestRatePct: 9.5, sourceUrl: "https://jamunabankbd.com/wp-content/uploads/2026/08/Rates-of-Deposit-Schemes_PP-1.pdf" },
+  { institutionName: "Jamuna Bank", productType: "DPS", tenureMonths: 60, minAmount: 0, interestRatePct: 9.0, sourceUrl: "https://jamunabankbd.com/wp-content/uploads/2026/08/Rates-of-Deposit-Schemes_PP-1.pdf" },
+  { institutionName: "Jamuna Bank", productType: "DPS", tenureMonths: 96, minAmount: 0, interestRatePct: 9.0, sourceUrl: "https://jamunabankbd.com/wp-content/uploads/2026/08/Rates-of-Deposit-Schemes_PP-1.pdf" },
+  { institutionName: "Jamuna Bank", productType: "DPS", tenureMonths: 120, minAmount: 0, interestRatePct: 9.0, sourceUrl: "https://jamunabankbd.com/wp-content/uploads/2026/08/Rates-of-Deposit-Schemes_PP-1.pdf" },
+
   // --- Mutual Trust Bank --- base FDR (tiered) + Brick by Brick DPS
   { institutionName: "Mutual Trust Bank", productType: "FDR", tenureMonths: 3, minAmount: 0, maxAmount: 50 * LAC, interestRatePct: 7.75, sourceUrl: "https://www.mutualtrustbank.com/interest-rates/" },
   { institutionName: "Mutual Trust Bank", productType: "FDR", tenureMonths: 3, minAmount: 50 * LAC, maxAmount: 1 * CRORE, interestRatePct: 8.0, sourceUrl: "https://www.mutualtrustbank.com/interest-rates/" },

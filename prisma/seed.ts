@@ -28,6 +28,8 @@ const BANKS = [
   "Trust Bank",
   "Southeast Bank",
   "IFIC Bank",
+  "United Commercial Bank",
+  "Jamuna Bank",
 ];
 
 // Shanta Asset Management was deliberately left out: it's a mutual fund manager,
