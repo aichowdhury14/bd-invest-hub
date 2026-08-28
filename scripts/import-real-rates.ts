@@ -1,17 +1,26 @@
 // One-off import of real, sourced FDR/DPS/Sanchayapatra/Treasury/NBFI rates,
-// researched 2026-08-28 (see research/rate-research-2026-08-28.md for the full
-// findings including everything NOT entered here and why).
+// researched 2026-08-28 and extended the same day with more sources (a rendering
+// proxy for JS-only sites, a user-supplied Pubali PDF, a Bank Asia DPS brochure,
+// and a user-supplied Dhaka Bank DPS maturity-value chart). See
+// research/rate-research-2026-08-28.md for the full findings including
+// everything still NOT entered here and why.
 //
-// Every row has a real sourceUrl. Institutions/products with no verifiable
-// current rate are intentionally omitted (left at the default "no rate data"
-// state) rather than filled with a guess:
-//   - The City Bank, Pubali Bank: official rate pages unreadable (JS-rendered /
-//     Cloudflare-blocked); no verifiable current figure found.
-//   - Standard Chartered Bangladesh: only a regulatory min-max RANGE is
-//     published (0.05%-5.00%), not a specific advertised rate — entering a
-//     single number would misrepresent it.
-//   - Bank Asia DPS, IDLC FDR/DPS: product exists but no percentage rate is
-//     published anywhere official.
+// Standard Chartered Bangladesh and the "Demo Bank" seed institution were
+// removed entirely (see scripts/remove-institution.ts) rather than left empty:
+// Standard Chartered only publishes a regulatory min-max RANGE (0.05%-5.00%),
+// never a specific advertised rate, so there was nothing honest to show; Demo
+// Bank was always meant to be removed before real data existed.
+//
+// Every row has a real sourceUrl (or, for Dhaka Bank's DPS, a note that the rate
+// was mathematically back-solved from the bank's own published maturity-value
+// chart — see the comment above those rows). Institutions/products with no
+// verifiable current rate are intentionally left with no rate data rather than
+// filled with a guess:
+//   - IDLC's DPS/FDR variants beyond the ones entered, and Shanta Asset
+//     Management (a mutual fund manager, not a deposit-taking institution —
+//     its returns are historical/variable, not a guaranteed rate, so they don't
+//     fit this schema's fixed-rate calculator; see the chat response for a
+//     plain-text analysis instead).
 //   - NCC Bank's only DPS rate sheet is dated Nov 2020 (unrevised since) — used
 //     their fresher 2025 Kotipoti/Millionaire scheme rate instead.
 //   - Uttara Bank's "Monthly Deposit Scheme" rate is published with no
@@ -137,10 +146,38 @@ const entries: RateEntry[] = [
   { institutionName: "Prime Bank", productType: "DPS", tenureMonths: 60, minAmount: 0, interestRatePct: 9.0, sourceUrl: "https://www.primebank.com.bd/interest-or-profit-rates" },
   { institutionName: "Prime Bank", productType: "DPS", tenureMonths: 120, minAmount: 0, interestRatePct: 9.0, sourceUrl: "https://www.primebank.com.bd/interest-or-profit-rates" },
 
-  // --- Dhaka Bank --- Special FD (SME/Corp) tenures; DPS NOT FOUND (skipped)
+  // --- Dhaka Bank --- Special FD (SME/Corp) tenures
   { institutionName: "Dhaka Bank", productType: "FDR", tenureMonths: 3, minAmount: 0, interestRatePct: 9.0, sourceUrl: "https://dhakabank.com.bd/wp-content/uploads/2026/08/Deposit-Rate-Effective-from-Aug-06-2026.pdf" },
   { institutionName: "Dhaka Bank", productType: "FDR", tenureMonths: 6, minAmount: 0, interestRatePct: 8.75, sourceUrl: "https://dhakabank.com.bd/wp-content/uploads/2026/08/Deposit-Rate-Effective-from-Aug-06-2026.pdf" },
   { institutionName: "Dhaka Bank", productType: "FDR", tenureMonths: 12, minAmount: 0, interestRatePct: 8.75, sourceUrl: "https://dhakabank.com.bd/wp-content/uploads/2026/08/Deposit-Rate-Effective-from-Aug-06-2026.pdf" },
+  // Dhaka Bank DPS: the bank only publishes a maturity-VALUE chart (no percentage
+  // rate anywhere), so these rates were back-solved from that chart — found the
+  // rate R (monthly-compounded annuity, i=R/12) that makes our own maturity formula
+  // exactly reproduce the bank's published maturity amount at every tenure AND at
+  // three different monthly-deposit amounts (500/1000/25000), which matched
+  // perfectly (confirming no amount-based tiering). Dhaka Bank's DPS product's
+  // `compounding` field is set to MONTHLY below to match this derivation exactly.
+  { institutionName: "Dhaka Bank", productType: "DPS", tenureMonths: 24, minAmount: 0, interestRatePct: 9.443, sourceUrl: "dhaka-bank-dps-maturity-chart (user-supplied image, back-solved)" },
+  { institutionName: "Dhaka Bank", productType: "DPS", tenureMonths: 36, minAmount: 0, interestRatePct: 9.164, sourceUrl: "dhaka-bank-dps-maturity-chart (user-supplied image, back-solved)" },
+  { institutionName: "Dhaka Bank", productType: "DPS", tenureMonths: 48, minAmount: 0, interestRatePct: 9.027, sourceUrl: "dhaka-bank-dps-maturity-chart (user-supplied image, back-solved)" },
+  { institutionName: "Dhaka Bank", productType: "DPS", tenureMonths: 60, minAmount: 0, interestRatePct: 9.898, sourceUrl: "dhaka-bank-dps-maturity-chart (user-supplied image, back-solved)" },
+  { institutionName: "Dhaka Bank", productType: "DPS", tenureMonths: 72, minAmount: 0, interestRatePct: 9.367, sourceUrl: "dhaka-bank-dps-maturity-chart (user-supplied image, back-solved)" },
+  { institutionName: "Dhaka Bank", productType: "DPS", tenureMonths: 84, minAmount: 0, interestRatePct: 8.855, sourceUrl: "dhaka-bank-dps-maturity-chart (user-supplied image, back-solved)" },
+  { institutionName: "Dhaka Bank", productType: "DPS", tenureMonths: 96, minAmount: 0, interestRatePct: 8.591, sourceUrl: "dhaka-bank-dps-maturity-chart (user-supplied image, back-solved)" },
+  { institutionName: "Dhaka Bank", productType: "DPS", tenureMonths: 120, minAmount: 0, interestRatePct: 8.317, sourceUrl: "dhaka-bank-dps-maturity-chart (user-supplied image, back-solved)" },
+
+  // --- Pubali Bank --- FDR ladder + Pubali Pension Scheme (PPS) DPS-equivalent
+  // Source: official rate sheet PDF supplied directly (research/pubali_bank_rate.pdf)
+  { institutionName: "Pubali Bank", productType: "FDR", tenureMonths: 3, minAmount: 0, interestRatePct: 8.0, sourceUrl: "research/pubali_bank_rate.pdf (official rate sheet)" },
+  { institutionName: "Pubali Bank", productType: "FDR", tenureMonths: 6, minAmount: 0, interestRatePct: 8.25, sourceUrl: "research/pubali_bank_rate.pdf (official rate sheet)" },
+  { institutionName: "Pubali Bank", productType: "FDR", tenureMonths: 12, minAmount: 0, interestRatePct: 8.5, sourceUrl: "research/pubali_bank_rate.pdf (official rate sheet)" },
+  { institutionName: "Pubali Bank", productType: "FDR", tenureMonths: 24, minAmount: 0, interestRatePct: 8.5, sourceUrl: "research/pubali_bank_rate.pdf (official rate sheet)" },
+  { institutionName: "Pubali Bank", productType: "FDR", tenureMonths: 36, minAmount: 0, interestRatePct: 8.5, sourceUrl: "research/pubali_bank_rate.pdf (official rate sheet)" },
+  // Pubali Pension Scheme (PPS), pegged to "1 Year FDR Rate" = 8.50% at every tenure
+  { institutionName: "Pubali Bank", productType: "DPS", tenureMonths: 36, minAmount: 0, interestRatePct: 8.5, sourceUrl: "research/pubali_bank_rate.pdf (official rate sheet)" },
+  { institutionName: "Pubali Bank", productType: "DPS", tenureMonths: 60, minAmount: 0, interestRatePct: 8.5, sourceUrl: "research/pubali_bank_rate.pdf (official rate sheet)" },
+  { institutionName: "Pubali Bank", productType: "DPS", tenureMonths: 84, minAmount: 0, interestRatePct: 8.5, sourceUrl: "research/pubali_bank_rate.pdf (official rate sheet)" },
+  { institutionName: "Pubali Bank", productType: "DPS", tenureMonths: 120, minAmount: 0, interestRatePct: 8.5, sourceUrl: "research/pubali_bank_rate.pdf (official rate sheet)" },
 
   // --- NCC Bank --- base FDR (tiered) + Kotipoti/Millionaire DPS (2025 sheet, fresher than the stale 2020 SSS sheet)
   { institutionName: "NCC Bank", productType: "FDR", tenureMonths: 3, minAmount: 0, maxAmount: 50 * LAC, interestRatePct: 9.0, sourceUrl: "https://www.nccbank.com.bd/assets/files/rates_files/Deposit_Rates.pdf" },
@@ -159,12 +196,18 @@ const entries: RateEntry[] = [
   { institutionName: "NCC Bank", productType: "DPS", tenureMonths: 60, minAmount: 0, interestRatePct: 10.0, sourceUrl: "https://www.nccbank.com.bd/assets/files/rates_files/Deposit_Rates.pdf" },
   { institutionName: "NCC Bank", productType: "DPS", tenureMonths: 120, minAmount: 0, interestRatePct: 10.0, sourceUrl: "https://www.nccbank.com.bd/assets/files/rates_files/Deposit_Rates.pdf" },
 
-  // --- Bank Asia --- FDR only; DPS NOT FOUND (skipped)
+  // --- Bank Asia --- FDR ladder + DPS+ (flagship DPS, from official brochure PDF)
   { institutionName: "Bank Asia", productType: "FDR", tenureMonths: 3, minAmount: 0, interestRatePct: 8.0, sourceUrl: "https://www.bankasia-bd.com/other/interestrates" },
   { institutionName: "Bank Asia", productType: "FDR", tenureMonths: 6, minAmount: 0, interestRatePct: 8.5, sourceUrl: "https://www.bankasia-bd.com/other/interestrates" },
   { institutionName: "Bank Asia", productType: "FDR", tenureMonths: 12, minAmount: 0, interestRatePct: 8.25, sourceUrl: "https://www.bankasia-bd.com/other/interestrates" },
   { institutionName: "Bank Asia", productType: "FDR", tenureMonths: 24, minAmount: 0, interestRatePct: 8.25, sourceUrl: "https://www.bankasia-bd.com/other/interestrates" },
   { institutionName: "Bank Asia", productType: "FDR", tenureMonths: 36, minAmount: 0, interestRatePct: 8.25, sourceUrl: "https://www.bankasia-bd.com/other/interestrates" },
+  // DPS+ (ডিপিএস+), effective from 01 Feb 2026 per the brochure
+  { institutionName: "Bank Asia", productType: "DPS", tenureMonths: 36, minAmount: 0, interestRatePct: 9.81, sourceUrl: "https://www.bankasia-bd.com/downloads/Bank_Asia_DPS_Brochure.pdf" },
+  { institutionName: "Bank Asia", productType: "DPS", tenureMonths: 60, minAmount: 0, interestRatePct: 9.96, sourceUrl: "https://www.bankasia-bd.com/downloads/Bank_Asia_DPS_Brochure.pdf" },
+  { institutionName: "Bank Asia", productType: "DPS", tenureMonths: 84, minAmount: 0, interestRatePct: 9.15, sourceUrl: "https://www.bankasia-bd.com/downloads/Bank_Asia_DPS_Brochure.pdf" },
+  { institutionName: "Bank Asia", productType: "DPS", tenureMonths: 120, minAmount: 0, interestRatePct: 9.27, sourceUrl: "https://www.bankasia-bd.com/downloads/Bank_Asia_DPS_Brochure.pdf" },
+  { institutionName: "Bank Asia", productType: "DPS", tenureMonths: 144, minAmount: 0, interestRatePct: 9.34, sourceUrl: "https://www.bankasia-bd.com/downloads/Bank_Asia_DPS_Brochure.pdf" },
 
   // --- Trust Bank --- base FDR (tiered) + Trust Smart Savers DPS
   { institutionName: "Trust Bank", productType: "FDR", tenureMonths: 3, minAmount: 0, maxAmount: 50 * LAC, interestRatePct: 7.75, sourceUrl: "https://www.tblbd.com/rates-and-charges/deposit-rates" },
@@ -258,6 +301,9 @@ const entries: RateEntry[] = [
   { institutionName: "Bangladesh Bank / National Savings Directorate", productType: "SANCHAYPATRO", productNameHint: "Pensioner Sanchayapatra", tenureMonths: 60, minAmount: 7.5 * LAC, interestRatePct: 11.8, sourceUrl: "https://www.dhakatribune.com/business/400262/govt-withdraws-new-savings-certificate-rates" },
   { institutionName: "Bangladesh Bank / National Savings Directorate", productType: "SANCHAYPATRO", productNameHint: "Poribar Sanchayapatra", tenureMonths: 60, minAmount: 0, maxAmount: 7.5 * LAC, interestRatePct: 11.93, sourceUrl: "https://www.dhakatribune.com/business/400262/govt-withdraws-new-savings-certificate-rates" },
   { institutionName: "Bangladesh Bank / National Savings Directorate", productType: "SANCHAYPATRO", productNameHint: "Poribar Sanchayapatra", tenureMonths: 60, minAmount: 7.5 * LAC, interestRatePct: 11.8, sourceUrl: "https://www.dhakatribune.com/business/400262/govt-withdraws-new-savings-certificate-rates" },
+  // 3 Monthly Profit Bearing Sanchayapatra (pays profit quarterly), 3-year tenure
+  { institutionName: "Bangladesh Bank / National Savings Directorate", productType: "SANCHAYPATRO", productNameHint: "3 Monthly Profit Bearing", tenureMonths: 36, minAmount: 0, maxAmount: 7.5 * LAC, interestRatePct: 11.82, sourceUrl: "https://www.dhakatribune.com/business/400262/govt-withdraws-new-savings-certificate-rates" },
+  { institutionName: "Bangladesh Bank / National Savings Directorate", productType: "SANCHAYPATRO", productNameHint: "3 Monthly Profit Bearing", tenureMonths: 36, minAmount: 7.5 * LAC, interestRatePct: 11.77, sourceUrl: "https://www.dhakatribune.com/business/400262/govt-withdraws-new-savings-certificate-rates" },
 
   // --- Government: Treasury Bond (BGTB) --- Bangladesh Bank auction cut-off yields
   { institutionName: "Bangladesh Bank / National Savings Directorate", productType: "TBOND", tenureMonths: 24, minAmount: 0, interestRatePct: 9.39, sourceUrl: "https://www.bb.org.bd/en/index.php/monetaryactivity/treasury" },
@@ -356,6 +402,17 @@ async function main() {
   console.log(`Imported ${created} rate tiers across ${touchedProductIds.size} products.`);
   if (skippedNoInstitution || skippedNoProduct) {
     console.log(`Skipped: ${skippedNoInstitution} (no institution match), ${skippedNoProduct} (no product match).`);
+  }
+
+  // Dhaka Bank's DPS rates were back-solved assuming monthly-compounded annuity
+  // math (see the comment above those entries) — set the product's compounding
+  // to match, so the calculator reproduces the bank's own published chart exactly.
+  const dhakaBank = await prisma.institution.findFirst({ where: { name: "Dhaka Bank" } });
+  if (dhakaBank) {
+    await prisma.rateProduct.updateMany({
+      where: { institutionId: dhakaBank.id, productType: "DPS" },
+      data: { compounding: "MONTHLY" },
+    });
   }
 }
 

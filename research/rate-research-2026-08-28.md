@@ -344,8 +344,47 @@ Re-checked official matrix PDF + retail product page. SC Bangladesh genuinely do
 ### Bank Asia DPS — CONFIRMED still NOT FOUND
 DPS Plus page still shows only a maturity-value table, no percentage. Bank Asia's public "Interest Rates" page only serves a lending-rate PDF, not deposit rates. Still not entered.
 
-### Pubali Bank — CONFIRMED still blocked
-Tried r.jina.ai proxy + direct fetch on 5 different URLs (main rate page, 2 PDF variants, legacy site, alternate product page) — Cloudflare bot-challenge (403/CAPTCHA) held on every single path, unlike City Bank which the same proxy technique successfully cracked. Genuinely inaccessible with available tools. Google's snippet index confirms a real rate table exists in their PDF but none of it could be read. Still NOT FOUND — would need a human to open it in a real browser, or the bank's API/call center.
+### Pubali Bank — RESOLVED (2026-08-28, user supplied the PDF directly)
+User saved the bank's own rate sheet to research/pubali_bank_rate.pdf and pointed me at it — read directly via the PDF tool (no proxy needed once we had the actual file).
+
+FDR: 1mo 5.00%, 3mo/100-day 8.00%, 6mo 8.25%, 12mo+ 8.50%
+DPS-equivalent: no generic "Deposit Pension Scheme" rate published (row literally says "----"). Several named pension/recurring schemes exist instead, all pegged to "1 Year FDR Rate" = 8.50% flat regardless of tenure:
+- Pubali Pension Scheme (PPS): 3/5/7/10yr — used as the flagship DPS entry (36/60/84/120mo @ 8.50%)
+- Pubali Sanchay Prokalpo (PSP): 5/10yr, same 8.50%
+- Shikha Sanchay Prokalpo (SSP): 10yr, same 8.50%
+Also present but not entered (niche/conditional products): Peoples Pubali Pension Scheme & Senior Citizen Pubali Deposit Scheme (6mo FDR +1%, compounded monthly, 9.25%), Digun Sanchoy Prokalpo (9yr, 8.055%), Monthly Profit Based FDR (min Tk 1 lac, 3/5yr, 1yr FDR +0.50% = 9.00%), Pubali Swadhin Sanchaya / Shawpna Puran (3mo FDR +1% = 9.00%).
+
+### Bank Asia DPS — RESOLVED (2026-08-28, user supplied the brochure URL)
+Source (PDF): https://www.bankasia-bd.com/downloads/Bank_Asia_DPS_Brochure.pdf
+Effective: stated "will be effective from 01 February 2026" on the brochure.
+DPS+ (ডিপিএস+, the flagship general scheme) — rate by tenure, confirmed identical across all deposit-amount rows (500 to 20,000 Tk/month):
+- 3yr: 9.81%, 5yr: 9.96%, 7yr: 9.15%, 10yr: 9.27%, 12yr: 9.34%
+Also present but not entered (niche/eligibility-restricted): "আঁচল" (Aanchal, women-only, higher rates 9.00-10.55%), "সঞ্চয়েই কোটিপতি" (goal-based lump-sum-target scheme), "ভ্রমণ" (travel fund, 1-3yr packages).
+
+### Dhaka Bank DPS — RESOLVED (2026-08-28, back-solved from user-supplied maturity chart)
+User provided a screenshot of Dhaka Bank's official "DPS Maturity Value Chart" (dated "Updated on March 27, 2024" per its own footnote — this is the only source, no percentage rate is published anywhere by the bank, only maturity BDT amounts by monthly-deposit x tenure).
+Method: solved for the annual nominal rate R (monthly-compounded annuity, i=R/12) that makes our own calculateDPSMaturity formula exactly reproduce the chart's maturity value, via bisection. Cross-checked against 3 different monthly-deposit rows (500/1,000/25,000 Tk) per tenure — all three gave the identical rate to 6 decimal places, confirming no amount-based tiering and that the back-solve is sound, not coincidental.
+Rates found (entered to 3dp, the schema's precision limit):
+- 2yr: 9.443%, 3yr: 9.164%, 4yr: 9.027%, 5yr: 9.898%, 6yr: 9.367%, 7yr: 8.855%, 8yr: 8.591%, 10yr: 8.317%
+Dhaka Bank's DPS `RateProduct.compounding` was set to MONTHLY (overriding the default QUARTERLY) to match this derivation — verified the app's own calculation code reproduces the chart to within a few BDT out of 100,000+ at every tenure (residual is purely the DB's 3-decimal rate-precision limit, not an error).
+
+### Shanta Asset Management — analyzed, NOT entered as a rate
+Source: https://www.shanta-aml.com/our-funds/shanta-fixed-income-fund (fetched 2026-08-28)
+This is an open-end mutual fund (perpetual life, moderate risk), not a deposit-taking institution — it has no guaranteed rate at all, only historical/variable returns:
+- Trailing returns (as of 29 Aug 2026): since inception (4yr 9mo) 41.97%, 1-year 15.69%, 6-month 5.42%, 3-month 2.93%, YTD 10.31%
+- Annual dividend distribution history: 2021 0.0%, 2022 2.0%, 2023 4.0%, 2024 5.2%, 2025 8.0%
+- NAV 12.277 BDT/unit, AUM 3,045.2M BDT, inception 16 Aug 2021, min SIP Tk 1,000/month
+DECISION: none of this was entered into RateTier. This app's schema models a guaranteed interestRatePct that the calculator compounds forward as if certain — doing that with a NAV-based mutual fund's trailing historical return would imply a guarantee that does not exist and could mislead a user into thinking their money is assured to grow at, say, 15.69%. A real fund-tracking feature (variable NAV, non-guaranteed) is a different schema/UI shape than what Phase 1 supports — worth a Phase 2/3 addition, not a shortcut through the existing FDR/DPS fields.
+
+### 3 Monthly Profit Bearing Sanchayapatra — RESOLVED (2026-08-28, added per user request)
+Sources: https://www.dhakatribune.com/business/400262/govt-withdraws-new-savings-certificate-rates (cross-checked against unb.com.bd's coverage of the same Finance Division circular)
+Tenure: 3 years (36 months), pays profit quarterly rather than at maturity (still modeled here as a single maturity-tenure rate tier, consistent with how the other Sanchayapatra products are modeled — the calculator computes maturity value, not the interim quarterly payout schedule).
+Rate: up to Tk 7.5 lakh: 11.82%; above Tk 7.5 lakh: 11.77%. Same effective window as the other 3 Sanchayapatra products (Jul 2025 rates, reconfirmed unchanged through Dec 2026).
+
+## CLEANUP (2026-08-28, per user request)
+- Deleted "Demo Bank (Sample Data — Replace Me)" institution entirely (was always meant to be removed before real data existed; now that 20+ institutions have real rates, no demo is needed).
+- Deleted "Standard Chartered Bangladesh" institution entirely — kept showing an empty "—" row on the site for no benefit, since no specific rate could ever be honestly published for it (regulatory range only).
+- Both removed via the new scripts/remove-institution.ts utility (also removed from prisma/seed.ts so they aren't recreated on the next seed run).
 
 ---
 

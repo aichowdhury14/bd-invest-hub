@@ -21,7 +21,6 @@ const BANKS = [
   "Dhaka Bank",
   "The City Bank",
   "Mutual Trust Bank",
-  "Standard Chartered Bangladesh",
   "Pubali Bank",
   "Uttara Bank",
   "NCC Bank",
@@ -76,6 +75,7 @@ async function main() {
   await ensureProductShell(govt.id, "SANCHAYPATRO", "5-Year Bangladesh Sanchayapatra", 60, 60);
   await ensureProductShell(govt.id, "SANCHAYPATRO", "Pensioner Sanchayapatra", 60, 60);
   await ensureProductShell(govt.id, "SANCHAYPATRO", "Poribar Sanchayapatra (Family)", 60, 60);
+  await ensureProductShell(govt.id, "SANCHAYPATRO", "3 Monthly Profit Bearing Sanchayapatra", 36, 36);
   await ensureProductShell(govt.id, "TBOND", "Bangladesh Government Treasury Bond", 24, 240);
   await ensureProductShell(govt.id, "TBILL", "Bangladesh Government Treasury Bill", 1, 12);
 
@@ -90,40 +90,7 @@ async function main() {
     await ensureProductShell(inst.id, "DPS", "Monthly Savings Scheme", 12, 60);
   }
 
-  // --- One clearly-labeled demo institution with sample numbers ---------------
-  // This is the ONLY place with actual interest-rate numbers in the seed data, and
-  // it is unmistakably fake so it can never be confused with a real bank's rate.
-  // Delete or deactivate it from the admin panel before going live.
-  const demo = await prisma.institution.upsert({
-    where: { id: "demo-sample-bank" },
-    update: {},
-    create: {
-      id: "demo-sample-bank",
-      name: "Demo Bank (Sample Data — Replace Me)",
-      type: "BANK",
-    },
-  });
-  const demoFdr = await ensureProductShell(demo.id, "FDR", "Sample FDR", 3, 36);
-  await prisma.rateTier.deleteMany({ where: { productId: demoFdr.id } });
-  await prisma.rateTier.createMany({
-    data: [
-      { productId: demoFdr.id, tenureMonths: 3, minAmount: 0, interestRatePct: 6.5, source: "MANUAL" },
-      { productId: demoFdr.id, tenureMonths: 6, minAmount: 0, interestRatePct: 7.0, source: "MANUAL" },
-      { productId: demoFdr.id, tenureMonths: 12, minAmount: 0, interestRatePct: 7.75, source: "MANUAL" },
-      { productId: demoFdr.id, tenureMonths: 36, minAmount: 0, interestRatePct: 8.25, source: "MANUAL" },
-    ],
-  });
-  const demoDps = await ensureProductShell(demo.id, "DPS", "Sample DPS", 12, 60);
-  await prisma.rateTier.deleteMany({ where: { productId: demoDps.id } });
-  await prisma.rateTier.createMany({
-    data: [
-      { productId: demoDps.id, tenureMonths: 12, minAmount: 0, interestRatePct: 6.0, source: "MANUAL" },
-      { productId: demoDps.id, tenureMonths: 36, minAmount: 0, interestRatePct: 7.0, source: "MANUAL" },
-      { productId: demoDps.id, tenureMonths: 60, minAmount: 0, interestRatePct: 7.5, source: "MANUAL" },
-    ],
-  });
-
-  console.log(`Seeded ${BANKS.length} banks, 1 government institution, ${INVESTMENT_ORGS.length} investment orgs, and 1 demo institution.`);
+  console.log(`Seeded ${BANKS.length} banks, 1 government institution, ${INVESTMENT_ORGS.length} investment orgs.`);
 }
 
 async function ensureProductShell(
