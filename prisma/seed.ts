@@ -126,6 +126,9 @@ async function ensureProductShell(
   });
 }
 
+// Kept as a local copy (not imported from src/lib/slug.ts) so this script's
+// module resolution doesn't depend on the app's tsconfig path aliases — must
+// stay logically identical to slugify() in src/lib/slug.ts.
 function slug(value: string): string {
   return value
     .toLowerCase()

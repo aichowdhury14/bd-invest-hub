@@ -199,6 +199,7 @@ export interface RateHeatmapData {
   tenures: number[];
   /** rate[institutionName][tenureMonths] -> best rate, or undefined if not offered. */
   rates: Record<string, Record<number, number>>;
+  institutionTypes: Record<string, InstitutionType>;
 }
 
 /**
@@ -219,7 +220,7 @@ export async function getFDRHeatmap(topN = 14): Promise<RateHeatmapData> {
   const products = await prisma.rateProduct.findMany({
     where: { productType: "FDR", isActive: true, institution: { isActive: true } },
     select: {
-      institution: { select: { name: true } },
+      institution: { select: { name: true, type: true } },
       rateTiers: { select: { tenureMonths: true, interestRatePct: true } },
     },
   });
@@ -249,7 +250,12 @@ export async function getFDRHeatmap(topN = 14): Promise<RateHeatmapData> {
           : rate;
       }
       const best = Object.values(rates);
-      return { name: product.institution.name, rates, bestRate: best.length > 0 ? Math.max(...best) : -1 };
+      return {
+        name: product.institution.name,
+        type: product.institution.type,
+        rates,
+        bestRate: best.length > 0 ? Math.max(...best) : -1,
+      };
     })
     .filter((p) => p.bestRate >= 0)
     .sort((a, b) => b.bestRate - a.bestRate);
@@ -261,9 +267,13 @@ export async function getFDRHeatmap(topN = 14): Promise<RateHeatmapData> {
   );
 
   const rates: Record<string, Record<number, number>> = {};
-  for (const p of withBest) rates[p.name] = p.rates;
+  const institutionTypes: Record<string, InstitutionType> = {};
+  for (const p of withBest) {
+    rates[p.name] = p.rates;
+    institutionTypes[p.name] = p.type;
+  }
 
-  return { institutions: withBest.map((p) => p.name), tenures, rates };
+  return { institutions: withBest.map((p) => p.name), tenures, rates, institutionTypes };
 }
 
 export interface TrendStatus {

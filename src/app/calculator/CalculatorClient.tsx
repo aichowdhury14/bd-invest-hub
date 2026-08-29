@@ -22,6 +22,7 @@ import {
 } from "@/lib/calculations";
 import { institutionTypeLabels, isRecurringProduct, productTypeLabels } from "@/lib/labels";
 import { institutionTypeStyle } from "@/lib/institution-style";
+import { InstitutionLogo } from "@/components/InstitutionLogo";
 import { useSessionId } from "@/lib/useSessionId";
 import { trackCalculatorUse } from "@/lib/analytics";
 import type { ProductType } from "@prisma/client";
@@ -434,6 +435,7 @@ export function CalculatorClient({ products }: { products: SerializedProduct[] }
                   <td className="px-4 py-3.5">
                     <div className="flex items-center gap-2">
                       {isTop && <Crown className="h-4 w-4 text-accent shrink-0" strokeWidth={2.25} />}
+                      <InstitutionLogo name={row.product.institutionName} type={row.product.institutionType} size="sm" />
                       <div>
                         <div className="font-semibold">{row.product.institutionName}</div>
                         <span
@@ -555,9 +557,12 @@ function RecommendationCard({
         <Icon className="h-4 w-4 text-accent" />
         {label}
       </div>
-      <div>
-        <p className="font-display font-bold leading-snug">{row.product.institutionName}</p>
-        <p className="text-xs text-muted">{row.product.name}</p>
+      <div className="flex items-center gap-2.5">
+        <InstitutionLogo name={row.product.institutionName} type={row.product.institutionType} size="sm" />
+        <div className="min-w-0">
+          <p className="font-display font-bold leading-snug">{row.product.institutionName}</p>
+          <p className="text-xs text-muted">{row.product.name}</p>
+        </div>
       </div>
       <div className="flex items-baseline gap-2">
         <span className="font-display text-xl font-bold tabular-nums">

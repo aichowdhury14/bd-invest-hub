@@ -5,6 +5,7 @@ import { BarChart3, Search, Sparkles, X } from "lucide-react";
 import type { SerializedProduct } from "@/lib/serialize";
 import { institutionTypeLabels, isRecurringProduct, productTypeLabels } from "@/lib/labels";
 import { institutionTypeStyle } from "@/lib/institution-style";
+import { InstitutionLogo } from "@/components/InstitutionLogo";
 import { calculateDPSMaturity, calculateLumpSumMaturity } from "@/lib/calculations";
 import type { InstitutionType, ProductType } from "@prisma/client";
 import { useAmountInput } from "@/lib/useAmountInput";
@@ -257,6 +258,7 @@ export function CompareClient({ products }: { products: SerializedProduct[] }) {
                   className="mt-1 accent-current shrink-0"
                   style={{ color: "var(--brand-end)" }}
                 />
+                <InstitutionLogo name={product.institutionName} type={product.institutionType} size="sm" />
                 <span className="min-w-0 flex-1">
                   <span className="flex items-baseline justify-between gap-2">
                     <span className="min-w-0 flex-1 truncate font-semibold">{product.institutionName}</span>
@@ -306,12 +308,15 @@ export function CompareClient({ products }: { products: SerializedProduct[] }) {
                   >
                     <X className="h-3.5 w-3.5" />
                   </button>
-                  <div className="pr-6">
-                    <h3 className="font-display font-semibold leading-snug">{product.institutionName}</h3>
-                    <p className="text-xs text-muted mt-0.5">{product.name}</p>
-                    <span className={`inline-block mt-1.5 rounded-full px-2 py-0.5 text-[11px] font-medium ${style.badge}`}>
-                      {institutionTypeLabels[product.institutionType]} · {productTypeLabels[product.productType]}
-                    </span>
+                  <div className="pr-6 flex items-start gap-2.5">
+                    <InstitutionLogo name={product.institutionName} type={product.institutionType} size="md" />
+                    <div className="min-w-0">
+                      <h3 className="font-display font-semibold leading-snug">{product.institutionName}</h3>
+                      <p className="text-xs text-muted mt-0.5">{product.name}</p>
+                      <span className={`inline-block mt-1.5 rounded-full px-2 py-0.5 text-[11px] font-medium ${style.badge}`}>
+                        {institutionTypeLabels[product.institutionType]} · {productTypeLabels[product.productType]}
+                      </span>
+                    </div>
                   </div>
                   <table className="w-full text-sm">
                     <thead>

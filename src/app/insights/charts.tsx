@@ -18,6 +18,7 @@ import {
 import { useIsDark } from "@/lib/useIsDark";
 import { institutionTypeLabels, productTypeLabels } from "@/lib/labels";
 import { chartPalette, seriesColor } from "@/lib/chart-palette";
+import { InstitutionLogo } from "@/components/InstitutionLogo";
 import type {
   CategoryStat,
   CompositionStat,
@@ -224,7 +225,7 @@ export function GovtInstrumentsChart({ data }: { data: GovtInstrumentRate[] }) {
 /** Sequential-intensity heatmap: institutions x tenure, colored by rate (single hue, magnitude only). */
 export function RateHeatmap({ data }: { data: RateHeatmapData }) {
   const c = useChartColors();
-  const { institutions, tenures, rates } = data;
+  const { institutions, tenures, rates, institutionTypes } = data;
 
   if (institutions.length === 0 || tenures.length === 0) {
     return <EmptyState label="No FDR data available yet." />;
@@ -254,7 +255,10 @@ export function RateHeatmap({ data }: { data: RateHeatmapData }) {
           {institutions.map((inst) => (
             <tr key={inst}>
               <td className="pr-2 py-0.5 font-medium whitespace-nowrap" style={{ color: c.ink }}>
-                {inst}
+                <span className="flex items-center gap-1.5">
+                  <InstitutionLogo name={inst} type={institutionTypes[inst]} size="sm" />
+                  {inst}
+                </span>
               </td>
               {tenures.map((t) => {
                 const rate = rates[inst]?.[t];

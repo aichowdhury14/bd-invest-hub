@@ -4,6 +4,7 @@ import { getActiveInstitutionsWithProducts, bestRateForProduct } from "@/lib/pro
 import { institutionTypeLabels, productTypeLabels } from "@/lib/labels";
 import { institutionTypeStyle } from "@/lib/institution-style";
 import { Container } from "@/components/Container";
+import { InstitutionLogo } from "@/components/InstitutionLogo";
 import type { InstitutionType } from "@prisma/client";
 
 export const revalidate = 300;
@@ -120,7 +121,10 @@ export default async function HomePage() {
                     className={`group rounded-2xl card-surface p-5 space-y-4 shadow-sm hover:shadow-lg hover:-translate-y-0.5 ring-1 ring-transparent transition-all ${style.ring}`}
                   >
                     <div className="flex items-start justify-between gap-2">
-                      <h3 className="font-display font-semibold leading-snug">{inst.name}</h3>
+                      <div className="flex items-center gap-2.5 min-w-0">
+                        <InstitutionLogo name={inst.name} type={inst.type} size="md" />
+                        <h3 className="font-display font-semibold leading-snug min-w-0">{inst.name}</h3>
+                      </div>
                       {inst.website && (
                         <a
                           href={inst.website}
