@@ -53,23 +53,29 @@ export function CompareClient({ products }: { products: SerializedProduct[] }) {
 
   // Related-products suggestions are keyed on the most recently selected
   // product — real co-occurrence data from other visitors' sessions, not a
-  // prediction. Refetches whenever the latest selection changes. The Server
-  // Action can take a couple of seconds (queued behind trackCompareView
-  // round-trips), so a derived loading state gives the widget a visible
-  // pending state instead of silently appearing to do nothing.
+  // prediction. Debounced so rapidly checking several boxes fires one fetch
+  // for the final selection instead of one per click — each is a real
+  // network round-trip to the Supabase pooler, and undebounced they queue up
+  // and compete for the pool's limited connections. The Server Action can
+  // still take a moment on its own, so a derived loading state gives the
+  // widget a visible pending state instead of silently appearing to do
+  // nothing.
   const latestSelectedId = selectedIds[selectedIds.length - 1] ?? null;
   const relatedLoading = latestSelectedId !== null && relatedFor !== latestSelectedId;
   useEffect(() => {
     if (!latestSelectedId) return;
     let cancelled = false;
-    fetchRelatedProducts(latestSelectedId).then((related) => {
-      if (!cancelled) {
-        setRelatedProducts(related);
-        setRelatedFor(latestSelectedId);
-      }
-    });
+    const handle = setTimeout(() => {
+      fetchRelatedProducts(latestSelectedId).then((related) => {
+        if (!cancelled) {
+          setRelatedProducts(related);
+          setRelatedFor(latestSelectedId);
+        }
+      });
+    }, 500);
     return () => {
       cancelled = true;
+      clearTimeout(handle);
     };
   }, [latestSelectedId]);
   const visibleRelatedProducts = useMemo(
