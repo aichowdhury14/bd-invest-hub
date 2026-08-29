@@ -17,6 +17,13 @@ const bdt = new Intl.NumberFormat("en-BD", {
 });
 
 const YEAR_OPTIONS = [1, 2, 3, 5, 7, 10, 15, 20, 25];
+const AMOUNT_PRESETS = [100000, 500000, 1000000, 5000000];
+
+function formatCompact(value: number): string {
+  if (value >= 10000000) return `${(value / 10000000).toFixed(value % 10000000 === 0 ? 0 : 1)}Cr`;
+  if (value >= 100000) return `${(value / 100000).toFixed(value % 100000 === 0 ? 0 : 1)}L`;
+  return value.toLocaleString("en-BD");
+}
 
 function formatTenure(months: number): string {
   if (months % 12 === 0) {
@@ -47,6 +54,7 @@ export function GoalCalculator({ products }: { products: SerializedProduct[] }) 
   }, [products]);
 
   const { amount: targetAmount, raw: targetRaw, onChange: onTargetChange } = useAmountInput(1000000);
+  const [amountFocused, setAmountFocused] = useState(false);
   const [yearIndex, setYearIndex] = useState(() => {
     const defaultIdx = yearOptions.indexOf(5);
     return defaultIdx >= 0 ? defaultIdx : 0;
@@ -56,12 +64,15 @@ export function GoalCalculator({ products }: { products: SerializedProduct[] }) 
   const years = yearOptions[yearIndex] ?? yearOptions[0] ?? 1;
   const tenureMonths = years * 12;
 
-  const { lumpSumRows, dpsRows, recommendations } = useMemo(
+  const { lumpSumRows, dpsRows, groups } = useMemo(
     () => buildGoalRecommendations(products, { targetAmount, tenureMonths, typeFilter }),
     [products, targetAmount, tenureMonths, typeFilter]
   );
 
-  const hasAnyResult = recommendations.some((r) => r.row);
+  const hasAnyResult = groups.some((g) => g.cards.some((c) => c.row));
+  const offeredLumpSumRows = useMemo(() => lumpSumRows.filter((r) => r.tier !== null), [lumpSumRows]);
+  const offeredDpsRows = useMemo(() => dpsRows.filter((r) => r.tier !== null), [dpsRows]);
+  const notOfferedCount = lumpSumRows.length + dpsRows.length - offeredLumpSumRows.length - offeredDpsRows.length;
 
   if (tenureOptions.length === 0) {
     return (
@@ -75,9 +86,16 @@ export function GoalCalculator({ products }: { products: SerializedProduct[] }) 
     <div className="space-y-6">
       <div className="rounded-2xl card-surface p-5 sm:p-7 shadow-sm grid gap-7 sm:grid-cols-2">
         <div className="space-y-2">
-          <label htmlFor="goal-amount" className="text-sm font-semibold">
-            Target amount (BDT, by maturity)
-          </label>
+          <div className="flex items-center justify-between">
+            <label htmlFor="goal-amount" className="text-sm font-semibold">
+              Target amount (by maturity)
+            </label>
+            {targetAmount > 0 && !amountFocused && (
+              <span className="tabular-nums rounded-full bg-foreground/5 px-2.5 py-0.5 text-xs font-semibold text-muted">
+                ৳{formatCompact(targetAmount)}
+              </span>
+            )}
+          </div>
           <div className="relative">
             <span className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-muted font-display font-semibold">
               ৳
@@ -89,8 +107,26 @@ export function GoalCalculator({ products }: { products: SerializedProduct[] }) 
               pattern="[0-9]*"
               value={targetRaw}
               onChange={(e) => onTargetChange(e.target.value)}
+              onFocus={() => setAmountFocused(true)}
+              onBlur={() => setAmountFocused(false)}
               className="w-full rounded-xl border border-border bg-transparent pl-8 pr-3 py-2.5 text-lg font-semibold tabular-nums focus:outline-none focus:ring-2 focus:ring-brand-end"
             />
+          </div>
+          <div className="flex flex-wrap gap-1.5">
+            {AMOUNT_PRESETS.map((preset) => (
+              <button
+                key={preset}
+                type="button"
+                onClick={() => onTargetChange(String(preset))}
+                className={`btn-press rounded-full px-2.5 py-1 text-xs font-medium transition-colors ${
+                  targetAmount === preset
+                    ? "brand-gradient text-white shadow-sm"
+                    : "bg-foreground/5 text-muted hover:bg-foreground/10 hover:text-foreground"
+                }`}
+              >
+                ৳{formatCompact(preset)}
+              </button>
+            ))}
           </div>
         </div>
 
@@ -118,6 +154,22 @@ export function GoalCalculator({ products }: { products: SerializedProduct[] }) 
             <span>{yearOptions[0]} year{yearOptions[0] > 1 ? "s" : ""}</span>
             <span>{yearOptions[yearOptions.length - 1]} years</span>
           </div>
+          <div className="flex flex-wrap gap-1.5 pt-1">
+            {yearOptions.map((y, idx) => (
+              <button
+                key={y}
+                type="button"
+                onClick={() => setYearIndex(idx)}
+                className={`btn-press rounded-full px-2.5 py-1 text-xs font-medium transition-colors ${
+                  years === y
+                    ? "brand-gradient text-white shadow-sm"
+                    : "bg-foreground/5 text-muted hover:bg-foreground/10 hover:text-foreground"
+                }`}
+              >
+                {y}y
+              </button>
+            ))}
+          </div>
         </div>
 
         <div className="space-y-2 sm:col-span-2">
@@ -136,7 +188,7 @@ export function GoalCalculator({ products }: { products: SerializedProduct[] }) 
       </div>
 
       {hasAnyResult ? (
-        <div className="space-y-3">
+        <div className="space-y-5">
           <div className="flex items-center gap-2">
             <Sparkles className="h-4 w-4 text-accent" />
             <h2 className="font-display font-bold">What you&apos;d need to deposit</h2>
@@ -145,17 +197,25 @@ export function GoalCalculator({ products }: { products: SerializedProduct[] }) 
               {years > 1 ? "s" : ""}, not a prediction
             </span>
           </div>
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            {recommendations.map((rec) => (
-              <GoalRecommendationCard
-                key={rec.key}
-                icon={rec.icon}
-                label={rec.label}
-                row={rec.row}
-                reasoning={rec.reasoning}
-              />
-            ))}
-          </div>
+          {groups.map(
+            (group) =>
+              group.cards.some((c) => c.row) && (
+                <div key={group.title} className="space-y-2.5">
+                  <h3 className="text-sm font-semibold text-muted">{group.title}</h3>
+                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                    {group.cards.map((rec) => (
+                      <GoalRecommendationCard
+                        key={rec.key}
+                        icon={rec.icon}
+                        label={rec.label}
+                        row={rec.row}
+                        reasoning={rec.reasoning}
+                      />
+                    ))}
+                  </div>
+                </div>
+              )
+          )}
         </div>
       ) : (
         <div className="rounded-2xl border border-dashed border-border p-8 text-center text-muted">
@@ -164,11 +224,17 @@ export function GoalCalculator({ products }: { products: SerializedProduct[] }) 
         </div>
       )}
 
-      {lumpSumRows.length > 0 && (
-        <GoalTable title="One-time deposit options" rows={lumpSumRows} depositLabel="Deposit needed" />
+      {offeredLumpSumRows.length > 0 && (
+        <GoalTable title="All one-time deposit options" rows={offeredLumpSumRows} depositLabel="Deposit needed" />
       )}
-      {dpsRows.length > 0 && (
-        <GoalTable title="Monthly deposit options" rows={dpsRows} depositLabel="Monthly deposit needed" />
+      {offeredDpsRows.length > 0 && (
+        <GoalTable title="All monthly deposit options" rows={offeredDpsRows} depositLabel="Monthly deposit needed" />
+      )}
+      {notOfferedCount > 0 && (
+        <p className="text-xs text-muted text-center">
+          {notOfferedCount} product{notOfferedCount > 1 ? "s don't" : " doesn't"} offer a{" "}
+          {formatTenure(tenureMonths)} tenure and {notOfferedCount > 1 ? "are" : "is"} not shown above.
+        </p>
       )}
     </div>
   );
@@ -280,10 +346,14 @@ function GoalTable({
             </tr>
           </thead>
           <tbody>
-            {rows.map((row) => {
+            {rows.map((row, i) => {
               const style = institutionTypeStyle[row.product.institutionType];
+              const isCheapest = i === 0;
               return (
-                <tr key={row.product.id} className="border-t border-border row-interactive">
+                <tr
+                  key={row.product.id}
+                  className={`border-t border-border row-interactive ${isCheapest ? "bg-accent/5" : ""}`}
+                >
                   <td className="px-4 py-3.5">
                     <div className="flex items-center gap-2">
                       <InstitutionLogo name={row.product.institutionName} type={row.product.institutionType} size="sm" />
@@ -299,33 +369,25 @@ function GoalTable({
                     <div className="font-medium">{row.product.name}</div>
                     <div className="text-xs text-muted">{productTypeLabels[row.product.productType]}</div>
                   </td>
-                  {row.tier ? (
-                    <>
-                      <td className="px-4 py-3.5 text-right tabular-nums font-medium">
-                        {row.tier.interestRatePct.toFixed(2)}%
-                      </td>
-                      <td className="px-4 py-3.5 text-right tabular-nums font-display font-bold text-base">
-                        {bdt.format(row.requiredDeposit ?? 0)}
-                      </td>
-                      <td className="px-4 py-3.5 text-xs text-muted">
-                        {row.tier.source === "SCRAPED" ? "Scraped" : "Manual"}
-                        {row.tier.sourceUrl && (
-                          <a
-                            href={row.tier.sourceUrl}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="inline-flex items-center gap-0.5 ml-1.5 underline decoration-dotted hover:text-foreground"
-                          >
-                            source <ExternalLink className="h-3 w-3" />
-                          </a>
-                        )}
-                      </td>
-                    </>
-                  ) : (
-                    <td colSpan={3} className="px-4 py-3.5 text-muted italic">
-                      Not offered at this tenure
-                    </td>
-                  )}
+                  <td className="px-4 py-3.5 text-right tabular-nums font-medium">
+                    {row.tier?.interestRatePct.toFixed(2)}%
+                  </td>
+                  <td className="px-4 py-3.5 text-right tabular-nums font-display font-bold text-base">
+                    {bdt.format(row.requiredDeposit ?? 0)}
+                  </td>
+                  <td className="px-4 py-3.5 text-xs text-muted">
+                    {row.tier?.source === "SCRAPED" ? "Scraped" : "Manual"}
+                    {row.tier?.sourceUrl && (
+                      <a
+                        href={row.tier.sourceUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-0.5 ml-1.5 underline decoration-dotted hover:text-foreground"
+                      >
+                        source <ExternalLink className="h-3 w-3" />
+                      </a>
+                    )}
+                  </td>
                 </tr>
               );
             })}

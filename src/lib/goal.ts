@@ -62,9 +62,8 @@ export interface GoalRow {
 export interface GoalPicks {
   cheapestLumpSum: GoalRow | null;
   cheapestDPS: GoalRow | null;
-  safest: GoalRow | null;
-  bestBank: GoalRow | null;
-  bestNBFI: GoalRow | null;
+  cheapestLumpSumBank: GoalRow | null;
+  cheapestDPSBank: GoalRow | null;
 }
 
 export interface GoalRecommendation {
@@ -73,6 +72,11 @@ export interface GoalRecommendation {
   label: string;
   row: GoalRow | null;
   reasoning: string;
+}
+
+export interface GoalRecommendationGroup {
+  title: string;
+  cards: GoalRecommendation[];
 }
 
 export interface GoalRecommendParams {
@@ -116,7 +120,12 @@ function buildGoalRow(
 export function buildGoalRecommendations(
   products: SerializedProduct[],
   params: GoalRecommendParams
-): { lumpSumRows: GoalRow[]; dpsRows: GoalRow[]; picks: GoalPicks; recommendations: GoalRecommendation[] } {
+): {
+  lumpSumRows: GoalRow[];
+  dpsRows: GoalRow[];
+  picks: GoalPicks;
+  groups: GoalRecommendationGroup[];
+} {
   const { targetAmount, tenureMonths, typeFilter } = params;
 
   const filtered = products.filter((p) => typeFilter === "ALL" || p.productType === typeFilter);
@@ -135,50 +144,59 @@ export function buildGoalRecommendations(
 
   const offeredLumpSum = lumpSumRows.filter((r) => r.tier !== null);
   const offeredDPS = dpsRows.filter((r) => r.tier !== null);
-  const allOffered = [...offeredLumpSum, ...offeredDPS];
-  const byType = (type: "GOVERNMENT" | "BANK" | "INVESTMENT_ORG") =>
-    allOffered
-      .filter((r) => r.product.institutionType === type)
-      .sort(byRequiredDeposit)[0] ?? null;
+  const cheapestBankIn = (rows: GoalRow[]) =>
+    rows.filter((r) => r.product.institutionType === "BANK").sort(byRequiredDeposit)[0] ?? null;
 
   const picks: GoalPicks = {
     cheapestLumpSum: offeredLumpSum[0] ?? null,
     cheapestDPS: offeredDPS[0] ?? null,
-    safest: byType("GOVERNMENT"),
-    bestBank: byType("BANK"),
-    bestNBFI: byType("INVESTMENT_ORG"),
+    cheapestLumpSumBank: cheapestBankIn(offeredLumpSum),
+    cheapestDPSBank: cheapestBankIn(offeredDPS),
   };
 
-  const recommendations: GoalRecommendation[] = [
+  const groups: GoalRecommendationGroup[] = [
     {
-      key: "lumpsum",
-      icon: Crown,
-      label: "Lowest one-time deposit",
-      row: picks.cheapestLumpSum,
-      reasoning: "The smallest single deposit today that reaches this goal by maturity.",
+      title: "One-time deposit",
+      cards: [
+        {
+          key: "lumpsum-cheapest",
+          icon: Crown,
+          label: "Lowest deposit overall",
+          row: picks.cheapestLumpSum,
+          reasoning:
+            picks.cheapestLumpSum?.product.institutionType === "GOVERNMENT"
+              ? "Government-backed and needs the smallest deposit — Bangladesh Bank / National Savings Directorate instruments carry sovereign backing."
+              : "The smallest single deposit today that reaches this goal by maturity.",
+        },
+        {
+          key: "lumpsum-bank",
+          icon: LineChart,
+          label: "Lowest at a bank",
+          row: picks.cheapestLumpSumBank,
+          reasoning: "The smallest deposit needed among regulated commercial banks for this goal.",
+        },
+      ],
     },
     {
-      key: "dps",
-      icon: Zap,
-      label: "Lowest monthly deposit",
-      row: picks.cheapestDPS,
-      reasoning: "The smallest fixed monthly deposit that reaches this goal by maturity.",
-    },
-    {
-      key: "safest",
-      icon: ShieldCheck,
-      label: "Safest path",
-      row: picks.safest,
-      reasoning: "Government-backed — Bangladesh Bank / National Savings Directorate instruments carry sovereign backing.",
-    },
-    {
-      key: "bank",
-      icon: LineChart,
-      label: "Best at a bank",
-      row: picks.bestBank,
-      reasoning: "Lowest deposit needed among regulated commercial banks for this goal.",
+      title: "Monthly deposit (DPS)",
+      cards: [
+        {
+          key: "dps-cheapest",
+          icon: Zap,
+          label: "Lowest deposit overall",
+          row: picks.cheapestDPS,
+          reasoning: "The smallest fixed monthly deposit that reaches this goal by maturity.",
+        },
+        {
+          key: "dps-bank",
+          icon: ShieldCheck,
+          label: "Lowest at a bank",
+          row: picks.cheapestDPSBank,
+          reasoning: "The smallest monthly deposit among regulated commercial banks for this goal.",
+        },
+      ],
     },
   ];
 
-  return { lumpSumRows, dpsRows, picks, recommendations };
+  return { lumpSumRows, dpsRows, picks, groups };
 }

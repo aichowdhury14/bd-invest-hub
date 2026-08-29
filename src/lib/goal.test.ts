@@ -125,8 +125,10 @@ describe("buildGoalRecommendations", () => {
       tenureMonths: 12,
       typeFilter: "ALL",
     });
-    expect(picks.safest?.product.id).toBe("govt-a-sanchaypatro");
     expect(picks.cheapestLumpSum?.product.id).toBe("govt-a-sanchaypatro");
+    // Only one bank offers a lump-sum product in this fixture set, so it's
+    // necessarily also the cheapest-at-a-bank pick.
+    expect(picks.cheapestLumpSumBank?.product.id).toBe("bank-a-fdr");
   });
 
   it("computes a monthly (not lump-sum) deposit for the DPS product", () => {
