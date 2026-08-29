@@ -16,12 +16,19 @@ export function TrendingWidget({ products }: { products: TrendingProduct[] }) {
       <ul className="space-y-1">
         {products.map((p, i) => {
           const activity = p.calcCount + p.compareCount;
+          const isFirst = i === 0;
           return (
             <li
               key={p.productId}
-              className="flex items-center gap-3 rounded-xl px-2 py-2 hover:bg-foreground/5 transition-colors"
+              className={`flex items-center gap-3 rounded-xl px-2 py-2 transition-all hover:bg-foreground/5 hover:translate-x-0.5 ${
+                isFirst ? "bg-accent/10 ring-1 ring-accent/25" : ""
+              }`}
             >
-              <span className="w-5 shrink-0 text-center text-sm font-display font-bold text-muted tabular-nums">
+              <span
+                className={`w-5 shrink-0 text-center text-sm font-display font-bold tabular-nums ${
+                  isFirst ? "text-accent" : "text-muted"
+                }`}
+              >
                 {i + 1}
               </span>
               <InstitutionLogo name={p.institutionName} type={p.institutionType} size="sm" />

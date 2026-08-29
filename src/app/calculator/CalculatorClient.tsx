@@ -335,7 +335,10 @@ export function CalculatorClient({ products }: { products: SerializedProduct[] }
               const style = institutionTypeStyle[row.product.institutionType];
               const isTop = row.maturityAmount !== null && row.maturityAmount === topMaturity;
               return (
-                <tr key={row.product.id} className={`border-t border-border ${isTop ? "bg-accent/10" : ""}`}>
+                <tr
+                  key={row.product.id}
+                  className={`border-t border-border row-interactive ${isTop ? "bg-accent/10" : ""}`}
+                >
                   <td className="px-4 py-3.5">
                     <div className="flex items-center gap-2">
                       {isTop && <Crown className="h-4 w-4 text-accent shrink-0" strokeWidth={2.25} />}
@@ -407,9 +410,9 @@ function FilterChip({
     <button
       type="button"
       onClick={onClick}
-      className={`rounded-full px-3.5 py-1.5 text-sm font-medium transition-colors ${
+      className={`btn-press rounded-full px-3.5 py-1.5 text-sm font-medium transition-colors ${
         active
-          ? "brand-gradient text-white shadow-sm"
+          ? "brand-gradient text-white shadow-sm hover:shadow-md"
           : "bg-foreground/5 text-muted hover:bg-foreground/10 hover:text-foreground"
       }`}
     >
@@ -456,9 +459,12 @@ function RecommendationCard({
       : null;
 
   return (
-    <div className="rounded-2xl card-surface p-4 shadow-sm space-y-2">
+    <div className="group relative overflow-hidden rounded-2xl card-surface p-4 shadow-sm card-interactive space-y-2">
+      <span className={`absolute inset-x-0 top-0 h-1 ${style.iconWrap} opacity-70`} aria-hidden />
       <div className="flex items-center gap-2 text-sm font-medium text-muted">
-        <Icon className="h-4 w-4 text-accent" />
+        <span className={`grid h-6 w-6 place-items-center rounded-md ${style.iconWrap}`}>
+          <Icon className="h-3.5 w-3.5" />
+        </span>
         {label}
       </div>
       <div className="flex items-center gap-2.5">

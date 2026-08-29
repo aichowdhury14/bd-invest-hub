@@ -64,14 +64,14 @@ export default async function HomePage() {
             <div className="flex flex-wrap items-center gap-3 pt-1">
               <Link
                 href="/calculator"
-                className="inline-flex items-center gap-2 rounded-xl bg-white px-5 py-3 text-sm font-semibold text-emerald-800 shadow-lg shadow-black/10 hover:bg-white/90 transition-colors"
+                className="group/cta btn-press inline-flex items-center gap-2 rounded-xl bg-white px-5 py-3 text-sm font-semibold text-emerald-800 shadow-lg shadow-black/10 hover:shadow-xl hover:bg-white/95 transition-colors"
               >
                 Open the calculator
-                <ArrowRight className="h-4 w-4" />
+                <ArrowRight className="h-4 w-4 transition-transform group-hover/cta:translate-x-1" />
               </Link>
               <Link
                 href="/compare"
-                className="inline-flex items-center gap-2 rounded-xl border border-white/30 px-5 py-3 text-sm font-semibold hover:bg-white/10 transition-colors"
+                className="btn-press inline-flex items-center gap-2 rounded-xl border border-white/30 px-5 py-3 text-sm font-semibold hover:bg-white/10 hover:border-white/50 transition-colors"
               >
                 Compare institutions
               </Link>
@@ -125,7 +125,7 @@ export default async function HomePage() {
                 {list.map((inst) => (
                   <div
                     key={inst.id}
-                    className={`group rounded-2xl card-surface p-5 space-y-4 shadow-sm hover:shadow-lg hover:-translate-y-0.5 ring-1 ring-transparent transition-all ${style.ring}`}
+                    className={`group rounded-2xl card-surface p-5 space-y-4 shadow-sm hover:shadow-xl hover:-translate-y-1 ring-1 ring-transparent hover:ring-2 transition-all duration-200 ${style.ring}`}
                   >
                     <div className="flex items-start justify-between gap-2">
                       <div className="flex items-center gap-2.5 min-w-0">
@@ -191,8 +191,10 @@ function StatPill({
 }) {
   return (
     <div
-      className={`rounded-xl px-4 py-3 backdrop-blur ${
-        highlight ? "bg-accent text-accent-ink" : "bg-white/10"
+      className={`rounded-xl px-4 py-3 backdrop-blur transition-all duration-200 hover:-translate-y-0.5 ${
+        highlight
+          ? "bg-accent text-accent-ink shadow-md shadow-black/10 hover:shadow-lg"
+          : "bg-white/10 hover:bg-white/15"
       }`}
     >
       <div className="font-display text-xl sm:text-2xl font-bold tabular-nums">{value}</div>

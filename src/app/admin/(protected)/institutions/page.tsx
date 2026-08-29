@@ -67,7 +67,7 @@ export default async function AdminInstitutionsPage() {
           </thead>
           <tbody>
             {institutions.map((inst) => (
-              <tr key={inst.id} className="border-t border-border">
+              <tr key={inst.id} className="border-t border-border row-interactive">
                 <td className="px-4 py-3 font-semibold">{inst.name}</td>
                 <td className="px-4 py-3">{institutionTypeLabels[inst.type]}</td>
                 <td className="px-4 py-3">{inst._count.products}</td>

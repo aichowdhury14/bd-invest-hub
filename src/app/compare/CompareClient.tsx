@@ -238,7 +238,7 @@ export function CompareClient({ products }: { products: SerializedProduct[] }) {
           <button
             type="button"
             onClick={() => selectTopN(3)}
-            className="inline-flex items-center gap-1.5 rounded-full brand-gradient px-3 py-1.5 text-xs font-semibold text-white shadow-sm hover:opacity-90"
+            className="btn-press inline-flex items-center gap-1.5 rounded-full brand-gradient px-3 py-1.5 text-xs font-semibold text-white shadow-sm hover:shadow-md hover:opacity-95"
           >
             <Sparkles className="h-3.5 w-3.5" />
             Compare top 3 now
@@ -254,8 +254,12 @@ export function CompareClient({ products }: { products: SerializedProduct[] }) {
             return (
               <label
                 key={product.id}
-                className={`flex items-start gap-2.5 rounded-xl p-2.5 text-sm transition-colors ${
-                  checked ? "bg-brand-end/10" : disabled ? "opacity-40" : "hover:bg-foreground/5 cursor-pointer"
+                className={`flex items-start gap-2.5 rounded-xl p-2.5 text-sm transition-all ${
+                  checked
+                    ? "bg-brand-end/10 ring-1 ring-brand-end/30"
+                    : disabled
+                      ? "opacity-40"
+                      : "hover:bg-foreground/5 cursor-pointer"
                 }`}
               >
                 <input
@@ -308,11 +312,11 @@ export function CompareClient({ products }: { products: SerializedProduct[] }) {
             {selected.map((product) => {
               const style = institutionTypeStyle[product.institutionType];
               return (
-                <div key={product.id} className="rounded-2xl card-surface p-5 space-y-3 shadow-sm relative">
+                <div key={product.id} className="rounded-2xl card-surface p-5 space-y-3 shadow-sm card-interactive relative">
                   <button
                     onClick={() => toggle(product.id)}
                     aria-label="Remove from comparison"
-                    className="absolute top-3 right-3 grid h-7 w-7 place-items-center rounded-full text-muted hover:text-foreground hover:bg-foreground/5"
+                    className="absolute top-3 right-3 grid h-7 w-7 place-items-center rounded-full text-muted hover:text-red-600 hover:bg-red-500/10 transition-colors"
                   >
                     <X className="h-3.5 w-3.5" />
                   </button>
@@ -378,9 +382,9 @@ function FilterChip({
     <button
       type="button"
       onClick={onClick}
-      className={`rounded-full font-medium transition-colors ${small ? "px-2.5 py-1 text-xs" : "px-3.5 py-1.5 text-sm"} ${
+      className={`btn-press rounded-full font-medium transition-colors ${small ? "px-2.5 py-1 text-xs" : "px-3.5 py-1.5 text-sm"} ${
         active
-          ? "brand-gradient text-white shadow-sm"
+          ? "brand-gradient text-white shadow-sm hover:shadow-md"
           : "bg-foreground/5 text-muted hover:bg-foreground/10 hover:text-foreground"
       }`}
     >

@@ -32,7 +32,7 @@ export default async function RateDriftPage() {
           </thead>
           <tbody>
             {flags.map((flag) => (
-              <tr key={flag.id} className="border-t border-border">
+              <tr key={flag.id} className="border-t border-border row-interactive">
                 <td className="px-4 py-3">
                   <div className="font-medium">{flag.product.institution.name}</div>
                   <div className="text-xs text-muted">

@@ -206,7 +206,7 @@ export default async function AdminInstitutionDetailPage({
               </thead>
               <tbody>
                 {product.rateTiers.map((tier) => (
-                  <tr key={tier.id} className="border-t border-border">
+                  <tr key={tier.id} className="border-t border-border row-interactive">
                     <td className="py-1.5">{tier.tenureMonths} mo</td>
                     <td className="py-1.5">{Number(tier.minAmount).toLocaleString()}</td>
                     <td className="py-1.5">

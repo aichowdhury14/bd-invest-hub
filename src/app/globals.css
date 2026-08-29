@@ -67,6 +67,41 @@ body {
   border: 1px solid var(--border);
 }
 
+.card-interactive {
+  transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease;
+}
+
+.card-interactive:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 28px -12px rgba(10, 32, 26, 0.22);
+}
+
+@media (prefers-color-scheme: dark) {
+  .card-interactive:hover {
+    box-shadow: 0 12px 28px -12px rgba(0, 0, 0, 0.5);
+  }
+}
+
+.row-interactive {
+  transition: background-color 150ms ease;
+}
+
+.row-interactive:hover {
+  background: color-mix(in srgb, var(--brand-end) 6%, transparent);
+}
+
+.btn-press {
+  transition: transform 120ms ease, box-shadow 120ms ease, opacity 120ms ease;
+}
+
+.btn-press:hover {
+  transform: translateY(-1px);
+}
+
+.btn-press:active {
+  transform: translateY(0);
+}
+
 .grid-pattern {
   background-image: radial-gradient(circle, rgba(255, 255, 255, 0.18) 1px, transparent 1px);
   background-size: 22px 22px;

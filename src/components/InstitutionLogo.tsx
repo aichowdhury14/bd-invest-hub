@@ -43,7 +43,7 @@ export function InstitutionLogo({
 
   return (
     <span
-      className={`grid shrink-0 place-items-center overflow-hidden rounded-lg ring-1 ring-border ${tileBg} ${dims.box} ${dims.padding}`}
+      className={`grid shrink-0 place-items-center overflow-hidden rounded-lg ring-1 ring-border transition-transform duration-200 group-hover:scale-110 ${tileBg} ${dims.box} ${dims.padding}`}
     >
       {/* eslint-disable-next-line @next/next/no-img-element -- local, variably-sized brand assets; next/image needs fixed intrinsic dimensions we don't reliably have */}
       <img src={`/logos/${filename}`} alt={`${name} logo`} className="h-full w-full object-contain" loading="lazy" />

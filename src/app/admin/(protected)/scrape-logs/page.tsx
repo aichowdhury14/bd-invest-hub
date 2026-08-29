@@ -31,7 +31,7 @@ export default async function ScrapeLogsPage() {
           </thead>
           <tbody>
             {logs.map((log) => (
-              <tr key={log.id} className="border-t border-border">
+              <tr key={log.id} className="border-t border-border row-interactive">
                 <td className="px-4 py-3 tabular-nums">{log.runAt.toISOString()}</td>
                 <td className="px-4 py-3">{log.institution?.name ?? "—"}</td>
                 <td className="px-4 py-3">
