@@ -1,12 +1,12 @@
 import { BrainCircuit, Crown, LayoutGrid, Lightbulb, TrendingUp, Trophy } from "lucide-react";
 import { Container } from "@/components/Container";
 import {
+  buildMarketInsights,
   getCategoryStats,
   getFDRHeatmap,
   getGovernmentInstrumentRates,
+  getInflationBeatStat,
   getInstitutionComposition,
-  getMarketInsights,
-  getTopRate,
   getTopRates,
   getTrendStatus,
   getYieldCurve,
@@ -30,26 +30,27 @@ export default async function InsightsPage() {
     dpsCurve,
     fdrStats,
     dpsStats,
-    topRate,
     topRates,
     trendStatus,
     composition,
     govtRates,
     heatmap,
-    marketInsights,
+    inflationStat,
   ] = await Promise.all([
     getYieldCurve("FDR"),
     getYieldCurve("DPS"),
     getCategoryStats("FDR"),
     getCategoryStats("DPS"),
-    getTopRate(),
     getTopRates(10),
     getTrendStatus(),
     getInstitutionComposition(),
     getGovernmentInstrumentRates(),
     getFDRHeatmap(),
-    getMarketInsights(),
+    getInflationBeatStat(),
   ]);
+  // Derived from data already fetched above — no extra DB round-trips.
+  const topRate = topRates[0] ?? null;
+  const marketInsights = buildMarketInsights({ fdrCurve, fdrStats, dpsStats, inflationStat });
 
   return (
     <div>

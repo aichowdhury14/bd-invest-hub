@@ -129,12 +129,6 @@ export async function getTopRates(limit = 10): Promise<TopRate[]> {
   return result;
 }
 
-/** The single highest rate currently tracked, for the "best rate today" headline. */
-export async function getTopRate(): Promise<TopRate | null> {
-  const [top] = await getTopRates(1);
-  return top ?? null;
-}
-
 export interface CompositionStat {
   type: InstitutionType;
   count: number;
@@ -301,14 +295,14 @@ export async function getTrendStatus(): Promise<TrendStatus> {
   };
 }
 
-interface InflationBeatStat {
+export interface InflationBeatStat {
   beatingCount: number;
   totalCount: number;
   bestMarginPct: number | null;
 }
 
 /** How many currently tracked rate tiers clear the latest published inflation figure. */
-async function getInflationBeatStat(): Promise<InflationBeatStat> {
+export async function getInflationBeatStat(): Promise<InflationBeatStat> {
   const tiers = await prisma.rateTier.findMany({
     where: { product: { isActive: true, institution: { isActive: true } } },
     select: { interestRatePct: true },
@@ -335,14 +329,21 @@ function tenureLabel(months: number): string {
  * Short, auto-generated observations computed purely from rates already in the
  * database (no hidden model, no future-rate guessing) — a rule-based reading of
  * today's numbers, in the same spirit as the calculator's Smart Recommendations.
+ *
+ * Pure function over already-fetched data (not its own queries) — the insights
+ * page fetches fdrCurve/fdrStats/dpsStats/inflationStat once for its own
+ * sections and passes them in here, instead of this function re-querying the
+ * same tables again. Firing 10+ independent queries in one Promise.all against
+ * a pooled connection (connection_limit: 3 on Supabase's pgbouncer) was timing
+ * out `next build`'s static generation for this page.
  */
-export async function getMarketInsights(): Promise<MarketInsight[]> {
-  const [fdrCurve, fdrStats, dpsStats, inflationStat] = await Promise.all([
-    getYieldCurve("FDR"),
-    getCategoryStats("FDR"),
-    getCategoryStats("DPS"),
-    getInflationBeatStat(),
-  ]);
+export function buildMarketInsights(data: {
+  fdrCurve: YieldCurvePoint[];
+  fdrStats: CategoryStat[];
+  dpsStats: CategoryStat[];
+  inflationStat: InflationBeatStat;
+}): MarketInsight[] {
+  const { fdrCurve, fdrStats, dpsStats, inflationStat } = data;
 
   const insights: MarketInsight[] = [];
 
