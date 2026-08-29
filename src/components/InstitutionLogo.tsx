@@ -14,7 +14,7 @@ const SIZES = {
  * brand-colored navbar — invisible on this component's light tile. Give those
  * a dark backing instead of the default white.
  */
-const DARK_TILE_SLUGS = new Set(["brac-bank"]);
+const DARK_TILE_SLUGS = new Set<string>([]);
 
 export function InstitutionLogo({
   name,
