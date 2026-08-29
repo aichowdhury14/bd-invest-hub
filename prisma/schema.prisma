@@ -48,6 +48,12 @@ enum AdminRole {
   EDITOR
 }
 
+enum DriftStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
 model Institution {
   id          String            @id @default(cuid())
   name        String
@@ -78,7 +84,9 @@ model RateProduct {
   updatedAt       DateTime      @updatedAt
   rateTiers       RateTier[]
   calculatorEvents CalculatorEvent[]
+  compareEvents   CompareEvent[]
   rateHistory     RateHistory[]
+  driftFlags      RateDriftFlag[]
 
   @@index([institutionId])
   @@index([productType])
@@ -159,10 +167,41 @@ model PageViewEvent {
   @@index([path])
 }
 
+model CompareEvent {
+  id        String       @id @default(cuid())
+  productId String?
+  product   RateProduct? @relation(fields: [productId], references: [id], onDelete: SetNull)
+  sessionId String
+  createdAt DateTime     @default(now())
+
+  @@index([createdAt])
+  @@index([productId])
+}
+
 model AdminUser {
   id           String    @id @default(cuid())
   email        String    @unique
   passwordHash String
   role         AdminRole @default(EDITOR)
   createdAt    DateTime  @default(now())
+}
+
+/// A proposed rate change detected by a scraper run, staged for human review
+/// rather than applied automatically — see scripts/scrapers/runner.ts. Approving
+/// writes the change to RateTier; rejecting discards it. Nothing here is ever
+/// treated as a live rate until an admin approves it.
+model RateDriftFlag {
+  id              String      @id @default(cuid())
+  productId       String
+  product         RateProduct @relation(fields: [productId], references: [id], onDelete: Cascade)
+  tenureMonths    Int
+  currentRatePct  Decimal?    @db.Decimal(6, 3)
+  proposedRatePct Decimal     @db.Decimal(6, 3)
+  sourceUrl       String
+  status          DriftStatus @default(PENDING)
+  detectedAt      DateTime    @default(now())
+  resolvedAt      DateTime?
+
+  @@index([status])
+  @@index([productId])
 }

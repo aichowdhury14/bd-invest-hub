@@ -1,11 +1,13 @@
 import Link from "next/link";
-import { LayoutDashboard, Landmark, ScrollText } from "lucide-react";
+import { LayoutDashboard, Landmark, ScrollText, GitCompareArrows } from "lucide-react";
 import { auth, signOut } from "@/lib/auth";
 import { Container } from "@/components/Container";
+import { getPendingDriftCount } from "@/lib/drift-queries";
 
 const links = [
   { href: "/admin/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/admin/institutions", label: "Institutions", icon: Landmark },
+  { href: "/admin/rate-drift", label: "Rate Drift", icon: GitCompareArrows },
   { href: "/admin/scrape-logs", label: "Scrape Logs", icon: ScrollText },
 ];
 
@@ -14,7 +16,7 @@ export default async function AdminProtectedLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const session = await auth();
+  const [session, pendingDriftCount] = await Promise.all([auth(), getPendingDriftCount()]);
 
   return (
     <div>
@@ -23,6 +25,7 @@ export default async function AdminProtectedLayout({
           <nav className="flex gap-1 sm:gap-2 text-sm">
             {links.map((link) => {
               const Icon = link.icon;
+              const badge = link.href === "/admin/rate-drift" && pendingDriftCount > 0 ? pendingDriftCount : null;
               return (
                 <Link
                   key={link.href}
@@ -31,6 +34,11 @@ export default async function AdminProtectedLayout({
                 >
                   <Icon className="h-4 w-4" strokeWidth={2} />
                   {link.label}
+                  {badge !== null && (
+                    <span className="grid h-4 min-w-4 place-items-center rounded-full bg-accent px-1 text-[10px] font-bold text-accent-ink">
+                      {badge}
+                    </span>
+                  )}
                 </Link>
               );
             })}

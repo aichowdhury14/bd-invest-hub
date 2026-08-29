@@ -34,3 +34,13 @@ export async function trackCalculatorUse(input: {
     // Analytics must never break the user-facing experience.
   }
 }
+
+export async function trackCompareView(productId: string, sessionId: string) {
+  try {
+    await prisma.compareEvent.create({
+      data: { productId, sessionId },
+    });
+  } catch {
+    // Analytics must never break the user-facing experience.
+  }
+}

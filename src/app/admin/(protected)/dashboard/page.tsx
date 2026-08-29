@@ -1,4 +1,4 @@
-import { getDashboardStats } from "@/lib/analytics-queries";
+import { getDashboardStats, getTrendingProducts } from "@/lib/analytics-queries";
 import { AnalyticsChart } from "./AnalyticsChart";
 
 export const dynamic = "force-dynamic";
@@ -13,7 +13,7 @@ function StatTile({ label, value }: { label: string; value: number }) {
 }
 
 export default async function AdminDashboardPage() {
-  const stats = await getDashboardStats();
+  const [stats, trending] = await Promise.all([getDashboardStats(), getTrendingProducts()]);
 
   return (
     <div className="space-y-6">
@@ -30,20 +30,42 @@ export default async function AdminDashboardPage() {
 
       <AnalyticsChart data={stats.dailySeries} />
 
-      <div className="rounded-2xl card-surface p-4 shadow-sm">
-        <h3 className="text-sm font-semibold mb-3">Most-viewed pages (14d)</h3>
-        {stats.topPaths.length === 0 ? (
-          <p className="text-sm text-muted">No page views recorded yet.</p>
-        ) : (
-          <ul className="space-y-1.5 text-sm">
-            {stats.topPaths.map((p) => (
-              <li key={p.path} className="flex items-center justify-between">
-                <span className="font-mono text-xs">{p.path}</span>
-                <span className="tabular-nums text-muted">{p.views}</span>
-              </li>
-            ))}
-          </ul>
-        )}
+      <div className="grid gap-4 sm:grid-cols-2">
+        <div className="rounded-2xl card-surface p-4 shadow-sm">
+          <h3 className="text-sm font-semibold mb-3">Most-viewed pages (14d)</h3>
+          {stats.topPaths.length === 0 ? (
+            <p className="text-sm text-muted">No page views recorded yet.</p>
+          ) : (
+            <ul className="space-y-1.5 text-sm">
+              {stats.topPaths.map((p) => (
+                <li key={p.path} className="flex items-center justify-between">
+                  <span className="font-mono text-xs">{p.path}</span>
+                  <span className="tabular-nums text-muted">{p.views}</span>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+
+        <div className="rounded-2xl card-surface p-4 shadow-sm">
+          <h3 className="text-sm font-semibold mb-3">Trending products (7d)</h3>
+          {trending.length === 0 ? (
+            <p className="text-sm text-muted">Not enough activity yet.</p>
+          ) : (
+            <ul className="space-y-1.5 text-sm">
+              {trending.map((p) => (
+                <li key={p.productId} className="flex items-center justify-between gap-2">
+                  <span className="min-w-0 truncate">
+                    {p.institutionName} — {p.productName}
+                  </span>
+                  <span className="shrink-0 tabular-nums text-muted">
+                    {p.calcCount + p.compareCount}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
       </div>
     </div>
   );

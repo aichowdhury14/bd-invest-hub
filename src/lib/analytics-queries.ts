@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import type { InstitutionType } from "@prisma/client";
 
 const DAYS = 14;
 
@@ -79,4 +80,67 @@ export async function getDashboardStats() {
     dailySeries,
     topPaths,
   };
+}
+
+export interface TrendingProduct {
+  productId: string;
+  institutionName: string;
+  institutionType: InstitutionType;
+  productName: string;
+  calcCount: number;
+  compareCount: number;
+}
+
+const MIN_TRENDING_ENTRIES = 3;
+
+/**
+ * Real activity only — returns [] (not a placeholder list) until at least
+ * MIN_TRENDING_ENTRIES distinct products have logged events, so the widget
+ * never shows a sparse, unconvincing "trending" list this early on.
+ */
+export async function getTrendingProducts(days = 7, limit = 5): Promise<TrendingProduct[]> {
+  const since = new Date();
+  since.setUTCDate(since.getUTCDate() - days);
+
+  const [calcEvents, compareEvents] = await Promise.all([
+    prisma.calculatorEvent.findMany({
+      where: { createdAt: { gte: since }, productId: { not: null } },
+      select: { productId: true },
+    }),
+    prisma.compareEvent.findMany({
+      where: { createdAt: { gte: since }, productId: { not: null } },
+      select: { productId: true },
+    }),
+  ]);
+
+  const calcCounts = new Map<string, number>();
+  for (const ev of calcEvents) {
+    if (!ev.productId) continue;
+    calcCounts.set(ev.productId, (calcCounts.get(ev.productId) ?? 0) + 1);
+  }
+  const compareCounts = new Map<string, number>();
+  for (const ev of compareEvents) {
+    if (!ev.productId) continue;
+    compareCounts.set(ev.productId, (compareCounts.get(ev.productId) ?? 0) + 1);
+  }
+
+  const productIds = new Set([...calcCounts.keys(), ...compareCounts.keys()]);
+  if (productIds.size < MIN_TRENDING_ENTRIES) return [];
+
+  const products = await prisma.rateProduct.findMany({
+    where: { id: { in: Array.from(productIds) } },
+    select: { id: true, name: true, institution: { select: { name: true, type: true } } },
+  });
+
+  return products
+    .map((p) => ({
+      productId: p.id,
+      institutionName: p.institution.name,
+      institutionType: p.institution.type,
+      productName: p.name,
+      calcCount: calcCounts.get(p.id) ?? 0,
+      compareCount: compareCounts.get(p.id) ?? 0,
+    }))
+    .sort((a, b) => b.calcCount + b.compareCount - (a.calcCount + a.compareCount))
+    .slice(0, limit);
 }

@@ -9,6 +9,8 @@ import { InstitutionLogo } from "@/components/InstitutionLogo";
 import { calculateDPSMaturity, calculateLumpSumMaturity } from "@/lib/calculations";
 import type { InstitutionType, ProductType } from "@prisma/client";
 import { useAmountInput } from "@/lib/useAmountInput";
+import { useSessionId } from "@/lib/useSessionId";
+import { trackCompareView } from "@/lib/analytics";
 import { ComparisonChart, type ComparisonBar } from "./ComparisonChart";
 
 const MAX_SELECTED = 6;
@@ -29,6 +31,7 @@ export function CompareClient({ products }: { products: SerializedProduct[] }) {
   const [instFilter, setInstFilter] = useState<InstitutionType | "ALL">("ALL");
   const [typeFilter, setTypeFilter] = useState<ProductType | "ALL">("ALL");
   const [sortBy, setSortBy] = useState<"rate" | "name">("rate");
+  const sessionId = useSessionId();
 
   const tenureOptions = useMemo(() => {
     const set = new Set<number>();
@@ -87,17 +90,22 @@ export function CompareClient({ products }: { products: SerializedProduct[] }) {
     setSelectedIds((prev) => {
       if (prev.includes(id)) return prev.filter((x) => x !== id);
       if (prev.length >= MAX_SELECTED) return prev;
+      if (sessionId) trackCompareView(id, sessionId);
       return [...prev, id];
     });
   }
 
   function selectTopN(n: number) {
-    setSelectedIds(
-      filtered
-        .filter((p) => rateAt(p) !== null)
-        .slice(0, n)
-        .map((p) => p.id)
-    );
+    const ids = filtered
+      .filter((p) => rateAt(p) !== null)
+      .slice(0, n)
+      .map((p) => p.id);
+    if (sessionId) {
+      for (const id of ids) {
+        if (!selectedIds.includes(id)) trackCompareView(id, sessionId);
+      }
+    }
+    setSelectedIds(ids);
   }
 
   const comparisonBars: ComparisonBar[] = useMemo(

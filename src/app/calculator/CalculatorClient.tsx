@@ -5,21 +5,13 @@ import {
   Crown,
   ExternalLink,
   Gauge,
-  LineChart,
   Percent,
-  ShieldCheck,
   Sparkles,
   TrendingUp,
-  Zap,
   type LucideIcon,
 } from "lucide-react";
 import type { SerializedProduct } from "@/lib/serialize";
-import {
-  calculateDPSMaturity,
-  calculateLumpSumMaturity,
-  dpsGrowthSeries,
-  lumpSumGrowthSeries,
-} from "@/lib/calculations";
+import { dpsGrowthSeries, lumpSumGrowthSeries } from "@/lib/calculations";
 import { institutionTypeLabels, isRecurringProduct, productTypeLabels } from "@/lib/labels";
 import { institutionTypeStyle } from "@/lib/institution-style";
 import { InstitutionLogo } from "@/components/InstitutionLogo";
@@ -34,9 +26,8 @@ import {
   type TaxStatus,
 } from "@/lib/economic-context";
 import { useAmountInput } from "@/lib/useAmountInput";
+import { buildRecommendations, type RiskProfile, type Row } from "@/lib/recommend";
 import { GrowthChart } from "./GrowthChart";
-
-type RiskProfile = "CONSERVATIVE" | "BALANCED" | "GROWTH";
 
 const bdt = new Intl.NumberFormat("en-BD", {
   style: "currency",
@@ -50,14 +41,6 @@ function formatTenure(months: number): string {
     return `${months} mo (${years} year${years > 1 ? "s" : ""})`;
   }
   return `${months} mo`;
-}
-
-interface Row {
-  product: SerializedProduct;
-  tier: SerializedProduct["rateTiers"][number] | null;
-  maturityAmount: number | null;
-  totalContribution: number | null;
-  totalInterest: number | null;
 }
 
 export function CalculatorClient({ products }: { products: SerializedProduct[] }) {
@@ -87,97 +70,12 @@ export function CalculatorClient({ products }: { products: SerializedProduct[] }
 
   const tenureMonths = tenureOptions[tenureIndex] ?? 0;
 
-  const rows: Row[] = useMemo(() => {
-    return products
-      .filter((p) => typeFilter === "ALL" || p.productType === typeFilter)
-      .map((product) => {
-        const tier =
-          product.rateTiers.find(
-            (t) =>
-              t.tenureMonths === tenureMonths &&
-              amount >= t.minAmount &&
-              (t.maxAmount === null || amount <= t.maxAmount)
-          ) ?? null;
-
-        if (!tier || amount <= 0) {
-          return { product, tier: null, maturityAmount: null, totalContribution: null, totalInterest: null };
-        }
-
-        if (isRecurringProduct(product.productType)) {
-          const result = calculateDPSMaturity({
-            monthlyDeposit: amount,
-            annualRatePct: tier.interestRatePct,
-            tenureMonths,
-            compounding: product.compounding,
-          });
-          return {
-            product,
-            tier,
-            maturityAmount: result.maturityAmount,
-            totalContribution: result.totalDeposited,
-            totalInterest: result.totalInterest,
-          };
-        }
-
-        const result = calculateLumpSumMaturity({
-          principal: amount,
-          annualRatePct: tier.interestRatePct,
-          tenureMonths,
-          compounding: product.compounding,
-        });
-        return {
-          product,
-          tier,
-          maturityAmount: result.maturityAmount,
-          totalContribution: result.principal,
-          totalInterest: result.totalInterest,
-        };
-      })
-      .sort((a, b) => (b.maturityAmount ?? -1) - (a.maturityAmount ?? -1));
-  }, [products, typeFilter, tenureMonths, amount]);
+  const { rows, picks, recommendations } = useMemo(
+    () => buildRecommendations(products, { amount, tenureMonths, typeFilter, riskProfile }),
+    [products, amount, tenureMonths, typeFilter, riskProfile]
+  );
 
   const topMaturity = rows.find((r) => r.maturityAmount !== null)?.maturityAmount ?? null;
-
-  const picks = useMemo(() => {
-    const offered = rows.filter((r) => r.tier !== null);
-    const byType = (type: "GOVERNMENT" | "BANK" | "INVESTMENT_ORG") =>
-      offered.find((r) => r.product.institutionType === type) ?? null;
-    const bestOverall = offered[0] ?? null;
-    const safest = byType("GOVERNMENT");
-    const bestBank = byType("BANK");
-    const bestNBFI = byType("INVESTMENT_ORG");
-    const bestSafe =
-      [safest, bestBank]
-        .filter((r): r is Row => r !== null)
-        .sort((a, b) => (b.maturityAmount ?? -1) - (a.maturityAmount ?? -1))[0] ?? null;
-    return { bestOverall, safest, bestBank, bestNBFI, bestSafe };
-  }, [rows]);
-
-  /**
-   * Which 3 cards to show depends on the chosen risk tolerance — a transparent,
-   * rule-based reordering of the same live-rate data, not a hidden scoring model.
-   */
-  const recommendations = useMemo(() => {
-    if (riskProfile === "CONSERVATIVE") {
-      return [
-        { key: "safe", icon: ShieldCheck, label: "Capital-safe pick", row: picks.bestSafe, reasoning: "Best rate among government and bank options only — no NBFI/investment-org risk." },
-        { key: "safest", icon: Gauge, label: "Safest choice", row: picks.safest, reasoning: "Government-backed — Bangladesh Bank / National Savings Directorate instruments carry sovereign backing." },
-        { key: "bank", icon: LineChart, label: "Best at a bank", row: picks.bestBank, reasoning: "Highest-rate regulated commercial bank option at this amount and tenure." },
-      ];
-    }
-    if (riskProfile === "GROWTH") {
-      return [
-        { key: "overall", icon: Crown, label: "Best overall return", row: picks.bestOverall, reasoning: "Highest maturity amount across every tracked institution at this amount and tenure." },
-        { key: "nbfi", icon: Zap, label: "Highest-rate NBFI", row: picks.bestNBFI, reasoning: "Investment organizations/NBFIs often price above banks — carries different risk than a bank or government instrument." },
-        { key: "bank", icon: LineChart, label: "Best at a bank", row: picks.bestBank, reasoning: "Highest-rate regulated commercial bank option at this amount and tenure." },
-      ];
-    }
-    return [
-      { key: "overall", icon: Crown, label: "Best overall return", row: picks.bestOverall, reasoning: "Highest maturity amount across every tracked institution at this amount and tenure." },
-      { key: "safest", icon: ShieldCheck, label: "Safest choice", row: picks.safest, reasoning: "Government-backed — Bangladesh Bank / National Savings Directorate instruments carry sovereign backing." },
-      { key: "bank", icon: LineChart, label: "Best at a bank", row: picks.bestBank, reasoning: "Highest-rate regulated commercial bank option at this amount and tenure." },
-    ];
-  }, [riskProfile, picks]);
 
   const topPick = picks.bestOverall;
 
@@ -220,10 +118,16 @@ export function CalculatorClient({ products }: { products: SerializedProduct[] }
   useEffect(() => {
     if (!sessionId || amount <= 0 || tenureMonths <= 0) return;
     const handle = setTimeout(() => {
-      trackCalculatorUse({ sessionId, amount, tenureMonths });
+      trackCalculatorUse({
+        sessionId,
+        amount,
+        tenureMonths,
+        productId: topPick?.product.id,
+        productType: typeFilter !== "ALL" ? typeFilter : topPick?.product.productType,
+      });
     }, 800);
     return () => clearTimeout(handle);
-  }, [sessionId, amount, tenureMonths]);
+  }, [sessionId, amount, tenureMonths, topPick, typeFilter]);
 
   if (tenureOptions.length === 0) {
     return (

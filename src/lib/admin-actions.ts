@@ -144,3 +144,55 @@ export async function deleteRateTier(id: string, institutionId: string) {
   revalidatePath(`/admin/institutions/${institutionId}`);
   revalidateAdminAndPublic();
 }
+
+// ---------- Rate drift review ----------
+
+export async function approveDriftFlag(id: string) {
+  await requireAdmin();
+  const flag = await prisma.rateDriftFlag.findUniqueOrThrow({ where: { id } });
+
+  const existing = await prisma.rateTier.findFirst({
+    where: { productId: flag.productId, tenureMonths: flag.tenureMonths },
+    orderBy: { updatedAt: "desc" },
+  });
+
+  await prisma.$transaction([
+    existing
+      ? prisma.rateTier.update({
+          where: { id: existing.id },
+          data: {
+            interestRatePct: flag.proposedRatePct,
+            source: "SCRAPED",
+            sourceUrl: flag.sourceUrl,
+            scrapedAt: new Date(),
+          },
+        })
+      : prisma.rateTier.create({
+          data: {
+            productId: flag.productId,
+            tenureMonths: flag.tenureMonths,
+            minAmount: 0,
+            interestRatePct: flag.proposedRatePct,
+            source: "SCRAPED",
+            sourceUrl: flag.sourceUrl,
+            scrapedAt: new Date(),
+          },
+        }),
+    prisma.rateDriftFlag.update({
+      where: { id },
+      data: { status: "APPROVED", resolvedAt: new Date() },
+    }),
+  ]);
+
+  revalidatePath("/admin/rate-drift");
+  revalidateAdminAndPublic();
+}
+
+export async function rejectDriftFlag(id: string) {
+  await requireAdmin();
+  await prisma.rateDriftFlag.update({
+    where: { id },
+    data: { status: "REJECTED", resolvedAt: new Date() },
+  });
+  revalidatePath("/admin/rate-drift");
+}

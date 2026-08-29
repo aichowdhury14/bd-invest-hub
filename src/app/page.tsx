@@ -5,6 +5,8 @@ import { institutionTypeLabels, productTypeLabels } from "@/lib/labels";
 import { institutionTypeStyle } from "@/lib/institution-style";
 import { Container } from "@/components/Container";
 import { InstitutionLogo } from "@/components/InstitutionLogo";
+import { TrendingWidget } from "@/components/TrendingWidget";
+import { getTrendingProducts } from "@/lib/analytics-queries";
 import type { InstitutionType } from "@prisma/client";
 
 export const revalidate = 300;
@@ -12,7 +14,10 @@ export const revalidate = 300;
 const SECTION_ORDER: InstitutionType[] = ["BANK", "GOVERNMENT", "INVESTMENT_ORG"];
 
 export default async function HomePage() {
-  const institutions = await getActiveInstitutionsWithProducts();
+  const [institutions, trending] = await Promise.all([
+    getActiveInstitutionsWithProducts(),
+    getTrendingProducts(),
+  ]);
   const bySection = new Map<InstitutionType, typeof institutions>();
   for (const type of SECTION_ORDER) bySection.set(type, []);
   for (const inst of institutions) {
@@ -91,6 +96,8 @@ export default async function HomePage() {
       </section>
 
       <Container className="py-12 sm:py-16 space-y-14">
+        {trending.length > 0 && <TrendingWidget products={trending} />}
+
         {!hasAnyData && (
           <div className="rounded-2xl border border-dashed border-border p-10 text-center text-muted">
             No institutions have been added yet. Once the admin adds institutions and rates, they
