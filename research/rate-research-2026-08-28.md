@@ -656,3 +656,39 @@ Plus) is the current product, not a naming mix-up.
 Applied to both the local dev DB and production (Supabase) via `npm run
 import-rates`.
 Several sources carry caution flags (DBBL 2021 circular basis, MTB Sept 2024 effective dates, NCC SSS Nov 2020, LankaBangla Apr 2025, BRAC/Dhaka Bank table extraction ambiguity) — noted inline above; entering these as MANUAL source with the sourceUrl preserved so anyone can re-verify.
+
+## BRAC Bank & City Bank cross-check (2026-08-29)
+
+User supplied two sources to re-verify against:
+- BRAC Bank's ALCO Circular 2026/07 (effective Aug 25, 2026): https://brackweb.s3.ap-southeast-1.amazonaws.com/uploads/all/BRAC_Bank_Deposit_Interest_Rate_w.e.f._August_25,_20266a8acd8867c0f.pdf
+- City Bank's live rate page: https://www.citybankplc.com/gsi/conventional-banking-products
+
+**BRAC Bank — every tracked rate confirmed unchanged.** FDR (Monthly Interest
+FD, FRABR): 6mo 8.00%, 12-84mo 8.25% — identical to what was already entered.
+DPS (FRFLX, by completed year): Yr1 8.50%, Yr2 8.75%, Yr3-10 9.00% — also
+identical. Only the source URL was updated, from the general rate page to this
+specific dated circular, for a more precise audit trail.
+
+**City Bank DPS — updated.** The page's "Scheme Deposit" section cleanly lists
+exactly two named DPS products: "Insurance Backed DPS Account" (confirmed
+unchanged, flat 8.50% across 5/10/15/20yr) and "Goal Based DPS" — the latter's
+month-37 step (6-36mo one rate, 37mo+ a higher rate) lines up exactly with the
+step already tracked here under the generic "Deposit Pension Scheme" product,
+confirming it's the same product, just re-rated: 6-36mo 8.50% → **9.00%**,
+37-120mo 9.00% → **9.50%**, a uniform +0.50 pt increase across every bracket.
+
+**City Bank FDR — deliberately left unchanged**, despite the page containing
+an extensive "Fixed Deposit" section. That section lists dozens of near-daily
+tenures (separate rows for "90 Days", "91 Days", "92 Days", "93 Days"... plus
+"3 (Three) Months" as yet another separate row) with no product-name labels
+distinguishing them, and the rates are internally inconsistent for what should
+be the same ~3-month period — e.g. "3 Months" shows 6.15% while "92 Days"
+(two days off from "3 months") shows 8.00%. This reads like a live treasury
+booking export (each day-count likely a distinct booked-that-day product with
+its own idiosyncratic rate) rather than a stable, customer-facing rate card.
+Given the "only enter clearly verifiable data" rule, no single row here is
+trustworthy enough to stand in as "the" representative retail FDR rate, so
+the existing entries (last confirmed 2026-08-28) stand as-is.
+
+Applied to both the local dev DB and production (Supabase) via `npm run
+import-rates`.

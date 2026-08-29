@@ -113,22 +113,25 @@ const entries: RateEntry[] = [
   { institutionName: "Dutch-Bangla Bank", productType: "DPS", tenureMonths: 96, minAmount: 0, interestRatePct: 9.5, sourceUrl: "https://www.dutchbanglabank.com/depositsadv/term-deposit.html" },
   { institutionName: "Dutch-Bangla Bank", productType: "DPS", tenureMonths: 120, minAmount: 0, interestRatePct: 9.5, sourceUrl: "https://www.dutchbanglabank.com/depositsadv/term-deposit.html" },
 
-  // --- BRAC Bank --- Retail Monthly Interest FD (FRABR) + FRFLX DPS
+  // --- BRAC Bank --- Retail Monthly Interest FD (FRABR) + FRFLX DPS. Cross-checked
+  // 2026-08-29 against ALCO Circular 2026/07 (effective Aug 25, 2026) — every rate
+  // below confirmed unchanged; only the source is updated, from the general rate
+  // page to this specific dated circular for a more precise audit trail.
   // FRABR published tenures: 6/12/14/18/24/36/60/84mo (6mo@8.00%, rest@8.25%)
-  { institutionName: "BRAC Bank", productType: "FDR", tenureMonths: 6, minAmount: 0, interestRatePct: 8.0, sourceUrl: "https://bracbank.com/en/page/deposit-interest-rate" },
-  { institutionName: "BRAC Bank", productType: "FDR", tenureMonths: 12, minAmount: 0, interestRatePct: 8.25, sourceUrl: "https://bracbank.com/en/page/deposit-interest-rate" },
-  { institutionName: "BRAC Bank", productType: "FDR", tenureMonths: 24, minAmount: 0, interestRatePct: 8.25, sourceUrl: "https://bracbank.com/en/page/deposit-interest-rate" },
-  { institutionName: "BRAC Bank", productType: "FDR", tenureMonths: 36, minAmount: 0, interestRatePct: 8.25, sourceUrl: "https://bracbank.com/en/page/deposit-interest-rate" },
-  { institutionName: "BRAC Bank", productType: "FDR", tenureMonths: 60, minAmount: 0, interestRatePct: 8.25, sourceUrl: "https://bracbank.com/en/page/deposit-interest-rate" },
-  { institutionName: "BRAC Bank", productType: "FDR", tenureMonths: 84, minAmount: 0, interestRatePct: 8.25, sourceUrl: "https://bracbank.com/en/page/deposit-interest-rate" },
+  { institutionName: "BRAC Bank", productType: "FDR", tenureMonths: 6, minAmount: 0, interestRatePct: 8.0, sourceUrl: "https://brackweb.s3.ap-southeast-1.amazonaws.com/uploads/all/BRAC_Bank_Deposit_Interest_Rate_w.e.f._August_25,_20266a8acd8867c0f.pdf" },
+  { institutionName: "BRAC Bank", productType: "FDR", tenureMonths: 12, minAmount: 0, interestRatePct: 8.25, sourceUrl: "https://brackweb.s3.ap-southeast-1.amazonaws.com/uploads/all/BRAC_Bank_Deposit_Interest_Rate_w.e.f._August_25,_20266a8acd8867c0f.pdf" },
+  { institutionName: "BRAC Bank", productType: "FDR", tenureMonths: 24, minAmount: 0, interestRatePct: 8.25, sourceUrl: "https://brackweb.s3.ap-southeast-1.amazonaws.com/uploads/all/BRAC_Bank_Deposit_Interest_Rate_w.e.f._August_25,_20266a8acd8867c0f.pdf" },
+  { institutionName: "BRAC Bank", productType: "FDR", tenureMonths: 36, minAmount: 0, interestRatePct: 8.25, sourceUrl: "https://brackweb.s3.ap-southeast-1.amazonaws.com/uploads/all/BRAC_Bank_Deposit_Interest_Rate_w.e.f._August_25,_20266a8acd8867c0f.pdf" },
+  { institutionName: "BRAC Bank", productType: "FDR", tenureMonths: 60, minAmount: 0, interestRatePct: 8.25, sourceUrl: "https://brackweb.s3.ap-southeast-1.amazonaws.com/uploads/all/BRAC_Bank_Deposit_Interest_Rate_w.e.f._August_25,_20266a8acd8867c0f.pdf" },
+  { institutionName: "BRAC Bank", productType: "FDR", tenureMonths: 84, minAmount: 0, interestRatePct: 8.25, sourceUrl: "https://brackweb.s3.ap-southeast-1.amazonaws.com/uploads/all/BRAC_Bank_Deposit_Interest_Rate_w.e.f._August_25,_20266a8acd8867c0f.pdf" },
   // FRFLX DPS is banded by completed year, not tenure-locked: Yr1 8.50%, Yr2 8.75%,
   // Yr3-10 flat 9.00% (confirmed the scheme runs open-ended to 10 years at 9.00%)
-  { institutionName: "BRAC Bank", productType: "DPS", tenureMonths: 12, minAmount: 0, interestRatePct: 8.5, sourceUrl: "https://bracbank.com/en/page/deposit-interest-rate" },
-  { institutionName: "BRAC Bank", productType: "DPS", tenureMonths: 24, minAmount: 0, interestRatePct: 8.75, sourceUrl: "https://bracbank.com/en/page/deposit-interest-rate" },
-  { institutionName: "BRAC Bank", productType: "DPS", tenureMonths: 36, minAmount: 0, interestRatePct: 9.0, sourceUrl: "https://bracbank.com/en/page/deposit-interest-rate" },
-  { institutionName: "BRAC Bank", productType: "DPS", tenureMonths: 60, minAmount: 0, interestRatePct: 9.0, sourceUrl: "https://bracbank.com/en/page/deposit-interest-rate" },
-  { institutionName: "BRAC Bank", productType: "DPS", tenureMonths: 84, minAmount: 0, interestRatePct: 9.0, sourceUrl: "https://bracbank.com/en/page/deposit-interest-rate" },
-  { institutionName: "BRAC Bank", productType: "DPS", tenureMonths: 120, minAmount: 0, interestRatePct: 9.0, sourceUrl: "https://bracbank.com/en/page/deposit-interest-rate" },
+  { institutionName: "BRAC Bank", productType: "DPS", tenureMonths: 12, minAmount: 0, interestRatePct: 8.5, sourceUrl: "https://brackweb.s3.ap-southeast-1.amazonaws.com/uploads/all/BRAC_Bank_Deposit_Interest_Rate_w.e.f._August_25,_20266a8acd8867c0f.pdf" },
+  { institutionName: "BRAC Bank", productType: "DPS", tenureMonths: 24, minAmount: 0, interestRatePct: 8.75, sourceUrl: "https://brackweb.s3.ap-southeast-1.amazonaws.com/uploads/all/BRAC_Bank_Deposit_Interest_Rate_w.e.f._August_25,_20266a8acd8867c0f.pdf" },
+  { institutionName: "BRAC Bank", productType: "DPS", tenureMonths: 36, minAmount: 0, interestRatePct: 9.0, sourceUrl: "https://brackweb.s3.ap-southeast-1.amazonaws.com/uploads/all/BRAC_Bank_Deposit_Interest_Rate_w.e.f._August_25,_20266a8acd8867c0f.pdf" },
+  { institutionName: "BRAC Bank", productType: "DPS", tenureMonths: 60, minAmount: 0, interestRatePct: 9.0, sourceUrl: "https://brackweb.s3.ap-southeast-1.amazonaws.com/uploads/all/BRAC_Bank_Deposit_Interest_Rate_w.e.f._August_25,_20266a8acd8867c0f.pdf" },
+  { institutionName: "BRAC Bank", productType: "DPS", tenureMonths: 84, minAmount: 0, interestRatePct: 9.0, sourceUrl: "https://brackweb.s3.ap-southeast-1.amazonaws.com/uploads/all/BRAC_Bank_Deposit_Interest_Rate_w.e.f._August_25,_20266a8acd8867c0f.pdf" },
+  { institutionName: "BRAC Bank", productType: "DPS", tenureMonths: 120, minAmount: 0, interestRatePct: 9.0, sourceUrl: "https://brackweb.s3.ap-southeast-1.amazonaws.com/uploads/all/BRAC_Bank_Deposit_Interest_Rate_w.e.f._August_25,_20266a8acd8867c0f.pdf" },
 
   // --- Eastern Bank (EBL) --- standard FD (tiered) + EBL Confidence DPS
   { institutionName: "Eastern Bank", productType: "FDR", tenureMonths: 3, minAmount: 0, interestRatePct: 6.35, sourceUrl: "https://www.ebl.com.bd/retail-deposit/EBL-FD" },
@@ -385,21 +388,34 @@ const entries: RateEntry[] = [
   { institutionName: "Uttara Bank", productType: "DPS", tenureMonths: 60, minAmount: 0, interestRatePct: 10.0, sourceUrl: "https://www.uttarabank-bd.com/index.php/home/depositproduct/5" },
   { institutionName: "Uttara Bank", productType: "DPS", tenureMonths: 120, minAmount: 0, interestRatePct: 10.0, sourceUrl: "https://www.uttarabank-bd.com/index.php/home/depositproduct/5" },
 
-  // --- The City Bank --- fetched via rendering proxy (JS-only SPA, no static HTML); no effective date stated on page, verified live 2026-08-28
+  // --- The City Bank --- fetched via rendering proxy (JS-only SPA, no static HTML); no effective date stated on page, verified live 2026-08-28.
+  // FDR cross-checked 2026-08-29 against the same page's "Fixed Deposit" section —
+  // deliberately NOT updated. That section lists dozens of near-identical tenures
+  // (e.g. separate "90 Days", "91 Days", "92 Days"... "3 Months" rows) with
+  // inconsistent, sometimes contradictory rates for what should be the same
+  // period (e.g. "3 Months" at 6.15% vs "92 Days" at 8.00%), with no product-name
+  // labels distinguishing them — reads like a live treasury booking export, not a
+  // stable customer-facing rate card. Not confident enough in any single row to
+  // treat it as the representative retail FDR rate, so the existing entries stand.
   { institutionName: "The City Bank", productType: "FDR", tenureMonths: 3, minAmount: 0, maxAmount: 50 * LAC, interestRatePct: 8.0, sourceUrl: "https://www.citybankplc.com/gsi/conventional-banking-products" },
   { institutionName: "The City Bank", productType: "FDR", tenureMonths: 3, minAmount: 50 * LAC, maxAmount: 1 * CRORE, interestRatePct: 8.0, sourceUrl: "https://www.citybankplc.com/gsi/conventional-banking-products" },
   { institutionName: "The City Bank", productType: "FDR", tenureMonths: 3, minAmount: 1 * CRORE, maxAmount: 5 * CRORE, interestRatePct: 8.25, sourceUrl: "https://www.citybankplc.com/gsi/conventional-banking-products" },
   { institutionName: "The City Bank", productType: "FDR", tenureMonths: 12, minAmount: 0, maxAmount: 1 * CRORE, interestRatePct: 8.25, sourceUrl: "https://www.citybankplc.com/gsi/conventional-banking-products" },
   { institutionName: "The City Bank", productType: "FDR", tenureMonths: 24, minAmount: 0, maxAmount: 1 * CRORE, interestRatePct: 8.25, sourceUrl: "https://www.citybankplc.com/gsi/conventional-banking-products" },
   { institutionName: "The City Bank", productType: "FDR", tenureMonths: 36, minAmount: 0, maxAmount: 1 * CRORE, interestRatePct: 8.25, sourceUrl: "https://www.citybankplc.com/gsi/conventional-banking-products" },
-  // General DPS: confirmed step at month 37 — 6-36mo @ 8.50%, 37-120mo @ 9.00%.
+  // General DPS — re-confirmed 2026-08-29 as City Bank's "Goal Based DPS" under the
+  // page's "Scheme Deposit" section (the only other clearly-named DPS product
+  // besides Insurance-Backed, and its month-37 step lines up exactly with what was
+  // already tracked here). Rate increased uniformly by 0.50 pts across every
+  // bracket: 6-36mo 8.50% -> 9.00%, 37-120mo 9.00% -> 9.50%.
   // productNameHint required now that City Bank has 2 DPS products (see below).
-  { institutionName: "The City Bank", productType: "DPS", productNameHint: "Deposit Pension Scheme", tenureMonths: 6, minAmount: 0, interestRatePct: 8.5, sourceUrl: "https://www.citybankplc.com/gsi/conventional-banking-products" },
-  { institutionName: "The City Bank", productType: "DPS", productNameHint: "Deposit Pension Scheme", tenureMonths: 12, minAmount: 0, interestRatePct: 8.5, sourceUrl: "https://www.citybankplc.com/gsi/conventional-banking-products" },
-  { institutionName: "The City Bank", productType: "DPS", productNameHint: "Deposit Pension Scheme", tenureMonths: 48, minAmount: 0, interestRatePct: 9.0, sourceUrl: "https://www.citybankplc.com/gsi/conventional-banking-products" },
-  { institutionName: "The City Bank", productType: "DPS", productNameHint: "Deposit Pension Scheme", tenureMonths: 60, minAmount: 0, interestRatePct: 9.0, sourceUrl: "https://www.citybankplc.com/gsi/conventional-banking-products" },
-  { institutionName: "The City Bank", productType: "DPS", productNameHint: "Deposit Pension Scheme", tenureMonths: 120, minAmount: 0, interestRatePct: 9.0, sourceUrl: "https://www.citybankplc.com/gsi/conventional-banking-products" },
-  // Insurance-Backed DPS: distinct long-tenure product, individuals only, flat 8.50%
+  { institutionName: "The City Bank", productType: "DPS", productNameHint: "Deposit Pension Scheme", tenureMonths: 6, minAmount: 0, interestRatePct: 9.0, sourceUrl: "https://www.citybankplc.com/gsi/conventional-banking-products" },
+  { institutionName: "The City Bank", productType: "DPS", productNameHint: "Deposit Pension Scheme", tenureMonths: 12, minAmount: 0, interestRatePct: 9.0, sourceUrl: "https://www.citybankplc.com/gsi/conventional-banking-products" },
+  { institutionName: "The City Bank", productType: "DPS", productNameHint: "Deposit Pension Scheme", tenureMonths: 48, minAmount: 0, interestRatePct: 9.5, sourceUrl: "https://www.citybankplc.com/gsi/conventional-banking-products" },
+  { institutionName: "The City Bank", productType: "DPS", productNameHint: "Deposit Pension Scheme", tenureMonths: 60, minAmount: 0, interestRatePct: 9.5, sourceUrl: "https://www.citybankplc.com/gsi/conventional-banking-products" },
+  { institutionName: "The City Bank", productType: "DPS", productNameHint: "Deposit Pension Scheme", tenureMonths: 120, minAmount: 0, interestRatePct: 9.5, sourceUrl: "https://www.citybankplc.com/gsi/conventional-banking-products" },
+  // Insurance-Backed DPS: distinct long-tenure product, individuals only, flat
+  // 8.50% — re-confirmed unchanged 2026-08-29.
   { institutionName: "The City Bank", productType: "DPS", productNameHint: "Insurance-Backed", tenureMonths: 60, minAmount: 0, interestRatePct: 8.5, sourceUrl: "https://www.citybankplc.com/gsi/conventional-banking-products" },
   { institutionName: "The City Bank", productType: "DPS", productNameHint: "Insurance-Backed", tenureMonths: 120, minAmount: 0, interestRatePct: 8.5, sourceUrl: "https://www.citybankplc.com/gsi/conventional-banking-products" },
   { institutionName: "The City Bank", productType: "DPS", productNameHint: "Insurance-Backed", tenureMonths: 180, minAmount: 0, interestRatePct: 8.5, sourceUrl: "https://www.citybankplc.com/gsi/conventional-banking-products" },
