@@ -615,4 +615,44 @@ Official site blocked by Cloudflare bot-challenge (403) on all attempts includin
 Two banks (The City Bank, Pubali Bank) have no verifiable current rate — leave with no rate tiers on the site (already the default empty state) until manually confirmed by opening their sites in a real browser or calling the bank.
 Two products (Bank Asia DPS, IDLC FDR/DPS) have no findable official percentage — same treatment.
 Standard Chartered FDR is a min-max regulatory range, not a single advertised rate — not entering as a rate tier; would need branch/relationship-manager contact for an actual offered number.
+
+## UCB rate refresh (2026-08-29)
+
+User supplied UCB's official Treasury rate circular #1632 (deposit rate sheet,
+effective Aug 24, 2026): https://www.ucb.com.bd/reports/interest-rates/instruction-circular-no1632full-deposit-productsucb-websi.pdf
+
+**FDR — "Retail UCB Earning Plus 1-10 Years" (Regular customer group, Quarterly
+payout, prefix 3428), unchanged product mapping from before, but the rate moved:**
+- 1-3yr: 10.00% → **9.50%**
+- 4-10yr: 8.25% (unchanged)
+
+**DPS — replaced the back-solved Super Flex estimate with the circular's
+directly-published, per-tenure rates.** The previous entry was back-solved from
+a single maturity-value example per tenure (explicitly flagged "lower
+confidence" in the source comment) because the product page only gave one
+worked example, not a rate table. This circular publishes the real rate table
+directly:
+- "UCB Super Flex Regular Deposit Scheme" (Regular customer group, prefixes
+  3550/3580/3581/3582): 1yr 9.50%, 2yr 9.50%, 3yr 9.75%, 5yr 10.00%, 10yr 10.00%
+- Previous back-solved figures (11.20% / 10.30% / 10.28% / 10.31% / 10.14% at
+  the same five tenures) are now superseded — the gap at 1yr (11.20% estimated
+  vs 9.50% actual) shows the back-solve had drifted meaningfully from the real
+  rate, not just rounding noise.
+
+**Product-identity check, since the circular lists several differently-named
+recurring-deposit schemes at very different rates** (Prottoyi Monthly Deposit
+6.00-7.00%, NRB DPS Plus / AYMA DPS Plus / Youngsters' DPS 9.50-10.00%,
+Multi-Millionaire 10.00% flat, Super Flex 9.50-10.00%): confirmed via UCB's own
+product page (https://www.ucb.com.bd/banking/retail-banking/ucb-superflex-dps)
+that Super Flex DPS is a recurring monthly-installment scheme, open to general
+retail customers (no gender/age/residency restriction), tenures exactly
+1/2/3/5/10yr — matching the product we'd already been tracking and the exact
+tenure set already in the schema. Prottoyi turned out to be an SME-banking
+product (not general retail) via a separate site search, so it was correctly
+never a candidate. The circular's own "Discontinued Products" list explicitly
+names "Retail UCB DPS Plus" as discontinued — confirms Super Flex (not DPS
+Plus) is the current product, not a naming mix-up.
+
+Applied to both the local dev DB and production (Supabase) via `npm run
+import-rates`.
 Several sources carry caution flags (DBBL 2021 circular basis, MTB Sept 2024 effective dates, NCC SSS Nov 2020, LankaBangla Apr 2025, BRAC/Dhaka Bank table extraction ambiguity) — noted inline above; entering these as MANUAL source with the sourceUrl preserved so anyone can re-verify.
