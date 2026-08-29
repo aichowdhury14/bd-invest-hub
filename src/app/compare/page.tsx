@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { GitCompareArrows } from "lucide-react";
 import { getActiveInstitutionsWithProducts } from "@/lib/products";
 import { serializeProducts } from "@/lib/serialize";
@@ -27,7 +28,9 @@ export default async function ComparePage() {
         </Container>
       </section>
       <Container className="py-10 sm:py-12">
-        <CompareClient products={products} />
+        <Suspense fallback={null}>
+          <CompareClient products={products} />
+        </Suspense>
       </Container>
     </div>
   );

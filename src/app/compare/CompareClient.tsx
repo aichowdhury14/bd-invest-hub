@@ -1,7 +1,8 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { BarChart3, Search, Sparkles, X } from "lucide-react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { BarChart3, Check, Link as LinkIcon, Search, Sparkles, X } from "lucide-react";
 import type { SerializedProduct } from "@/lib/serialize";
 import { institutionTypeLabels, isRecurringProduct, productTypeLabels } from "@/lib/labels";
 import { institutionTypeStyle } from "@/lib/institution-style";
@@ -26,11 +27,22 @@ function formatTenure(months: number): string {
 const INSTITUTION_TYPES: InstitutionType[] = ["BANK", "GOVERNMENT", "INVESTMENT_ORG"];
 
 export function CompareClient({ products }: { products: SerializedProduct[] }) {
+  const searchParams = useSearchParams();
+  const router = useRouter();
+
+  const sharedIds = useMemo(() => {
+    const raw = searchParams.get("products");
+    if (!raw) return null;
+    const ids = raw.split(",").filter((id) => products.some((p) => p.id === id));
+    return ids.length > 0 ? ids : null;
+  }, [searchParams, products]);
+
   const [query, setQuery] = useState("");
-  const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [selectedIds, setSelectedIds] = useState<string[]>(() => sharedIds ?? []);
   const [instFilter, setInstFilter] = useState<InstitutionType | "ALL">("ALL");
   const [typeFilter, setTypeFilter] = useState<ProductType | "ALL">("ALL");
   const [sortBy, setSortBy] = useState<"rate" | "name">("rate");
+  const [copied, setCopied] = useState(false);
   const sessionId = useSessionId();
 
   const tenureOptions = useMemo(() => {
@@ -39,10 +51,20 @@ export function CompareClient({ products }: { products: SerializedProduct[] }) {
     return Array.from(set).sort((a, b) => a - b);
   }, [products]);
 
-  const { amount, raw: amountRaw, onChange: onAmountChange } = useAmountInput(100000);
+  const initialAmount = useMemo(() => {
+    const raw = searchParams.get("amount");
+    const parsed = raw ? Number(raw) : NaN;
+    return Number.isFinite(parsed) && parsed > 0 ? parsed : 100000;
+    // Only ever read once, on mount — the input owns its own state after that.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  const { amount, raw: amountRaw, onChange: onAmountChange } = useAmountInput(initialAmount);
   const [tenureIndex, setTenureIndex] = useState(() => {
-    const idx = tenureOptions.indexOf(12);
-    return idx >= 0 ? idx : 0;
+    const sharedTenure = Number(searchParams.get("tenure"));
+    const idx = Number.isFinite(sharedTenure) ? tenureOptions.indexOf(sharedTenure) : -1;
+    if (idx >= 0) return idx;
+    const defaultIdx = tenureOptions.indexOf(12);
+    return defaultIdx >= 0 ? defaultIdx : 0;
   });
   // Clamp rather than store an effect-driven correction — tenureOptions is
   // derived from static props, so this only ever matters defensively.
@@ -85,6 +107,19 @@ export function CompareClient({ products }: { products: SerializedProduct[] }) {
   }, [products, query, instFilter, typeFilter, sortBy, tenureMonths, amount]);
 
   const selected = products.filter((p) => selectedIds.includes(p.id));
+
+  function copyShareLink() {
+    const params = new URLSearchParams();
+    params.set("products", selectedIds.join(","));
+    params.set("amount", String(amount));
+    params.set("tenure", String(tenureMonths));
+    const url = `${window.location.origin}${window.location.pathname}?${params.toString()}`;
+    router.replace(`?${params.toString()}`, { scroll: false });
+    navigator.clipboard.writeText(url).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    });
+  }
 
   function toggle(id: string) {
     setSelectedIds((prev) => {
@@ -299,11 +334,30 @@ export function CompareClient({ products }: { products: SerializedProduct[] }) {
       {selected.length > 0 && (
         <>
           <div className="rounded-2xl card-surface p-4 sm:p-6 shadow-sm space-y-3">
-            <div className="flex items-center gap-2">
-              <BarChart3 className="h-4 w-4 text-accent" />
-              <h2 className="font-display font-bold">
-                Maturity amount at {formatTenure(tenureMonths)}
-              </h2>
+            <div className="flex items-center justify-between gap-2 flex-wrap">
+              <div className="flex items-center gap-2">
+                <BarChart3 className="h-4 w-4 text-accent" />
+                <h2 className="font-display font-bold">
+                  Maturity amount at {formatTenure(tenureMonths)}
+                </h2>
+              </div>
+              <button
+                type="button"
+                onClick={copyShareLink}
+                className="btn-press inline-flex items-center gap-1.5 rounded-full bg-foreground/5 px-3 py-1.5 text-xs font-semibold text-muted hover:bg-foreground/10 hover:text-foreground transition-colors"
+              >
+                {copied ? (
+                  <>
+                    <Check className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />
+                    Link copied
+                  </>
+                ) : (
+                  <>
+                    <LinkIcon className="h-3.5 w-3.5" />
+                    Copy share link
+                  </>
+                )}
+              </button>
             </div>
             <ComparisonChart bars={comparisonBars} />
           </div>

@@ -2,7 +2,7 @@ import { Calculator } from "lucide-react";
 import { getActiveInstitutionsWithProducts } from "@/lib/products";
 import { serializeProducts } from "@/lib/serialize";
 import { Container } from "@/components/Container";
-import { CalculatorClient } from "./CalculatorClient";
+import { CalculatorTabs } from "./CalculatorTabs";
 
 export const revalidate = 300;
 
@@ -21,13 +21,13 @@ export default async function CalculatorPage() {
             Investment Calculator
           </h1>
           <p className="text-white/85 max-w-xl">
-            Enter an amount and pick a tenure to compare maturity amounts across every product
-            that offers that exact tenure.
+            Enter an amount and pick a tenure to compare maturity amounts, or switch to
+            &quot;By goal&quot; to work backward from a target amount.
           </p>
         </Container>
       </section>
       <Container className="py-10 sm:py-12">
-        <CalculatorClient products={products} />
+        <CalculatorTabs products={products} />
       </Container>
     </div>
   );

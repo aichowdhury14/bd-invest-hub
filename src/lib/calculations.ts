@@ -24,8 +24,12 @@ export interface LumpSumResult {
   principal: number;
 }
 
-/** The multiplier applied to principal to reach maturity. */
-function lumpSumGrowthFactor(
+/**
+ * The multiplier applied to principal to reach maturity — exported (in
+ * addition to the rounded-currency calculateLumpSumMaturity) because it's
+ * needed unrounded, e.g. to invert for goal-based solving in src/lib/goal.ts.
+ */
+export function lumpSumGrowthFactor(
   annualRatePct: number,
   tenureMonths: number,
   compounding: Compounding
@@ -71,8 +75,11 @@ export interface DPSResult {
   totalInterest: number;
 }
 
-/** The multiplier applied to a 1-unit monthly deposit to reach maturity. */
-function dpsGrowthFactor(annualRatePct: number, tenureMonths: number, compounding: Compounding): number {
+/**
+ * The multiplier applied to a 1-unit monthly deposit to reach maturity —
+ * exported for the same reason as lumpSumGrowthFactor above.
+ */
+export function dpsGrowthFactor(annualRatePct: number, tenureMonths: number, compounding: Compounding): number {
   const r = annualRatePct / 100;
   if (r === 0) return tenureMonths;
   if (compounding === "SIMPLE") {
