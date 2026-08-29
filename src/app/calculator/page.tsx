@@ -1,13 +1,17 @@
 import { Calculator } from "lucide-react";
 import { getActiveInstitutionsWithProducts } from "@/lib/products";
 import { serializeProducts } from "@/lib/serialize";
+import { getPopularAmountTenures } from "@/lib/analytics-queries";
 import { Container } from "@/components/Container";
 import { CalculatorTabs } from "./CalculatorTabs";
 
 export const revalidate = 300;
 
 export default async function CalculatorPage() {
-  const institutions = await getActiveInstitutionsWithProducts();
+  const [institutions, popularAmountTenures] = await Promise.all([
+    getActiveInstitutionsWithProducts(),
+    getPopularAmountTenures(),
+  ]);
   const products = serializeProducts(institutions);
 
   return (
@@ -27,7 +31,7 @@ export default async function CalculatorPage() {
         </Container>
       </section>
       <Container className="py-10 sm:py-12">
-        <CalculatorTabs products={products} />
+        <CalculatorTabs products={products} popularAmountTenures={popularAmountTenures} />
       </Container>
     </div>
   );

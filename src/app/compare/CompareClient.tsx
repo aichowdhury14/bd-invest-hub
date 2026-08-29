@@ -1,8 +1,8 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { BarChart3, Check, Link as LinkIcon, Search, Sparkles, X } from "lucide-react";
+import { BarChart3, Check, Link as LinkIcon, Search, Sparkles, Users, X } from "lucide-react";
 import type { SerializedProduct } from "@/lib/serialize";
 import { institutionTypeLabels, isRecurringProduct, productTypeLabels } from "@/lib/labels";
 import { institutionTypeStyle } from "@/lib/institution-style";
@@ -11,7 +11,8 @@ import { calculateDPSMaturity, calculateLumpSumMaturity } from "@/lib/calculatio
 import type { InstitutionType, ProductType } from "@prisma/client";
 import { useAmountInput } from "@/lib/useAmountInput";
 import { useSessionId } from "@/lib/useSessionId";
-import { trackCompareView } from "@/lib/analytics";
+import { trackCompareView, fetchRelatedProducts } from "@/lib/analytics";
+import type { RelatedProduct } from "@/lib/analytics-queries";
 import { ComparisonChart, type ComparisonBar } from "./ComparisonChart";
 
 const MAX_SELECTED = 6;
@@ -43,7 +44,27 @@ export function CompareClient({ products }: { products: SerializedProduct[] }) {
   const [typeFilter, setTypeFilter] = useState<ProductType | "ALL">("ALL");
   const [sortBy, setSortBy] = useState<"rate" | "name">("rate");
   const [copied, setCopied] = useState(false);
+  const [relatedProducts, setRelatedProducts] = useState<RelatedProduct[]>([]);
   const sessionId = useSessionId();
+
+  // Related-products suggestions are keyed on the most recently selected
+  // product — real co-occurrence data from other visitors' sessions, not a
+  // prediction. Refetches whenever the latest selection changes.
+  const latestSelectedId = selectedIds[selectedIds.length - 1] ?? null;
+  useEffect(() => {
+    if (!latestSelectedId) return;
+    let cancelled = false;
+    fetchRelatedProducts(latestSelectedId).then((related) => {
+      if (!cancelled) setRelatedProducts(related);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [latestSelectedId]);
+  const visibleRelatedProducts = useMemo(
+    () => (latestSelectedId ? relatedProducts.filter((r) => !selectedIds.includes(r.productId)) : []),
+    [relatedProducts, selectedIds, latestSelectedId]
+  );
 
   const tenureOptions = useMemo(() => {
     const set = new Set<number>();
@@ -415,6 +436,37 @@ export function CompareClient({ products }: { products: SerializedProduct[] }) {
               );
             })}
           </div>
+
+          {visibleRelatedProducts.length > 0 && (
+            <div className="rounded-2xl card-surface p-4 sm:p-5 shadow-sm space-y-3">
+              <div className="flex items-center gap-2">
+                <Users className="h-4 w-4 text-accent" />
+                <h2 className="font-display font-bold text-sm">Other visitors also compared</h2>
+                <span className="text-xs text-muted">— based on real sessions, not a prediction</span>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {visibleRelatedProducts.map((rp) => (
+                  <button
+                    key={rp.productId}
+                    type="button"
+                    onClick={() => toggle(rp.productId)}
+                    disabled={selectedIds.length >= MAX_SELECTED}
+                    className="btn-press flex items-center gap-2 rounded-xl border border-border px-3 py-2 text-sm hover:bg-foreground/5 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                  >
+                    <InstitutionLogo
+                      name={rp.institutionName}
+                      type={rp.institutionType}
+                      size="sm"
+                    />
+                    <span className="text-left">
+                      <span className="block font-medium">{rp.institutionName}</span>
+                      <span className="block text-xs text-muted">{rp.productName}</span>
+                    </span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
         </>
       )}
     </div>

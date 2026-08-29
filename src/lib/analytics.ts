@@ -2,6 +2,7 @@
 
 import { prisma } from "@/lib/prisma";
 import type { ProductType } from "@prisma/client";
+import { getRelatedProducts as queryRelatedProducts, type RelatedProduct } from "@/lib/analytics-queries";
 
 export async function trackPageView(path: string, sessionId: string, referrer?: string) {
   try {
@@ -42,5 +43,15 @@ export async function trackCompareView(productId: string, sessionId: string) {
     });
   } catch {
     // Analytics must never break the user-facing experience.
+  }
+}
+
+/** Client-callable wrapper around getRelatedProducts — fails soft to an empty
+ *  list so a query hiccup never breaks the compare page. */
+export async function fetchRelatedProducts(productId: string): Promise<RelatedProduct[]> {
+  try {
+    return await queryRelatedProducts(productId);
+  } catch {
+    return [];
   }
 }

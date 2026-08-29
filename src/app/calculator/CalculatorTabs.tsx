@@ -3,12 +3,19 @@
 import { useState } from "react";
 import { Calculator, Target } from "lucide-react";
 import type { SerializedProduct } from "@/lib/serialize";
+import type { PopularAmountTenure } from "@/lib/analytics-queries";
 import { CalculatorClient } from "./CalculatorClient";
 import { GoalCalculator } from "./GoalCalculator";
 
 type Mode = "amount" | "goal";
 
-export function CalculatorTabs({ products }: { products: SerializedProduct[] }) {
+export function CalculatorTabs({
+  products,
+  popularAmountTenures,
+}: {
+  products: SerializedProduct[];
+  popularAmountTenures: PopularAmountTenure[];
+}) {
   const [mode, setMode] = useState<Mode>("amount");
 
   return (
@@ -22,7 +29,11 @@ export function CalculatorTabs({ products }: { products: SerializedProduct[] }) 
         </ModeTab>
       </div>
 
-      {mode === "amount" ? <CalculatorClient products={products} /> : <GoalCalculator products={products} />}
+      {mode === "amount" ? (
+        <CalculatorClient products={products} popularAmountTenures={popularAmountTenures} />
+      ) : (
+        <GoalCalculator products={products} />
+      )}
     </div>
   );
 }

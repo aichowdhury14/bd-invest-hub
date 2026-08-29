@@ -8,6 +8,7 @@ import {
   Percent,
   Sparkles,
   TrendingUp,
+  Users,
   type LucideIcon,
 } from "lucide-react";
 import type { SerializedProduct } from "@/lib/serialize";
@@ -27,6 +28,7 @@ import {
 } from "@/lib/economic-context";
 import { useAmountInput } from "@/lib/useAmountInput";
 import { buildRecommendations, type RiskProfile, type Row } from "@/lib/recommend";
+import type { PopularAmountTenure } from "@/lib/analytics-queries";
 import { GrowthChart } from "./GrowthChart";
 
 const bdt = new Intl.NumberFormat("en-BD", {
@@ -43,7 +45,13 @@ function formatTenure(months: number): string {
   return `${months} mo`;
 }
 
-export function CalculatorClient({ products }: { products: SerializedProduct[] }) {
+export function CalculatorClient({
+  products,
+  popularAmountTenures = [],
+}: {
+  products: SerializedProduct[];
+  popularAmountTenures?: PopularAmountTenure[];
+}) {
   const tenureOptions = useMemo(() => {
     const set = new Set<number>();
     for (const product of products) {
@@ -69,6 +77,19 @@ export function CalculatorClient({ products }: { products: SerializedProduct[] }
   const sessionId = useSessionId();
 
   const tenureMonths = tenureOptions[tenureIndex] ?? 0;
+
+  const popularSuggestions = useMemo(
+    () =>
+      popularAmountTenures
+        .map((p) => ({ ...p, tenureIndex: tenureOptions.indexOf(p.tenureMonths) }))
+        .filter((p) => p.tenureIndex >= 0),
+    [popularAmountTenures, tenureOptions]
+  );
+
+  function applySuggestion(suggestedAmount: number, suggestedTenureIndex: number) {
+    onAmountChange(String(suggestedAmount));
+    setTenureIndex(suggestedTenureIndex);
+  }
 
   const { rows, picks, recommendations } = useMemo(
     () => buildRecommendations(products, { amount, tenureMonths, typeFilter, riskProfile }),
@@ -190,6 +211,27 @@ export function CalculatorClient({ products }: { products: SerializedProduct[] }
             <span>{formatTenure(tenureOptions[tenureOptions.length - 1])}</span>
           </div>
         </div>
+
+        {popularSuggestions.length > 0 && (
+          <div className="space-y-2 sm:col-span-2">
+            <label className="text-sm font-semibold flex items-center gap-1.5">
+              <Users className="h-3.5 w-3.5 text-muted" />
+              Popular with other visitors
+            </label>
+            <div className="flex flex-wrap gap-2">
+              {popularSuggestions.map((p) => (
+                <button
+                  key={`${p.amount}-${p.tenureMonths}`}
+                  type="button"
+                  onClick={() => applySuggestion(p.amount, p.tenureIndex)}
+                  className="btn-press rounded-full bg-foreground/5 px-3.5 py-1.5 text-sm font-medium text-muted transition-colors hover:bg-foreground/10 hover:text-foreground"
+                >
+                  ৳{p.amount.toLocaleString("en-BD")} · {formatTenure(p.tenureMonths)}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
 
         <div className="space-y-2 sm:col-span-2">
           <label htmlFor="type" className="text-sm font-semibold">
