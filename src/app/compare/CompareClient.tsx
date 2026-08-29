@@ -45,17 +45,28 @@ export function CompareClient({ products }: { products: SerializedProduct[] }) {
   const [sortBy, setSortBy] = useState<"rate" | "name">("rate");
   const [copied, setCopied] = useState(false);
   const [relatedProducts, setRelatedProducts] = useState<RelatedProduct[]>([]);
+  // The product id relatedProducts was fetched for — lets loading state be
+  // derived (relatedFor !== latestSelectedId) rather than a separate flag
+  // set synchronously inside the effect.
+  const [relatedFor, setRelatedFor] = useState<string | null>(null);
   const sessionId = useSessionId();
 
   // Related-products suggestions are keyed on the most recently selected
   // product — real co-occurrence data from other visitors' sessions, not a
-  // prediction. Refetches whenever the latest selection changes.
+  // prediction. Refetches whenever the latest selection changes. The Server
+  // Action can take a couple of seconds (queued behind trackCompareView
+  // round-trips), so a derived loading state gives the widget a visible
+  // pending state instead of silently appearing to do nothing.
   const latestSelectedId = selectedIds[selectedIds.length - 1] ?? null;
+  const relatedLoading = latestSelectedId !== null && relatedFor !== latestSelectedId;
   useEffect(() => {
     if (!latestSelectedId) return;
     let cancelled = false;
     fetchRelatedProducts(latestSelectedId).then((related) => {
-      if (!cancelled) setRelatedProducts(related);
+      if (!cancelled) {
+        setRelatedProducts(related);
+        setRelatedFor(latestSelectedId);
+      }
     });
     return () => {
       cancelled = true;
@@ -437,34 +448,38 @@ export function CompareClient({ products }: { products: SerializedProduct[] }) {
             })}
           </div>
 
-          {visibleRelatedProducts.length > 0 && (
+          {(relatedLoading || visibleRelatedProducts.length > 0) && (
             <div className="rounded-2xl card-surface p-4 sm:p-5 shadow-sm space-y-3">
               <div className="flex items-center gap-2">
                 <Users className="h-4 w-4 text-accent" />
                 <h2 className="font-display font-bold text-sm">Other visitors also compared</h2>
                 <span className="text-xs text-muted">— based on real sessions, not a prediction</span>
               </div>
-              <div className="flex flex-wrap gap-2">
-                {visibleRelatedProducts.map((rp) => (
-                  <button
-                    key={rp.productId}
-                    type="button"
-                    onClick={() => toggle(rp.productId)}
-                    disabled={selectedIds.length >= MAX_SELECTED}
-                    className="btn-press flex items-center gap-2 rounded-xl border border-border px-3 py-2 text-sm hover:bg-foreground/5 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-                  >
-                    <InstitutionLogo
-                      name={rp.institutionName}
-                      type={rp.institutionType}
-                      size="sm"
-                    />
-                    <span className="text-left">
-                      <span className="block font-medium">{rp.institutionName}</span>
-                      <span className="block text-xs text-muted">{rp.productName}</span>
-                    </span>
-                  </button>
-                ))}
-              </div>
+              {relatedLoading ? (
+                <div className="flex flex-wrap gap-2">
+                  {[1, 2, 3].map((i) => (
+                    <div key={i} className="h-[52px] w-40 animate-pulse rounded-xl bg-foreground/5" />
+                  ))}
+                </div>
+              ) : (
+                <div className="flex flex-wrap gap-2">
+                  {visibleRelatedProducts.map((rp) => (
+                    <button
+                      key={rp.productId}
+                      type="button"
+                      onClick={() => toggle(rp.productId)}
+                      disabled={selectedIds.length >= MAX_SELECTED}
+                      className="btn-press flex items-center gap-2 rounded-xl border border-border px-3 py-2 text-sm hover:bg-foreground/5 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                    >
+                      <InstitutionLogo name={rp.institutionName} type={rp.institutionType} size="sm" />
+                      <span className="text-left">
+                        <span className="block font-medium">{rp.institutionName}</span>
+                        <span className="block text-xs text-muted">{rp.productName}</span>
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
           )}
         </>
