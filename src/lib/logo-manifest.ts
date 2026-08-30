@@ -7,6 +7,10 @@
  * Sourced 2026-08-29: banks' own official sites where a stable direct image URL
  * was findable, Wikipedia/Wikimedia Commons infobox logos otherwise (matched to
  * each institution's own article, not a generic/wrong entity).
+ *
+ * prime-now added 2026-08-31, sourced from primenow.ai's own
+ * apple-touch-icon.png (verified real image data, not an HTML SPA fallback,
+ * via `file`) — its real app icon, not a substitute.
  */
 export const logoManifest: Record<string, string> = {
   "sonali-bank": "sonali-bank.svg",
@@ -34,4 +38,5 @@ export const logoManifest: Record<string, string> = {
   "ipdc-finance-limited": "ipdc-finance-limited.svg",
   "lankabangla-finance": "lankabangla-finance.svg",
   "idlc-finance": "idlc-finance.svg",
+  "prime-now": "prime-now.png",
 };

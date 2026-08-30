@@ -110,11 +110,14 @@ async function main() {
   }
 
   // --- Digital banks (structure only, no rates) --------------------------------
+  const DIGITAL_BANK_WEBSITES: Record<string, string> = {
+    "Prime NOW": "https://primenow.ai",
+  };
   for (const name of DIGITAL_BANKS) {
     const inst = await prisma.institution.upsert({
       where: { id: `digital-${slug(name)}` },
       update: {},
-      create: { id: `digital-${slug(name)}`, name, type: "DIGITAL_BANK" },
+      create: { id: `digital-${slug(name)}`, name, type: "DIGITAL_BANK", website: DIGITAL_BANK_WEBSITES[name] },
     });
     await ensureProductShell(inst.id, "FDR", "Now FD", 1, 36);
     await ensureProductShell(inst.id, "DPS", "Now Fixed DPS", 6, 120);
