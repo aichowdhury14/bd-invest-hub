@@ -2,13 +2,14 @@ import { prisma } from "@/lib/prisma";
 import type { InstitutionType, ProductType } from "@prisma/client";
 import { CURRENT_INFLATION } from "@/lib/economic-context";
 
-const TYPES: InstitutionType[] = ["BANK", "GOVERNMENT", "INVESTMENT_ORG"];
+const TYPES: InstitutionType[] = ["BANK", "GOVERNMENT", "INVESTMENT_ORG", "DIGITAL_BANK"];
 
 export interface YieldCurvePoint {
   tenureMonths: number;
   BANK: number | null;
   GOVERNMENT: number | null;
   INVESTMENT_ORG: number | null;
+  DIGITAL_BANK: number | null;
 }
 
 /**
@@ -34,7 +35,7 @@ export async function getYieldCurve(productType: "FDR" | "DPS"): Promise<YieldCu
     const type = tier.product.institution.type;
     const rate = Number(tier.interestRatePct);
     if (!byTenure.has(tenure)) {
-      byTenure.set(tenure, { BANK: null, GOVERNMENT: null, INVESTMENT_ORG: null });
+      byTenure.set(tenure, { BANK: null, GOVERNMENT: null, INVESTMENT_ORG: null, DIGITAL_BANK: null });
     }
     const row = byTenure.get(tenure)!;
     row[type] = row[type] === null ? rate : Math.max(row[type]!, rate);

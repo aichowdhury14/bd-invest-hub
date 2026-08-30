@@ -14,6 +14,7 @@ enum InstitutionType {
   BANK
   GOVERNMENT
   INVESTMENT_ORG
+  DIGITAL_BANK
 }
 
 enum ProductType {

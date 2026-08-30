@@ -16,7 +16,7 @@ export interface SerializedProduct {
   id: string;
   institutionId: string;
   institutionName: string;
-  institutionType: "BANK" | "GOVERNMENT" | "INVESTMENT_ORG";
+  institutionType: "BANK" | "GOVERNMENT" | "INVESTMENT_ORG" | "DIGITAL_BANK";
   productType: "FDR" | "DPS" | "SANCHAYPATRO" | "TBOND" | "TBILL" | "OTHER";
   name: string;
   compounding: "SIMPLE" | "MONTHLY" | "QUARTERLY" | "YEARLY";

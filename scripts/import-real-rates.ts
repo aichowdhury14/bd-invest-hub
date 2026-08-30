@@ -478,6 +478,43 @@ const entries: RateEntry[] = [
   { institutionName: "LankaBangla Finance", productType: "DPS", tenureMonths: 36, minAmount: 0, interestRatePct: 10.75, sourceUrl: "https://www.lankabangla.com/deposit-rates/" },
   { institutionName: "LankaBangla Finance", productType: "DPS", tenureMonths: 60, minAmount: 0, interestRatePct: 10.75, sourceUrl: "https://www.lankabangla.com/deposit-rates/" },
   { institutionName: "LankaBangla Finance", productType: "DPS", tenureMonths: 120, minAmount: 0, interestRatePct: 10.75, sourceUrl: "https://www.lankabangla.com/deposit-rates/" },
+
+  // --- Prime NOW --- Prime Bank PLC's fully digital-only banking brand
+  // (https://primenow.ai). "Now FD" and "Now Fixed DPS" are the two
+  // tenure-based products, sourced 2026-08-30 from the live rate page
+  // (effective January 5, 2026 per the page). "Now Savings Account" and
+  // "Now Flexi DPS" are balance-tiered, not tenure-based, so they don't fit
+  // this schema's amount+tenure model and are intentionally left out.
+  //
+  // Now FD published tenures: 15d, 30d, 45d, 60d, 75d, 90d, then every month
+  // 4-12, then flat 13-36mo. Only whole-month tenures are entered (this app's
+  // tenure model is month-granular); the sub-month day-count tenures (15/30/
+  // 45/60/75/90 days) are skipped as not representable.
+  { institutionName: "Prime NOW", productType: "FDR", productNameHint: "Now FD", tenureMonths: 4, minAmount: 0, interestRatePct: 9.25, sourceUrl: "https://primenow.ai/product-rates" },
+  { institutionName: "Prime NOW", productType: "FDR", productNameHint: "Now FD", tenureMonths: 5, minAmount: 0, interestRatePct: 9.25, sourceUrl: "https://primenow.ai/product-rates" },
+  { institutionName: "Prime NOW", productType: "FDR", productNameHint: "Now FD", tenureMonths: 6, minAmount: 0, interestRatePct: 9.25, sourceUrl: "https://primenow.ai/product-rates" },
+  { institutionName: "Prime NOW", productType: "FDR", productNameHint: "Now FD", tenureMonths: 7, minAmount: 0, interestRatePct: 9.75, sourceUrl: "https://primenow.ai/product-rates" },
+  { institutionName: "Prime NOW", productType: "FDR", productNameHint: "Now FD", tenureMonths: 8, minAmount: 0, interestRatePct: 9.75, sourceUrl: "https://primenow.ai/product-rates" },
+  { institutionName: "Prime NOW", productType: "FDR", productNameHint: "Now FD", tenureMonths: 9, minAmount: 0, interestRatePct: 9.75, sourceUrl: "https://primenow.ai/product-rates" },
+  { institutionName: "Prime NOW", productType: "FDR", productNameHint: "Now FD", tenureMonths: 10, minAmount: 0, interestRatePct: 9.5, sourceUrl: "https://primenow.ai/product-rates" },
+  { institutionName: "Prime NOW", productType: "FDR", productNameHint: "Now FD", tenureMonths: 11, minAmount: 0, interestRatePct: 9.5, sourceUrl: "https://primenow.ai/product-rates" },
+  { institutionName: "Prime NOW", productType: "FDR", productNameHint: "Now FD", tenureMonths: 12, minAmount: 0, interestRatePct: 9.5, sourceUrl: "https://primenow.ai/product-rates" },
+  // 13-36mo published as a single flat 10.00% band, marked with an asterisk on
+  // the source page whose footnote text wasn't available to read — entered as
+  // published (10.00%) at the boundary tenures since the page gives no
+  // step-down within this range, same convention as other banks' flat-band DPS.
+  { institutionName: "Prime NOW", productType: "FDR", productNameHint: "Now FD", tenureMonths: 24, minAmount: 0, interestRatePct: 10.0, sourceUrl: "https://primenow.ai/product-rates" },
+  { institutionName: "Prime NOW", productType: "FDR", productNameHint: "Now FD", tenureMonths: 36, minAmount: 0, interestRatePct: 10.0, sourceUrl: "https://primenow.ai/product-rates" },
+
+  // Now Fixed DPS: 6-18mo @ 8.00%, 19-36mo @ 8.50%, 37-120mo @ 9.00%
+  { institutionName: "Prime NOW", productType: "DPS", productNameHint: "Now Fixed DPS", tenureMonths: 6, minAmount: 0, interestRatePct: 8.0, sourceUrl: "https://primenow.ai/product-rates" },
+  { institutionName: "Prime NOW", productType: "DPS", productNameHint: "Now Fixed DPS", tenureMonths: 12, minAmount: 0, interestRatePct: 8.0, sourceUrl: "https://primenow.ai/product-rates" },
+  { institutionName: "Prime NOW", productType: "DPS", productNameHint: "Now Fixed DPS", tenureMonths: 18, minAmount: 0, interestRatePct: 8.0, sourceUrl: "https://primenow.ai/product-rates" },
+  { institutionName: "Prime NOW", productType: "DPS", productNameHint: "Now Fixed DPS", tenureMonths: 24, minAmount: 0, interestRatePct: 8.5, sourceUrl: "https://primenow.ai/product-rates" },
+  { institutionName: "Prime NOW", productType: "DPS", productNameHint: "Now Fixed DPS", tenureMonths: 36, minAmount: 0, interestRatePct: 8.5, sourceUrl: "https://primenow.ai/product-rates" },
+  { institutionName: "Prime NOW", productType: "DPS", productNameHint: "Now Fixed DPS", tenureMonths: 60, minAmount: 0, interestRatePct: 9.0, sourceUrl: "https://primenow.ai/product-rates" },
+  { institutionName: "Prime NOW", productType: "DPS", productNameHint: "Now Fixed DPS", tenureMonths: 84, minAmount: 0, interestRatePct: 9.0, sourceUrl: "https://primenow.ai/product-rates" },
+  { institutionName: "Prime NOW", productType: "DPS", productNameHint: "Now Fixed DPS", tenureMonths: 120, minAmount: 0, interestRatePct: 9.0, sourceUrl: "https://primenow.ai/product-rates" },
 ];
 
 async function main() {

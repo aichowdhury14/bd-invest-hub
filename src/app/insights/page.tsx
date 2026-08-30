@@ -207,8 +207,9 @@ export default async function InsightsPage() {
           </section>
           <section className="space-y-5">
             <h2 className="font-display text-xl font-bold tracking-tight">By the numbers</h2>
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
               <CategoryCard type="BANK" stat={fdrStats.find((s) => s.type === "BANK")} />
+              <CategoryCard type="DIGITAL_BANK" stat={fdrStats.find((s) => s.type === "DIGITAL_BANK")} />
               <CategoryCard type="GOVERNMENT" stat={fdrStats.find((s) => s.type === "GOVERNMENT")} />
               <CategoryCard
                 type="INVESTMENT_ORG"
@@ -251,7 +252,7 @@ function CategoryCard({
   type,
   stat,
 }: {
-  type: "BANK" | "GOVERNMENT" | "INVESTMENT_ORG";
+  type: "BANK" | "GOVERNMENT" | "INVESTMENT_ORG" | "DIGITAL_BANK";
   stat?: { bestRate: number | null; avgBestRate: number | null; productCount: number };
 }) {
   const style = institutionTypeStyle[type];

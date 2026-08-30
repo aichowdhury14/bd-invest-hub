@@ -1,4 +1,4 @@
-import { Landmark, ShieldCheck, TrendingUp, type LucideIcon } from "lucide-react";
+import { Landmark, ShieldCheck, Smartphone, TrendingUp, type LucideIcon } from "lucide-react";
 import type { InstitutionType } from "@prisma/client";
 
 interface TypeStyle {
@@ -31,5 +31,11 @@ export const institutionTypeStyle: Record<InstitutionType, TypeStyle> = {
     iconWrap: "bg-violet-100 text-violet-700 dark:bg-violet-500/20 dark:text-violet-400",
     badge: "bg-violet-100 text-violet-700 dark:bg-violet-500/20 dark:text-violet-400",
     ring: "hover:ring-violet-500/30",
+  },
+  DIGITAL_BANK: {
+    icon: Smartphone,
+    iconWrap: "bg-teal-100 text-teal-700 dark:bg-teal-500/20 dark:text-teal-400",
+    badge: "bg-teal-100 text-teal-700 dark:bg-teal-500/20 dark:text-teal-400",
+    ring: "hover:ring-teal-500/30",
   },
 };

@@ -98,8 +98,16 @@ export function buildRecommendations(
     .sort((a, b) => (b.maturityAmount ?? -1) - (a.maturityAmount ?? -1));
 
   const offered = rows.filter((r) => r.tier !== null);
+  // Digital banks are regulated, deposit-insured banks under a different
+  // channel — grouped with BANK here so they compete for "Best at a bank"
+  // rather than getting a dedicated pick slot the fixed 3-card layouts don't
+  // have room for yet.
   const byType = (type: "GOVERNMENT" | "BANK" | "INVESTMENT_ORG") =>
-    offered.find((r) => r.product.institutionType === type) ?? null;
+    offered.find((r) =>
+      type === "BANK"
+        ? r.product.institutionType === "BANK" || r.product.institutionType === "DIGITAL_BANK"
+        : r.product.institutionType === type
+    ) ?? null;
   const bestOverall = offered[0] ?? null;
   const safest = byType("GOVERNMENT");
   const bestBank = byType("BANK");

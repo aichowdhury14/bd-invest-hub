@@ -11,7 +11,7 @@ import type { InstitutionType } from "@prisma/client";
 
 export const revalidate = 300;
 
-const SECTION_ORDER: InstitutionType[] = ["BANK", "GOVERNMENT", "INVESTMENT_ORG"];
+const SECTION_ORDER: InstitutionType[] = ["BANK", "DIGITAL_BANK", "GOVERNMENT", "INVESTMENT_ORG"];
 
 export default async function HomePage() {
   const [institutions, trending] = await Promise.all([

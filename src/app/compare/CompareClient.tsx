@@ -25,7 +25,7 @@ function formatTenure(months: number): string {
   return `${months} mo`;
 }
 
-const INSTITUTION_TYPES: InstitutionType[] = ["BANK", "GOVERNMENT", "INVESTMENT_ORG"];
+const INSTITUTION_TYPES: InstitutionType[] = ["BANK", "DIGITAL_BANK", "GOVERNMENT", "INVESTMENT_ORG"];
 
 export function CompareClient({ products }: { products: SerializedProduct[] }) {
   const searchParams = useSearchParams();

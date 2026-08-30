@@ -144,8 +144,12 @@ export function buildGoalRecommendations(
 
   const offeredLumpSum = lumpSumRows.filter((r) => r.tier !== null);
   const offeredDPS = dpsRows.filter((r) => r.tier !== null);
+  // Digital banks are regulated banks under a different channel — grouped
+  // with BANK here, same as recommend.ts's byType helper.
   const cheapestBankIn = (rows: GoalRow[]) =>
-    rows.filter((r) => r.product.institutionType === "BANK").sort(byRequiredDeposit)[0] ?? null;
+    rows
+      .filter((r) => r.product.institutionType === "BANK" || r.product.institutionType === "DIGITAL_BANK")
+      .sort(byRequiredDeposit)[0] ?? null;
 
   const picks: GoalPicks = {
     cheapestLumpSum: offeredLumpSum[0] ?? null,

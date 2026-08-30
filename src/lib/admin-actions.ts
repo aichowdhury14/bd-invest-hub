@@ -22,7 +22,7 @@ function revalidateAdminAndPublic() {
 
 const institutionSchema = z.object({
   name: z.string().trim().min(2),
-  type: z.enum(["BANK", "GOVERNMENT", "INVESTMENT_ORG"]),
+  type: z.enum(["BANK", "GOVERNMENT", "INVESTMENT_ORG", "DIGITAL_BANK"]),
   website: z.string().trim().url().optional().or(z.literal("")),
 });
 

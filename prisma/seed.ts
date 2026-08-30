@@ -38,6 +38,15 @@ const BANKS = [
 // (variable, NAV-based) returns instead.
 const INVESTMENT_ORGS = ["IPDC Finance Limited", "LankaBangla Finance", "IDLC Finance"];
 
+// Fully digital-only banking brands (app-only, no branches) operated by a
+// licensed commercial bank — same regulator/deposit protections as a
+// traditional bank, distinct enough as a category that users comparing
+// options may want to see it separately. Prime NOW is Prime Bank PLC's own
+// digital sub-brand (https://primenow.ai), confirmed via Google Play's
+// "Android Apps by Prime Bank PLC" developer listing — not a separate
+// legal entity from the already-tracked "Prime Bank".
+const DIGITAL_BANKS = ["Prime NOW"];
+
 async function main() {
   // --- Admin user -----------------------------------------------------------
   const adminEmail = process.env.ADMIN_EMAIL;
@@ -100,7 +109,20 @@ async function main() {
     await ensureProductShell(inst.id, "DPS", "Monthly Savings Scheme", 12, 60);
   }
 
-  console.log(`Seeded ${BANKS.length} banks, 1 government institution, ${INVESTMENT_ORGS.length} investment orgs.`);
+  // --- Digital banks (structure only, no rates) --------------------------------
+  for (const name of DIGITAL_BANKS) {
+    const inst = await prisma.institution.upsert({
+      where: { id: `digital-${slug(name)}` },
+      update: {},
+      create: { id: `digital-${slug(name)}`, name, type: "DIGITAL_BANK" },
+    });
+    await ensureProductShell(inst.id, "FDR", "Now FD", 1, 36);
+    await ensureProductShell(inst.id, "DPS", "Now Fixed DPS", 6, 120);
+  }
+
+  console.log(
+    `Seeded ${BANKS.length} banks, 1 government institution, ${INVESTMENT_ORGS.length} investment orgs, ${DIGITAL_BANKS.length} digital banks.`
+  );
 }
 
 async function ensureProductShell(

@@ -66,6 +66,7 @@ export function YieldCurveChart({ data }: { data: YieldCurvePoint[] }) {
           formatter={(value: string) => institutionTypeLabels[value as keyof typeof institutionTypeLabels]}
         />
         <Line type="monotone" dataKey="BANK" name="BANK" stroke={c.BANK} strokeWidth={2.5} dot={{ r: 3 }} connectNulls />
+        <Line type="monotone" dataKey="DIGITAL_BANK" name="DIGITAL_BANK" stroke={c.DIGITAL_BANK} strokeWidth={2.5} dot={{ r: 3 }} connectNulls />
         <Line type="monotone" dataKey="GOVERNMENT" name="GOVERNMENT" stroke={c.GOVERNMENT} strokeWidth={2.5} dot={{ r: 3 }} connectNulls />
         <Line type="monotone" dataKey="INVESTMENT_ORG" name="INVESTMENT_ORG" stroke={c.INVESTMENT_ORG} strokeWidth={2.5} dot={{ r: 3 }} connectNulls />
       </LineChart>
@@ -100,12 +101,12 @@ export function CategoryBarChart({ data }: { data: CategoryStat[] }) {
         <Legend wrapperStyle={{ fontSize: 12, color: c.ink }} formatter={(value: string) => (value === "best" ? "Best rate" : "Average of best rates")} />
         <Bar dataKey="best" radius={[4, 4, 0, 0]}>
           {chartData.map((entry) => (
-            <Cell key={entry.key} fill={c[entry.key as "BANK" | "GOVERNMENT" | "INVESTMENT_ORG"]} />
+            <Cell key={entry.key} fill={c[entry.key as "BANK" | "GOVERNMENT" | "INVESTMENT_ORG" | "DIGITAL_BANK"]} />
           ))}
         </Bar>
         <Bar dataKey="avg" radius={[4, 4, 0, 0]} fillOpacity={0.4}>
           {chartData.map((entry) => (
-            <Cell key={entry.key} fill={c[entry.key as "BANK" | "GOVERNMENT" | "INVESTMENT_ORG"]} />
+            <Cell key={entry.key} fill={c[entry.key as "BANK" | "GOVERNMENT" | "INVESTMENT_ORG" | "DIGITAL_BANK"]} />
           ))}
         </Bar>
       </BarChart>
@@ -169,7 +170,7 @@ export function CompositionDonut({ data }: { data: CompositionStat[] }) {
         <PieChart>
           <Pie data={chartData} dataKey="value" nameKey="name" innerRadius={62} outerRadius={92} paddingAngle={3} strokeWidth={0}>
             {chartData.map((entry) => (
-              <Cell key={entry.key} fill={c[entry.key as "BANK" | "GOVERNMENT" | "INVESTMENT_ORG"]} />
+              <Cell key={entry.key} fill={c[entry.key as "BANK" | "GOVERNMENT" | "INVESTMENT_ORG" | "DIGITAL_BANK"]} />
             ))}
           </Pie>
           <Tooltip

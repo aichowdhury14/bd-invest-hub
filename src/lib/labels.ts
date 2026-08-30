@@ -4,6 +4,7 @@ export const institutionTypeLabels: Record<InstitutionType, string> = {
   BANK: "Bank",
   GOVERNMENT: "Government",
   INVESTMENT_ORG: "Investment Organization",
+  DIGITAL_BANK: "Digital Bank",
 };
 
 export const productTypeLabels: Record<ProductType, string> = {
