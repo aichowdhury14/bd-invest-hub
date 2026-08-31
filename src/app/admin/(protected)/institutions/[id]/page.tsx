@@ -4,9 +4,11 @@ import { productTypeLabels } from "@/lib/labels";
 import { islamicBadgeClass } from "@/lib/institution-style";
 import {
   createProduct,
+  createProfitSharingRatio,
   createRateTier,
   deleteInstitution,
   deleteProduct,
+  deleteProfitSharingRatio,
   deleteRateTier,
   toggleInstitutionActive,
   toggleProductActive,
@@ -26,7 +28,10 @@ export default async function AdminInstitutionDetailPage({
     include: {
       products: {
         orderBy: { productType: "asc" },
-        include: { rateTiers: { orderBy: { tenureMonths: "asc" } } },
+        include: {
+          rateTiers: { orderBy: { tenureMonths: "asc" } },
+          profitSharingRatios: { orderBy: { tenureMonths: "asc" } },
+        },
       },
     },
   });
@@ -307,6 +312,106 @@ export default async function AdminInstitutionDetailPage({
                 Add rate tier
               </button>
             </form>
+
+            <div className="space-y-2 border-t border-border pt-4">
+              <p className="text-xs font-medium text-muted">
+                Profit-sharing ratio (for Mudaraba products with no published percentage rate)
+              </p>
+              {product.profitSharingRatios.length > 0 && (
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="text-left text-muted">
+                      <th className="pb-1 font-medium">Tenure</th>
+                      <th className="pb-1 font-medium">Customer:Bank</th>
+                      <th className="pb-1 font-medium">Source</th>
+                      <th className="pb-1 font-medium" />
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {product.profitSharingRatios.map((ratio) => (
+                      <tr key={ratio.id} className="border-t border-border row-interactive">
+                        <td className="py-1.5">{ratio.tenureMonths} mo</td>
+                        <td className="py-1.5">
+                          {ratio.customerRatio}:{ratio.bankRatio}
+                        </td>
+                        <td className="py-1.5 text-xs">
+                          <a
+                            href={ratio.sourceUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="hover:underline"
+                          >
+                            source
+                          </a>
+                        </td>
+                        <td className="py-1.5 text-right">
+                          <form
+                            action={async () => {
+                              "use server";
+                              await deleteProfitSharingRatio(ratio.id, id);
+                            }}
+                          >
+                            <button className="text-red-600 hover:underline text-xs">Delete</button>
+                          </form>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
+
+              <form
+                action={createProfitSharingRatio.bind(null, product.id, id)}
+                className="grid grid-cols-1 gap-2 sm:grid-cols-5 items-end text-sm"
+              >
+                <div className="space-y-1">
+                  <label className="text-xs font-medium">Tenure (mo)</label>
+                  <input
+                    name="tenureMonths"
+                    type="number"
+                    min={1}
+                    required
+                    className="w-full rounded-xl border border-border bg-transparent px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-brand-end"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label className="text-xs font-medium">Customer ratio</label>
+                  <input
+                    name="customerRatio"
+                    type="number"
+                    min={0}
+                    max={100}
+                    required
+                    className="w-full rounded-xl border border-border bg-transparent px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-brand-end"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label className="text-xs font-medium">Bank ratio</label>
+                  <input
+                    name="bankRatio"
+                    type="number"
+                    min={0}
+                    max={100}
+                    required
+                    className="w-full rounded-xl border border-border bg-transparent px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-brand-end"
+                  />
+                </div>
+                <div className="space-y-1 sm:col-span-2">
+                  <label className="text-xs font-medium">Source URL (required)</label>
+                  <input
+                    name="sourceUrl"
+                    required
+                    className="w-full rounded-xl border border-border bg-transparent px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-brand-end"
+                  />
+                </div>
+                <button
+                  type="submit"
+                  className="sm:col-span-5 justify-self-start rounded-lg bg-foreground text-background px-3 py-1.5 text-xs font-semibold hover:opacity-90 transition-opacity"
+                >
+                  Add profit-sharing ratio
+                </button>
+              </form>
+            </div>
           </div>
         ))}
       </section>

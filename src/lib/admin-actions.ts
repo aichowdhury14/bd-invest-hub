@@ -148,6 +148,41 @@ export async function deleteRateTier(id: string, institutionId: string) {
   revalidateAdminAndPublic();
 }
 
+// ---------- Profit-sharing ratios (Mudaraba products with no published percentage) ----------
+
+const profitSharingRatioSchema = z.object({
+  tenureMonths: z.coerce.number().int().positive(),
+  customerRatio: z.coerce.number().int().min(0).max(100),
+  bankRatio: z.coerce.number().int().min(0).max(100),
+  // Required (unlike RateTier's optional sourceUrl) — an unsourced ratio is
+  // exactly the unverifiable-number problem this table exists to avoid.
+  sourceUrl: z.string().trim().url(),
+});
+
+export async function createProfitSharingRatio(
+  productId: string,
+  institutionId: string,
+  formData: FormData
+) {
+  await requireAdmin();
+  const parsed = profitSharingRatioSchema.parse({
+    tenureMonths: formData.get("tenureMonths"),
+    customerRatio: formData.get("customerRatio"),
+    bankRatio: formData.get("bankRatio"),
+    sourceUrl: formData.get("sourceUrl"),
+  });
+  await prisma.profitSharingRatio.create({ data: { productId, ...parsed } });
+  revalidatePath(`/admin/institutions/${institutionId}`);
+  revalidateAdminAndPublic();
+}
+
+export async function deleteProfitSharingRatio(id: string, institutionId: string) {
+  await requireAdmin();
+  await prisma.profitSharingRatio.delete({ where: { id } });
+  revalidatePath(`/admin/institutions/${institutionId}`);
+  revalidateAdminAndPublic();
+}
+
 // ---------- Rate drift review ----------
 
 export async function approveDriftFlag(id: string) {

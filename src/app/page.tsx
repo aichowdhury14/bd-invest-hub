@@ -1,6 +1,10 @@
 import Link from "next/link";
 import { ArrowRight, ExternalLink, Sparkles } from "lucide-react";
-import { getActiveInstitutionsWithProducts, bestRateForProduct } from "@/lib/products";
+import {
+  getActiveInstitutionsWithProducts,
+  bestRateForProduct,
+  headlineRatioForProduct,
+} from "@/lib/products";
 import { institutionTypeLabels, productTypeLabels } from "@/lib/labels";
 import { institutionTypeStyle, islamicBadgeClass } from "@/lib/institution-style";
 import { Container } from "@/components/Container";
@@ -150,6 +154,7 @@ export default async function HomePage() {
                       <ul className="space-y-2">
                         {inst.products.map((product) => {
                           const best = bestRateForProduct(product.rateTiers);
+                          const ratio = best === null ? headlineRatioForProduct(product.profitSharingRatios) : null;
                           return (
                             <li key={product.id} className="flex items-center justify-between text-sm gap-2">
                               <span className="min-w-0 flex-1 truncate text-muted flex items-center gap-1.5" title={product.name}>
@@ -165,6 +170,16 @@ export default async function HomePage() {
                                   className={`shrink-0 rounded-full px-2.5 py-0.5 text-xs font-semibold tabular-nums ${style.badge}`}
                                 >
                                   up to {best.toFixed(2)}%
+                                </span>
+                              ) : ratio !== null ? (
+                                <span
+                                  className="shrink-0 rounded-full border border-border px-2.5 py-0.5 text-xs font-medium tabular-nums text-muted"
+                                  title={`Profit-sharing ratio (customer:bank), not a percentage rate. Source: ${ratio.sourceUrl}`}
+                                >
+                                  Ratio {ratio.customerRatio}:{ratio.bankRatio} at{" "}
+                                  {ratio.tenureMonths % 12 === 0
+                                    ? `${ratio.tenureMonths / 12}yr`
+                                    : `${ratio.tenureMonths}mo`}
                                 </span>
                               ) : (
                                 <span className="shrink-0 text-muted">—</span>

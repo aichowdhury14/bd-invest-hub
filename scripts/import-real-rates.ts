@@ -47,6 +47,20 @@ interface RateEntry {
   sourceUrl: string;
 }
 
+// Profit-SHARING RATIO entries — for Mudaraba products that publish a
+// customer:bank split instead of an advertised percentage rate. Never
+// combined with RateEntry/RateTier: a ratio can't be compounded into a
+// maturity amount, so it must stay out of every rate-based calculation.
+interface RatioEntry {
+  institutionName: string;
+  productType: "FDR" | "DPS" | "SANCHAYPATRO" | "TBOND" | "TBILL";
+  productNameHint?: string;
+  tenureMonths: number;
+  customerRatio: number;
+  bankRatio: number;
+  sourceUrl: string;
+}
+
 const LAC = 100_000;
 const CRORE = 10_000_000;
 
@@ -664,17 +678,38 @@ const entries: RateEntry[] = [
   //     all ("contact nearest branch"); the bank's full deposit-rate PDF
   //     only shows a dual-branded "Esteem Mudaraba" scheme, not the
   //     standard MTDR/MMSS products, so not used.
-  //   - Sonali Bank, Rupali Bank: Islamic banking rate pages are
-  //     inaccessible to automated fetching (unrenderable / 403) -- needs a
-  //     human to open them in a real browser before any number is entered.
+  //   - Rupali Bank: Islamic banking rate page is inaccessible to automated
+  //     fetching (unrenderable / 403) -- needs a human to open it in a real
+  //     browser before any number is entered.
+  //   - Sonali Bank: no percentage rate published (see ratioEntries below --
+  //     its real, sourced profit-SHARING RATIO is entered as a
+  //     ProfitSharingRatio, never as a fabricated interestRatePct).
   //   - Eastern Bank (EBL): product pages exist and 35:65 profit-sharing
   //     ratio is published, but no advertised percentage rate -- a PSR is
-  //     not a substitute for a rate.
-  //   - United Commercial Bank: UCB's own site explicitly states "UCB
-  //     TAQWA does not offer any provisional rate for any types of
-  //     Mudaraba Accounts" -- confirmed no-rate, not a research gap.
+  //     not a substitute for a rate. (Not yet entered as a ratioEntries row;
+  //     candidate for a future pass alongside Sonali/UCB.)
+  //   - United Commercial Bank: UCB's own site (re-confirmed 2026-09-01 at
+  //     https://www.ucb.com.bd/ucb-islamic/income-sharing-ratio-and-deposit/)
+  //     explains only the ISR *methodology* ("Profit Rate will be determined
+  //     every month according to the Income Sharing Ratio (ISR) between Bank
+  //     and Customer") -- no actual ISR percentage or tenure-mapped figure is
+  //     published anywhere on it, so UCB gets neither a rate nor a ratio row.
   //   - Jamuna Bank, NCC Bank, Pubali Bank: Islamic banking pages list
   //     product names only, no rate figures published anywhere found.
+];
+
+const ratioEntries: RatioEntry[] = [
+  // --- Sonali Bank — মুদারাবা মেয়াদী জমা হিসাব (Mudaraba Term Deposit) ---
+  // https://www.sonalibank.com.bd/PDF_file/islami_banking/islami_banking_overview.pdf
+  // No percentage rate is published; only the customer:bank profit-sharing
+  // ratio, which scales up with tenure. Read directly from the bank's own
+  // PDF (fetched 2026-09-01) since the site's in-page PDF viewer fails to
+  // render (net::ERR_ABORTED) -- confirmed via direct curl of the PDF URL.
+  { institutionName: "Sonali Bank", productType: "FDR", productNameHint: "Mudaraba FDR", tenureMonths: 3, customerRatio: 50, bankRatio: 50, sourceUrl: "https://www.sonalibank.com.bd/PDF_file/islami_banking/islami_banking_overview.pdf" },
+  { institutionName: "Sonali Bank", productType: "FDR", productNameHint: "Mudaraba FDR", tenureMonths: 6, customerRatio: 60, bankRatio: 40, sourceUrl: "https://www.sonalibank.com.bd/PDF_file/islami_banking/islami_banking_overview.pdf" },
+  { institutionName: "Sonali Bank", productType: "FDR", productNameHint: "Mudaraba FDR", tenureMonths: 12, customerRatio: 65, bankRatio: 35, sourceUrl: "https://www.sonalibank.com.bd/PDF_file/islami_banking/islami_banking_overview.pdf" },
+  { institutionName: "Sonali Bank", productType: "FDR", productNameHint: "Mudaraba FDR", tenureMonths: 24, customerRatio: 68, bankRatio: 32, sourceUrl: "https://www.sonalibank.com.bd/PDF_file/islami_banking/islami_banking_overview.pdf" },
+  { institutionName: "Sonali Bank", productType: "FDR", productNameHint: "Mudaraba FDR", tenureMonths: 36, customerRatio: 70, bankRatio: 30, sourceUrl: "https://www.sonalibank.com.bd/PDF_file/islami_banking/islami_banking_overview.pdf" },
 ];
 
 async function main() {
@@ -730,6 +765,56 @@ async function main() {
   console.log(`Imported ${created} rate tiers across ${touchedProductIds.size} products.`);
   if (skippedNoInstitution || skippedNoProduct) {
     console.log(`Skipped: ${skippedNoInstitution} (no institution match), ${skippedNoProduct} (no product match).`);
+  }
+
+  const touchedRatioProductIds = new Set<string>();
+  let ratiosCreated = 0;
+  let ratiosSkippedNoInstitution = 0;
+  let ratiosSkippedNoProduct = 0;
+
+  for (const entry of ratioEntries) {
+    const institution = await prisma.institution.findFirst({
+      where: { name: entry.institutionName },
+    });
+    if (!institution) {
+      console.warn(`SKIP (ratio): institution not found: ${entry.institutionName}`);
+      ratiosSkippedNoInstitution++;
+      continue;
+    }
+
+    const product = await prisma.rateProduct.findFirst({
+      where: {
+        institutionId: institution.id,
+        productType: entry.productType,
+        ...(entry.productNameHint ? { name: { contains: entry.productNameHint } } : {}),
+      },
+    });
+    if (!product) {
+      console.warn(`SKIP (ratio): product not found: ${entry.institutionName} / ${entry.productType} ${entry.productNameHint ?? ""}`);
+      ratiosSkippedNoProduct++;
+      continue;
+    }
+
+    if (!touchedRatioProductIds.has(product.id)) {
+      await prisma.profitSharingRatio.deleteMany({ where: { productId: product.id } });
+      touchedRatioProductIds.add(product.id);
+    }
+
+    await prisma.profitSharingRatio.create({
+      data: {
+        productId: product.id,
+        tenureMonths: entry.tenureMonths,
+        customerRatio: entry.customerRatio,
+        bankRatio: entry.bankRatio,
+        sourceUrl: entry.sourceUrl,
+      },
+    });
+    ratiosCreated++;
+  }
+
+  console.log(`Imported ${ratiosCreated} profit-sharing ratios across ${touchedRatioProductIds.size} products.`);
+  if (ratiosSkippedNoInstitution || ratiosSkippedNoProduct) {
+    console.log(`Skipped (ratio): ${ratiosSkippedNoInstitution} (no institution match), ${ratiosSkippedNoProduct} (no product match).`);
   }
 
   // Dhaka Bank's DPS rates were back-solved assuming monthly-compounded annuity

@@ -17,6 +17,7 @@ const products: SerializedProduct[] = [
     rateTiers: [
       { id: "t1", tenureMonths: 12, minAmount: 0, maxAmount: null, interestRatePct: 8, source: "MANUAL", sourceUrl: null, scrapedAt: null, effectiveFrom: new Date().toISOString() },
     ],
+    profitSharingRatios: [],
   },
   {
     id: "govt-a-sanchaypatro",
@@ -30,6 +31,7 @@ const products: SerializedProduct[] = [
     rateTiers: [
       { id: "t2", tenureMonths: 12, minAmount: 0, maxAmount: null, interestRatePct: 11, source: "MANUAL", sourceUrl: null, scrapedAt: null, effectiveFrom: new Date().toISOString() },
     ],
+    profitSharingRatios: [],
   },
   {
     id: "bank-a-dps",
@@ -43,6 +45,7 @@ const products: SerializedProduct[] = [
     rateTiers: [
       { id: "t3", tenureMonths: 12, minAmount: 0, maxAmount: null, interestRatePct: 9, source: "MANUAL", sourceUrl: null, scrapedAt: null, effectiveFrom: new Date().toISOString() },
     ],
+    profitSharingRatios: [],
   },
   {
     id: "bank-a-islamic-dps",
@@ -56,6 +59,7 @@ const products: SerializedProduct[] = [
     rateTiers: [
       { id: "t4", tenureMonths: 12, minAmount: 0, maxAmount: null, interestRatePct: 8.5, source: "MANUAL", sourceUrl: null, scrapedAt: null, effectiveFrom: new Date().toISOString() },
     ],
+    profitSharingRatios: [],
   },
 ];
 

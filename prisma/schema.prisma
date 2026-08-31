@@ -89,6 +89,7 @@ model RateProduct {
   createdAt       DateTime      @default(now())
   updatedAt       DateTime      @updatedAt
   rateTiers       RateTier[]
+  profitSharingRatios ProfitSharingRatio[]
   calculatorEvents CalculatorEvent[]
   compareEvents   CompareEvent[]
   rateHistory     RateHistory[]
@@ -115,6 +116,27 @@ model RateTier {
 
   @@index([productId])
   @@index([tenureMonths])
+}
+
+/// Mudaraba profit-SHARING RATIO (customer:bank split) for Islamic products
+/// that never publish an actual percentage rate — e.g. Sonali Bank's MTDR.
+/// Deliberately not a RateTier: no currency, no compounding, and it cannot be
+/// compounded into a maturity amount, so it must never be read by any
+/// rate-based calculation (Calculator/GoalCalculator/Insights). A product
+/// with ratio rows and zero RateTier rows already renders as "not offered"
+/// everywhere except the homepage list, which shows this ratio as info text.
+model ProfitSharingRatio {
+  id            String      @id @default(cuid())
+  productId     String
+  product       RateProduct @relation(fields: [productId], references: [id], onDelete: Cascade)
+  tenureMonths  Int
+  customerRatio Int
+  bankRatio     Int
+  sourceUrl     String
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  @@index([productId])
 }
 
 /// A periodic snapshot of a rate tier, written by scripts/snapshot-rate-history.ts

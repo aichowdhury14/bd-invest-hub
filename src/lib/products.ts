@@ -13,6 +13,9 @@ export async function getActiveInstitutionsWithProducts() {
           rateTiers: {
             orderBy: { tenureMonths: "asc" },
           },
+          profitSharingRatios: {
+            orderBy: { tenureMonths: "asc" },
+          },
         },
       },
     },
@@ -27,4 +30,18 @@ export type ActiveInstitutionsWithProducts = Awaited<
 export function bestRateForProduct(rateTiers: { interestRatePct: unknown }[]): number | null {
   if (rateTiers.length === 0) return null;
   return Math.max(...rateTiers.map((tier) => Number(tier.interestRatePct)));
+}
+
+/**
+ * The longest-tenure profit-sharing ratio for a product, for headline display when
+ * no percentage rate exists. Never used in any maturity-amount calculation — a
+ * ratio (e.g. 65:35) cannot be compounded the way a percentage rate can.
+ */
+export function headlineRatioForProduct<
+  T extends { tenureMonths: number; customerRatio: number; bankRatio: number }
+>(profitSharingRatios: T[]): T | null {
+  if (profitSharingRatios.length === 0) return null;
+  return profitSharingRatios.reduce((longest, r) =>
+    r.tenureMonths > longest.tenureMonths ? r : longest
+  );
 }

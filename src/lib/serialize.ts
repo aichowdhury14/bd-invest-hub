@@ -12,6 +12,14 @@ export interface SerializedRateTier {
   effectiveFrom: string;
 }
 
+export interface SerializedProfitSharingRatio {
+  id: string;
+  tenureMonths: number;
+  customerRatio: number;
+  bankRatio: number;
+  sourceUrl: string;
+}
+
 export interface SerializedProduct {
   id: string;
   institutionId: string;
@@ -22,6 +30,7 @@ export interface SerializedProduct {
   compounding: "SIMPLE" | "MONTHLY" | "QUARTERLY" | "YEARLY";
   isIslamic: boolean;
   rateTiers: SerializedRateTier[];
+  profitSharingRatios: SerializedProfitSharingRatio[];
 }
 
 /** Flatten institutions -> products into a plain, JSON-serializable array for client components. */
@@ -50,6 +59,13 @@ export function serializeProducts(
           sourceUrl: tier.sourceUrl,
           scrapedAt: tier.scrapedAt ? tier.scrapedAt.toISOString() : null,
           effectiveFrom: tier.effectiveFrom.toISOString(),
+        })),
+        profitSharingRatios: product.profitSharingRatios.map((ratio) => ({
+          id: ratio.id,
+          tenureMonths: ratio.tenureMonths,
+          customerRatio: ratio.customerRatio,
+          bankRatio: ratio.bankRatio,
+          sourceUrl: ratio.sourceUrl,
         })),
       });
     }

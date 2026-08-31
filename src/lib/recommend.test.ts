@@ -26,6 +26,7 @@ const products: SerializedProduct[] = [
         effectiveFrom: new Date().toISOString(),
       },
     ],
+    profitSharingRatios: [],
   },
   {
     id: "govt-a-sanchaypatro",
@@ -49,6 +50,7 @@ const products: SerializedProduct[] = [
         effectiveFrom: new Date().toISOString(),
       },
     ],
+    profitSharingRatios: [],
   },
   {
     id: "nbfi-a-fdr",
@@ -72,6 +74,7 @@ const products: SerializedProduct[] = [
         effectiveFrom: new Date().toISOString(),
       },
     ],
+    profitSharingRatios: [],
   },
   {
     id: "bank-a-islamic-fdr",
@@ -95,6 +98,7 @@ const products: SerializedProduct[] = [
         effectiveFrom: new Date().toISOString(),
       },
     ],
+    profitSharingRatios: [],
   },
 ];
 

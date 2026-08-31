@@ -785,3 +785,42 @@ zero products left unexpectedly empty.
 
 Applied to both the local dev DB and production (Supabase) via `npm run
 db:seed` (new Islamic product shells) and `npm run import-rates` (real rates).
+
+## Sonali Bank & UCB profit-sharing ratios (2026-09-01)
+
+Followed up on the two Islamic-banking product shells left for Sonali Bank and
+UCB above, per direct source links supplied by the user.
+
+**Sonali Bank** — `https://www.sonalibank.com.bd/islami_banking.php` renders
+blank because its embedded PDF viewer fails (`net::ERR_ABORTED` on
+`https://www.sonalibank.com.bd/PDF_file/islami_banking/islami_banking_overview.pdf`,
+confirmed via Playwright network-request monitoring). Curling that PDF URL
+directly worked (genuine `application/pdf`, 2.3MB, 2 pages) and reading it
+surfaced real data: the bank's মুদারাবা মেয়াদী জমা হিসাব (Mudaraba Term
+Deposit) publishes a customer:bank profit-**sharing ratio**, not a percentage
+rate — 50:50 up to 3mo, 60:40 up to 6mo, 65:35 up to 12mo, 68:32 up to 24mo,
+70:30 up to 36mo. No DPS-equivalent ratio table was found in the PDF, so the
+Islamic DPS product stays an empty shell. Saved as
+`research/sonali_islamic_banking_overview.pdf`.
+
+**UCB** — re-checked `https://www.ucb.com.bd/ucb-islamic/income-sharing-ratio-and-deposit/`
+directly. Confirms the earlier finding: the page explains only the ISR
+*methodology* ("Profit Rate will be determined every month according to the
+Income Sharing Ratio (ISR) between Bank and Customer and Income from
+investment"), with no actual ISR percentage or tenure-mapped figure published
+anywhere on it. UCB's Mudaraba FDR/DPS stay empty shells — there is nothing,
+rate or ratio, to enter honestly.
+
+**Schema/product decision**: since a profit-sharing ratio can't be compounded
+into a maturity amount the way a percentage rate can, it was modeled as a new
+`ProfitSharingRatio` table (see `prisma/schema.prisma`), never as a
+`RateTier.interestRatePct`. Displayed as info text on the homepage ("Ratio
+70:30 at 3yr") instead of the percentage badge, and deliberately excluded from
+Calculator/GoalCalculator/Insights — a product with ratio rows and zero
+`RateTier` rows already renders as "not offered" everywhere except the
+homepage list, by construction, with no new filtering logic required.
+
+Real data entered via `scripts/import-real-rates.ts`'s new `ratioEntries`
+array (5 rows for Sonali's MTDR) and applied to both local and production
+(Supabase) databases; production values spot-checked post-import against the
+source PDF and matched exactly.
