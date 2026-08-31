@@ -13,8 +13,15 @@ import {
 } from "lucide-react";
 import type { SerializedProduct } from "@/lib/serialize";
 import { dpsGrowthSeries, lumpSumGrowthSeries } from "@/lib/calculations";
-import { institutionTypeLabels, isRecurringProduct, productTypeLabels } from "@/lib/labels";
-import { institutionTypeStyle } from "@/lib/institution-style";
+import {
+  bankingModeLabels,
+  institutionTypeLabels,
+  isRecurringProduct,
+  productTypeLabels,
+  rateLabel,
+  type BankingMode,
+} from "@/lib/labels";
+import { institutionTypeStyle, islamicBadgeClass } from "@/lib/institution-style";
 import { InstitutionLogo } from "@/components/InstitutionLogo";
 import { useSessionId } from "@/lib/useSessionId";
 import { trackCalculatorUse } from "@/lib/analytics";
@@ -72,6 +79,7 @@ export function CalculatorClient({
     return defaultIdx >= 0 ? defaultIdx : 0;
   });
   const [typeFilter, setTypeFilter] = useState<ProductType | "ALL">("ALL");
+  const [bankingMode, setBankingMode] = useState<BankingMode>("ALL");
   const [riskProfile, setRiskProfile] = useState<RiskProfile>("BALANCED");
   const [taxStatus, setTaxStatus] = useState<TaxStatus>("TIN");
   const sessionId = useSessionId();
@@ -92,8 +100,8 @@ export function CalculatorClient({
   }
 
   const { rows, picks, recommendations } = useMemo(
-    () => buildRecommendations(products, { amount, tenureMonths, typeFilter, riskProfile }),
-    [products, amount, tenureMonths, typeFilter, riskProfile]
+    () => buildRecommendations(products, { amount, tenureMonths, typeFilter, riskProfile, bankingMode }),
+    [products, amount, tenureMonths, typeFilter, riskProfile, bankingMode]
   );
 
   const topMaturity = rows.find((r) => r.maturityAmount !== null)?.maturityAmount ?? null;
@@ -249,6 +257,23 @@ export function CalculatorClient({
           </div>
         </div>
 
+        <div className="space-y-2 sm:col-span-2">
+          <label className="text-sm font-semibold">Banking mode</label>
+          <div className="flex flex-wrap gap-2">
+            {(["ALL", "CONVENTIONAL", "ISLAMIC"] as const).map((mode) => (
+              <FilterChip key={mode} active={bankingMode === mode} onClick={() => setBankingMode(mode)}>
+                {bankingModeLabels[mode]}
+              </FilterChip>
+            ))}
+          </div>
+          {bankingMode === "ISLAMIC" && (
+            <p className="text-xs text-muted leading-relaxed">
+              Profit rates are provisional/expected, not guaranteed — actual profit distributed
+              depends on the bank&apos;s real earnings for the period.
+            </p>
+          )}
+        </div>
+
         <div className="space-y-2">
           <label className="text-sm font-semibold flex items-center gap-1.5">
             <Gauge className="h-3.5 w-3.5 text-muted" />
@@ -396,12 +421,22 @@ export function CalculatorClient({
                     </div>
                   </td>
                   <td className="px-4 py-3.5">
-                    <div className="font-medium">{row.product.name}</div>
+                    <div className="flex items-center gap-1.5">
+                      <span className="font-medium">{row.product.name}</span>
+                      {row.product.isIslamic && (
+                        <span className={`rounded-full px-1.5 py-0.5 text-[10px] font-medium ${islamicBadgeClass}`}>
+                          Islamic
+                        </span>
+                      )}
+                    </div>
                     <div className="text-xs text-muted">{productTypeLabels[row.product.productType]}</div>
                   </td>
                   {row.tier ? (
                     <>
-                      <td className="px-4 py-3.5 text-right tabular-nums font-medium">
+                      <td
+                        className="px-4 py-3.5 text-right tabular-nums font-medium"
+                        title={rateLabel(row.product.isIslamic)}
+                      >
                         {row.tier.interestRatePct.toFixed(2)}%
                       </td>
                       <td className="px-4 py-3.5 text-right tabular-nums font-display font-bold text-base">
@@ -516,13 +551,18 @@ function RecommendationCard({
           <p className="text-xs text-muted">{row.product.name}</p>
         </div>
       </div>
-      <div className="flex items-baseline gap-2">
+      <div className="flex items-baseline gap-2 flex-wrap">
         <span className="font-display text-xl font-bold tabular-nums">
           {row.tier.interestRatePct.toFixed(2)}%
         </span>
         <span className={`rounded-full px-2 py-0.5 text-[11px] font-medium ${style.badge}`}>
           {institutionTypeLabels[row.product.institutionType]}
         </span>
+        {row.product.isIslamic && (
+          <span className={`rounded-full px-2 py-0.5 text-[11px] font-medium ${islamicBadgeClass}`}>
+            Islamic
+          </span>
+        )}
       </div>
       <p className="text-sm tabular-nums font-semibold">{bdt.format(row.maturityAmount ?? 0)}</p>
       {netMaturity !== null && (

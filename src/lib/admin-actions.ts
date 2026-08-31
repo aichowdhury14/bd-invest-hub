@@ -74,6 +74,7 @@ const productSchema = z.object({
   compounding: z.enum(["SIMPLE", "MONTHLY", "QUARTERLY", "YEARLY"]),
   minTenureMonths: z.coerce.number().int().positive(),
   maxTenureMonths: z.coerce.number().int().positive(),
+  isIslamic: z.boolean(),
 });
 
 export async function createProduct(institutionId: string, formData: FormData) {
@@ -84,6 +85,8 @@ export async function createProduct(institutionId: string, formData: FormData) {
     compounding: formData.get("compounding"),
     minTenureMonths: formData.get("minTenureMonths"),
     maxTenureMonths: formData.get("maxTenureMonths"),
+    // Unchecked checkboxes are simply absent from FormData (never "false").
+    isIslamic: formData.get("isIslamic") === "on",
   });
   await prisma.rateProduct.create({ data: { institutionId, ...parsed } });
   revalidatePath(`/admin/institutions/${institutionId}`);

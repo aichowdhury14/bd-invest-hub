@@ -39,3 +39,16 @@ export const institutionTypeStyle: Record<InstitutionType, TypeStyle> = {
     ring: "hover:ring-teal-500/30",
   },
 };
+
+/**
+ * Product-level status badge for Islamic (Mudaraba/profit-sharing) products —
+ * distinct from institutionTypeStyle above on purpose, since Islamic vs
+ * conventional is a per-product tag, not a competing institution identity
+ * (a bank can offer both). Emerald reads correctly against global
+ * Islamic-finance branding conventions; contrast-checked (WCAG text) against
+ * both light and dark surfaces, and picked to stay visually distinct from
+ * both the brand gradient (deep teal-green, --brand-start/--brand-end) and
+ * the violet used for INVESTMENT_ORG above.
+ */
+export const islamicBadgeClass =
+  "bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-400";

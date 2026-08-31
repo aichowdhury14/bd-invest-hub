@@ -32,6 +32,33 @@ const BANKS = [
   "Jamuna Bank",
 ];
 
+// Islamic banking division/window brand names, for banks confirmed via
+// Bangladesh Bank's Quarterly Report on Islamic Banking (Dec 2024 data,
+// cross-checked against each bank's own site) to run Islamic banking
+// alongside their conventional business. "Islami Bank Bangladesh" is handled
+// separately above (it's fully Islamic, not a window). Dutch-Bangla Bank,
+// BRAC Bank, and Uttara Bank confirmed to have no Islamic banking. Janata
+// Bank has regulatory approval but had not launched as of the most recent
+// official data, so it's intentionally left out here.
+const ISLAMIC_BANKING_BRANDS: Record<string, string> = {
+  "Sonali Bank": "Sonali Bank Islami Banking",
+  "Agrani Bank": "Agrani Islamic Banking",
+  "Rupali Bank": "Rupali Islamic Banking",
+  "Eastern Bank": "EBL Islamic Banking",
+  "Prime Bank": "Prime Bank Islamic Banking",
+  "Dhaka Bank": "Tayyebah Dhaka Islamic Banking",
+  "The City Bank": "City Islamic",
+  "Mutual Trust Bank": "MTB Yaqeen",
+  "Pubali Bank": "Pubali Islamic Banking",
+  "NCC Bank": "NCC Islamic Banking",
+  "Bank Asia": "Bank Asia Islamic Banking",
+  "Trust Bank": "Trust Islamic Banking",
+  "Southeast Bank": "Southeast Bank Islamic Banking",
+  "IFIC Bank": "IFIC Islamic",
+  "United Commercial Bank": "UCB Taqwa",
+  "Jamuna Bank": "Jamuna Islami Banking",
+};
+
 // Shanta Asset Management was deliberately left out: it's a mutual fund manager,
 // not a deposit-taking institution, so it has no FDR/DPS-style guaranteed rate —
 // see research/rate-research-2026-08-28.md for the analysis of its actual
@@ -72,11 +99,41 @@ async function main() {
       update: {},
       create: { id: `bank-${slug(name)}`, name, type: "BANK" },
     });
-    await ensureProductShell(inst.id, "FDR", "Fixed Deposit Receipt", 3, 36);
-    await ensureProductShell(inst.id, "DPS", "Deposit Pension Scheme", 12, 120);
+    // Islami Bank Bangladesh is a full-fledged Islamic bank -- its "conventional"
+    // FDR/DPS shells are actually its standard Mudaraba products, so they're
+    // flagged isIslamic here rather than getting duplicate Islamic-only shells.
+    const isFullyIslamic = name === "Islami Bank Bangladesh";
+    await ensureProductShell(
+      inst.id,
+      "FDR",
+      isFullyIslamic ? "Mudaraba Term Deposit Receipt" : "Fixed Deposit Receipt",
+      3,
+      36,
+      isFullyIslamic
+    );
+    await ensureProductShell(
+      inst.id,
+      "DPS",
+      isFullyIslamic ? "Mudaraba Deposit Pension Scheme" : "Deposit Pension Scheme",
+      12,
+      120,
+      isFullyIslamic
+    );
     // The City Bank additionally runs a distinct long-tenure insurance-linked DPS
     if (name === "The City Bank") {
       await ensureProductShell(inst.id, "DPS", "Insurance-Backed DPS", 60, 240);
+    }
+
+    // Islamic banking window/branch products, for banks confirmed (via
+    // Bangladesh Bank's Quarterly Report on Islamic Banking, Dec 2024, plus
+    // each bank's own site) to run one alongside their conventional business.
+    // Dutch-Bangla Bank, BRAC Bank, and Uttara Bank confirmed to have none.
+    // Janata Bank has regulatory approval but had not launched as of the most
+    // recent official data -- add once it actually goes live.
+    const islamicBrand = ISLAMIC_BANKING_BRANDS[name];
+    if (islamicBrand) {
+      await ensureProductShell(inst.id, "FDR", `${islamicBrand} Mudaraba FDR`, 3, 36, true);
+      await ensureProductShell(inst.id, "DPS", `${islamicBrand} Mudaraba DPS`, 12, 120, true);
     }
   }
 
@@ -133,7 +190,8 @@ async function ensureProductShell(
   productType: "FDR" | "DPS" | "SANCHAYPATRO" | "TBOND" | "TBILL" | "OTHER",
   name: string,
   minTenureMonths: number,
-  maxTenureMonths: number
+  maxTenureMonths: number,
+  isIslamic = false
 ) {
   const id = `${institutionId}-${slug(name)}`;
   return prisma.rateProduct.upsert({
@@ -147,6 +205,7 @@ async function ensureProductShell(
       compounding: "QUARTERLY",
       minTenureMonths,
       maxTenureMonths,
+      isIslamic,
     },
   });
 }

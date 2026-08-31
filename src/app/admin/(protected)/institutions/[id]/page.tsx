@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { productTypeLabels } from "@/lib/labels";
+import { islamicBadgeClass } from "@/lib/institution-style";
 import {
   createProduct,
   createRateTier,
@@ -154,6 +155,15 @@ export default async function AdminInstitutionDetailPage({
               className="w-full rounded-xl border border-border bg-transparent px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand-end"
             />
           </div>
+          <label className="flex items-center gap-2 pb-2 text-sm font-medium">
+            <input
+              name="isIslamic"
+              type="checkbox"
+              className="h-4 w-4 rounded accent-current"
+              style={{ color: "var(--brand-end)" }}
+            />
+            Islamic product
+          </label>
           <button
             type="submit"
             className="sm:col-span-6 justify-self-start rounded-xl brand-gradient px-4 py-2 text-white text-sm font-semibold shadow-sm hover:opacity-90 transition-opacity"
@@ -166,7 +176,14 @@ export default async function AdminInstitutionDetailPage({
           <div key={product.id} className="rounded-2xl card-surface shadow-sm p-5 space-y-4">
             <div className="flex items-center justify-between">
               <div>
-                <h3 className="font-medium">{product.name}</h3>
+                <h3 className="flex items-center gap-1.5 font-medium">
+                  {product.name}
+                  {product.isIslamic && (
+                    <span className={`rounded-full px-1.5 py-0.5 text-[10px] font-medium ${islamicBadgeClass}`}>
+                      Islamic
+                    </span>
+                  )}
+                </h3>
                 <p className="text-xs text-muted">
                   {productTypeLabels[product.productType]} · {product.compounding} compounding ·{" "}
                   {product.minTenureMonths}–{product.maxTenureMonths} mo

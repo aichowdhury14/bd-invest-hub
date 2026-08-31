@@ -4,8 +4,8 @@ import { useMemo, useState } from "react";
 import { ExternalLink, Sparkles, Target, type LucideIcon } from "lucide-react";
 import type { ProductType } from "@prisma/client";
 import type { SerializedProduct } from "@/lib/serialize";
-import { institutionTypeLabels, productTypeLabels } from "@/lib/labels";
-import { institutionTypeStyle } from "@/lib/institution-style";
+import { bankingModeLabels, institutionTypeLabels, productTypeLabels, type BankingMode } from "@/lib/labels";
+import { institutionTypeStyle, islamicBadgeClass } from "@/lib/institution-style";
 import { InstitutionLogo } from "@/components/InstitutionLogo";
 import { buildGoalRecommendations, type GoalRow } from "@/lib/goal";
 import { useAmountInput } from "@/lib/useAmountInput";
@@ -60,13 +60,14 @@ export function GoalCalculator({ products }: { products: SerializedProduct[] }) 
     return defaultIdx >= 0 ? defaultIdx : 0;
   });
   const [typeFilter, setTypeFilter] = useState<ProductType | "ALL">("ALL");
+  const [bankingMode, setBankingMode] = useState<BankingMode>("ALL");
 
   const years = yearOptions[yearIndex] ?? yearOptions[0] ?? 1;
   const tenureMonths = years * 12;
 
   const { lumpSumRows, dpsRows, groups } = useMemo(
-    () => buildGoalRecommendations(products, { targetAmount, tenureMonths, typeFilter }),
-    [products, targetAmount, tenureMonths, typeFilter]
+    () => buildGoalRecommendations(products, { targetAmount, tenureMonths, typeFilter, bankingMode }),
+    [products, targetAmount, tenureMonths, typeFilter, bankingMode]
   );
 
   const hasAnyResult = groups.some((g) => g.cards.some((c) => c.row));
@@ -184,6 +185,23 @@ export function GoalCalculator({ products }: { products: SerializedProduct[] }) 
               </GoalFilterChip>
             ))}
           </div>
+        </div>
+
+        <div className="space-y-2 sm:col-span-2">
+          <label className="text-sm font-semibold">Banking mode</label>
+          <div className="flex flex-wrap gap-2">
+            {(["ALL", "CONVENTIONAL", "ISLAMIC"] as const).map((mode) => (
+              <GoalFilterChip key={mode} active={bankingMode === mode} onClick={() => setBankingMode(mode)}>
+                {bankingModeLabels[mode]}
+              </GoalFilterChip>
+            ))}
+          </div>
+          {bankingMode === "ISLAMIC" && (
+            <p className="text-xs text-muted leading-relaxed">
+              Profit rates are provisional/expected, not guaranteed — actual profit distributed
+              depends on the bank&apos;s real earnings for the period.
+            </p>
+          )}
         </div>
       </div>
 
@@ -306,13 +324,18 @@ function GoalRecommendationCard({
         </div>
       </div>
       <p className="text-2xl font-display font-bold tabular-nums">{bdt.format(row.requiredDeposit ?? 0)}</p>
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-2 flex-wrap">
         <span className="font-display text-sm font-semibold tabular-nums text-muted">
           {row.tier.interestRatePct.toFixed(2)}%
         </span>
         <span className={`rounded-full px-2 py-0.5 text-[11px] font-medium ${style.badge}`}>
           {institutionTypeLabels[row.product.institutionType]}
         </span>
+        {row.product.isIslamic && (
+          <span className={`rounded-full px-2 py-0.5 text-[11px] font-medium ${islamicBadgeClass}`}>
+            Islamic
+          </span>
+        )}
       </div>
       <p className="text-xs text-muted leading-relaxed">{reasoning}</p>
     </div>
@@ -366,7 +389,14 @@ function GoalTable({
                     </div>
                   </td>
                   <td className="px-4 py-3.5">
-                    <div className="font-medium">{row.product.name}</div>
+                    <div className="flex items-center gap-1.5">
+                      <span className="font-medium">{row.product.name}</span>
+                      {row.product.isIslamic && (
+                        <span className={`rounded-full px-1.5 py-0.5 text-[10px] font-medium ${islamicBadgeClass}`}>
+                          Islamic
+                        </span>
+                      )}
+                    </div>
                     <div className="text-xs text-muted">{productTypeLabels[row.product.productType]}</div>
                   </td>
                   <td className="px-4 py-3.5 text-right tabular-nums font-medium">

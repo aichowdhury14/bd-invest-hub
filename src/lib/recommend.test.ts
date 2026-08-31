@@ -12,6 +12,7 @@ const products: SerializedProduct[] = [
     productType: "FDR",
     name: "Fixed Deposit",
     compounding: "QUARTERLY",
+    isIslamic: false,
     rateTiers: [
       {
         id: "t1",
@@ -34,6 +35,7 @@ const products: SerializedProduct[] = [
     productType: "SANCHAYPATRO",
     name: "5-Year Sanchaypatro",
     compounding: "QUARTERLY",
+    isIslamic: false,
     rateTiers: [
       {
         id: "t2",
@@ -56,6 +58,7 @@ const products: SerializedProduct[] = [
     productType: "FDR",
     name: "Term Deposit",
     compounding: "QUARTERLY",
+    isIslamic: false,
     rateTiers: [
       {
         id: "t3",
@@ -70,9 +73,66 @@ const products: SerializedProduct[] = [
       },
     ],
   },
+  {
+    id: "bank-a-islamic-fdr",
+    institutionId: "bank-a",
+    institutionName: "Test Bank A",
+    institutionType: "BANK",
+    productType: "FDR",
+    name: "Mudaraba Term Deposit",
+    compounding: "QUARTERLY",
+    isIslamic: true,
+    rateTiers: [
+      {
+        id: "t4",
+        tenureMonths: 12,
+        minAmount: 0,
+        maxAmount: null,
+        interestRatePct: 9,
+        source: "MANUAL",
+        sourceUrl: null,
+        scrapedAt: null,
+        effectiveFrom: new Date().toISOString(),
+      },
+    ],
+  },
 ];
 
 describe("buildRecommendations", () => {
+  it("bankingMode ISLAMIC returns only isIslamic products", () => {
+    const { rows } = buildRecommendations(products, {
+      amount: 100000,
+      tenureMonths: 12,
+      typeFilter: "ALL",
+      riskProfile: "BALANCED",
+      bankingMode: "ISLAMIC",
+    });
+    expect(rows).toHaveLength(1);
+    expect(rows[0].product.id).toBe("bank-a-islamic-fdr");
+  });
+
+  it("bankingMode CONVENTIONAL excludes isIslamic products", () => {
+    const { rows } = buildRecommendations(products, {
+      amount: 100000,
+      tenureMonths: 12,
+      typeFilter: "ALL",
+      riskProfile: "BALANCED",
+      bankingMode: "CONVENTIONAL",
+    });
+    expect(rows.every((r) => !r.product.isIslamic)).toBe(true);
+    expect(rows.map((r) => r.product.id)).not.toContain("bank-a-islamic-fdr");
+  });
+
+  it("bankingMode defaults to ALL when omitted", () => {
+    const { rows } = buildRecommendations(products, {
+      amount: 100000,
+      tenureMonths: 12,
+      typeFilter: "ALL",
+      riskProfile: "BALANCED",
+    });
+    expect(rows).toHaveLength(4);
+  });
+
   it("ranks rows by maturity amount, highest first", () => {
     const { rows } = buildRecommendations(products, {
       amount: 100000,

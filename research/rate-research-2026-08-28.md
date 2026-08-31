@@ -692,3 +692,96 @@ the existing entries (last confirmed 2026-08-28) stand as-is.
 
 Applied to both the local dev DB and production (Supabase) via `npm run
 import-rates`.
+
+## Islamic banking (Mudaraba) products (2026-08-31 / 2026-09-01)
+
+Added Islamic banking as a full parallel category — a new `isIslamic` boolean on
+`RateProduct`, a "Conventional / Islamic" filter on Calculator, Compare, and
+Insights, and real Mudaraba FDR/DPS-equivalent products for every bank confirmed
+to run one.
+
+**Which banks actually run Islamic banking** — sourced from Bangladesh Bank's own
+*Quarterly Report on Islamic Banking* (Dec 2024 data table), cross-checked against
+each bank's own site/press coverage. Of the 21 tracked banks: Islami Bank
+Bangladesh is a full-fledged Islamic bank; 16 more (Sonali, Agrani, Rupali,
+Eastern, Prime, Dhaka, The City Bank, Mutual Trust, Pubali, NCC, Bank Asia,
+Trust, Southeast, IFIC, United Commercial, Jamuna) run an Islamic window/branch
+alongside conventional business; Dutch-Bangla Bank, BRAC Bank, and Uttara Bank
+confirmed to have none; Janata Bank has regulatory approval but had not launched
+as of the most recent official data.
+
+**Rate sourcing** — dispatched as three parallel research passes (one per ~6
+banks), each required to report real published rates with a source URL, or
+explicitly say "not published" rather than estimate. Real, sourced rates were
+found and entered for 9 of the 17 Islamic-banking institutions:
+
+- **Islami Bank Bangladesh** — full Mudaraba Term Deposit Receipt (MTDR) and
+  "Mudaraba Special Savings (Pension) including RDS MSS" tables, w.e.f
+  01.01.2026, from the bank's own PDF.
+- **Agrani Bank** — Mudaraba FDR (1/3/6/12mo) and Mudaraba Special Savings
+  Scheme (5/10yr boundaries) from the bank's Islamic banking page, effective
+  10-02-2026.
+- **Dhaka Bank** — Mudaraba Special Deposit Scheme (MSDS, FDR-equivalent) full
+  table, effective March 03, 2026. Its two DPS-style products (Tayyebah
+  Kotipoti, Mudaraba Deposit Pension Scheme) publish only an 8.50%-10.00% range
+  with no per-tenure breakdown — skipped rather than guessing where in that
+  range each tenure falls.
+- **Prime Bank** — only "Prime Hasanah Edu DPS" has a published number (flat
+  9.25% across 5/10/15/20yr). "Prime Hasanah Term Deposit" (the real
+  FDR-equivalent) publishes no percentage on its page ("attractive provisional
+  profit rate" only) — left as an FDR shell.
+- **The City Bank** — City Islamic does not publish an advertised forward
+  rate ("cannot provide certain profit rate to the depositors in advance").
+  Used the bank's own historical *actual profit distributed* figures instead
+  (Investment Income Sharing Ratio report, effective 21-Apr-2026, period June
+  2026) — a genuinely different kind of number than other banks' advertised
+  rate cards, flagged as such in the import script's comments.
+- **Mutual Trust Bank** — full MTB Yaqeen FDR and DPS (Brick by Brick/Flexible/
+  Angona Scheme) tables from the bank's own PDF, effective Nov 7, 2024 (FDR)
+  and May 24, 2026 (Monthly Benefit Plan).
+- **Bank Asia** — full Mudaraba Term Deposit Account (MTDA) table and Mudaraba
+  Deposit Pension Scheme (MDPS, single flat rate across its 3-12yr band),
+  effective August 09, 2026.
+- **Trust Bank** — full Mudaraba Term Deposit (MTDR) table and Mudaraba Monthly
+  Savings Scheme (MMSS, single flat rate across its tenure options), effective
+  August 10, 2026.
+- **IFIC Bank** — Mudaraba Term Deposit full table, from the bank's own PDF
+  dated 16.08.2026 (saved locally as `research/ific_islamic_rates_16_08_2026.pdf`).
+  No DPS entry: the PDF's other candidate recurring-deposit products ("Mudaraba
+  Hajj DPS" is Hajj-purpose-restricted; "Mudaraba Aamar Bhobishawt" has no
+  published tenure breakdown and its product type couldn't be confirmed even
+  from this newer, authoritative source) — left as a DPS shell.
+
+**Confirmed genuinely not published** (left as empty product shells, not
+fabricated): Southeast Bank (MTDR/MMSS product pages exist but publish no rate
+table at all; the bank's full deposit-rate PDF only shows a differently-named
+dual-branded "Esteem Mudaraba" scheme, not the standard MTDR/MMSS products, so
+not used), United Commercial Bank (UCB's own site explicitly states "UCB TAQWA
+does not offer any provisional rate for any types of Mudaraba Accounts" —
+confirmed no-rate, not a research gap), Jamuna Bank (Islamic banking page lists
+product names only, no rate figures found anywhere; a general/conventional
+deposit-schemes PDF exists but is not specific to the Islamic banking branches
+and its numbers were deliberately not substituted in), NCC Bank and Pubali Bank
+(Islamic banking pages either have no live rate table or are blocked from
+automated access — Pubali's site is behind a Cloudflare bot-challenge; NCC's
+Islamic banking menu links are dead placeholders). Sonali Bank, Rupali Bank, and
+Eastern Bank (EBL) need a human to open their Islamic banking pages in a real
+browser — automated fetching was consistently blocked (unrenderable page, 403,
+or a profit-sharing ratio published with no percentage rate) despite repeated
+retry attempts; these three remain product shells until someone can verify by
+hand.
+
+**Production import required a manual data-integrity check.** The first
+production import run of this batch (~630 total entries across the whole rate
+file) hit the same connection-drop issue (`P1017`, "Server has closed the
+connection") documented in the Digital Bank rollout, twice in a row, each time
+leaving a handful of products with deleted-but-not-recreated tiers. Rather than
+re-running the full fragile script a third time, wrote a small targeted restore
+script for just the 3 affected products, verified every value against the
+source data by hand, then confirmed via a full re-run of the entire import
+script (which completed cleanly on the next attempt) that every product in the
+database — Islamic and conventional — matches the source file exactly, with
+zero products left unexpectedly empty.
+
+Applied to both the local dev DB and production (Supabase) via `npm run
+db:seed` (new Islamic product shells) and `npm run import-rates` (real rates).

@@ -13,6 +13,7 @@ const products: SerializedProduct[] = [
     productType: "FDR",
     name: "Fixed Deposit",
     compounding: "QUARTERLY",
+    isIslamic: false,
     rateTiers: [
       { id: "t1", tenureMonths: 12, minAmount: 0, maxAmount: null, interestRatePct: 8, source: "MANUAL", sourceUrl: null, scrapedAt: null, effectiveFrom: new Date().toISOString() },
     ],
@@ -25,6 +26,7 @@ const products: SerializedProduct[] = [
     productType: "SANCHAYPATRO",
     name: "5-Year Sanchaypatro",
     compounding: "QUARTERLY",
+    isIslamic: false,
     rateTiers: [
       { id: "t2", tenureMonths: 12, minAmount: 0, maxAmount: null, interestRatePct: 11, source: "MANUAL", sourceUrl: null, scrapedAt: null, effectiveFrom: new Date().toISOString() },
     ],
@@ -37,8 +39,22 @@ const products: SerializedProduct[] = [
     productType: "DPS",
     name: "Deposit Pension Scheme",
     compounding: "MONTHLY",
+    isIslamic: false,
     rateTiers: [
       { id: "t3", tenureMonths: 12, minAmount: 0, maxAmount: null, interestRatePct: 9, source: "MANUAL", sourceUrl: null, scrapedAt: null, effectiveFrom: new Date().toISOString() },
+    ],
+  },
+  {
+    id: "bank-a-islamic-dps",
+    institutionId: "bank-a",
+    institutionName: "Test Bank A",
+    institutionType: "BANK",
+    productType: "DPS",
+    name: "Mudaraba DPS",
+    compounding: "MONTHLY",
+    isIslamic: true,
+    rateTiers: [
+      { id: "t4", tenureMonths: 12, minAmount: 0, maxAmount: null, interestRatePct: 8.5, source: "MANUAL", sourceUrl: null, scrapedAt: null, effectiveFrom: new Date().toISOString() },
     ],
   },
 ];
@@ -96,6 +112,27 @@ describe("solveForGoal", () => {
 });
 
 describe("buildGoalRecommendations", () => {
+  it("bankingMode ISLAMIC returns only isIslamic products", () => {
+    const { lumpSumRows, dpsRows } = buildGoalRecommendations(products, {
+      targetAmount: 500000,
+      tenureMonths: 12,
+      typeFilter: "ALL",
+      bankingMode: "ISLAMIC",
+    });
+    expect([...lumpSumRows, ...dpsRows].every((r) => r.product.isIslamic)).toBe(true);
+    expect(dpsRows.map((r) => r.product.id)).toContain("bank-a-islamic-dps");
+  });
+
+  it("bankingMode CONVENTIONAL excludes isIslamic products", () => {
+    const { lumpSumRows, dpsRows } = buildGoalRecommendations(products, {
+      targetAmount: 500000,
+      tenureMonths: 12,
+      typeFilter: "ALL",
+      bankingMode: "CONVENTIONAL",
+    });
+    expect([...lumpSumRows, ...dpsRows].every((r) => !r.product.isIslamic)).toBe(true);
+  });
+
   it("never ranks a DPS monthly figure against a lump-sum figure", () => {
     const { lumpSumRows, dpsRows } = buildGoalRecommendations(products, {
       targetAmount: 500000,
@@ -137,11 +174,10 @@ describe("buildGoalRecommendations", () => {
       tenureMonths: 12,
       typeFilter: "DPS",
     });
-    expect(dpsRows).toHaveLength(1);
     // A monthly deposit needed for a 12-month DPS to reach 500,000 should be
     // roughly target/12, not close to the full target (which a lump-sum
     // reading would produce).
-    expect(dpsRows[0].requiredDeposit).toBeLessThan(500000 / 6);
+    expect(dpsRows.every((r) => (r.requiredDeposit ?? 0) < 500000 / 6)).toBe(true);
   });
 
   it("returns null requiredDeposit for a tenure no product offers", () => {

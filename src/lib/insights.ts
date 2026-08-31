@@ -1,8 +1,18 @@
 import { prisma } from "@/lib/prisma";
 import type { InstitutionType, ProductType } from "@prisma/client";
 import { CURRENT_INFLATION } from "@/lib/economic-context";
+import type { BankingMode } from "@/lib/labels";
 
 const TYPES: InstitutionType[] = ["BANK", "GOVERNMENT", "INVESTMENT_ORG", "DIGITAL_BANK"];
+
+/** Prisma `RateProduct.isIslamic` filter fragment for a given banking-mode
+ *  selection — `undefined` for "ALL" so the where-clause key is simply
+ *  omitted rather than matching both true and false explicitly. */
+function isIslamicFilter(bankingMode: BankingMode): boolean | undefined {
+  if (bankingMode === "ISLAMIC") return true;
+  if (bankingMode === "CONVENTIONAL") return false;
+  return undefined;
+}
 
 export interface YieldCurvePoint {
   tenureMonths: number;
@@ -17,10 +27,18 @@ export interface YieldCurvePoint {
  * grouped by institution type — a "yield curve" per category. Only tenures with
  * at least one real rate tier appear; missing cells stay null (never interpolated).
  */
-export async function getYieldCurve(productType: "FDR" | "DPS"): Promise<YieldCurvePoint[]> {
+export async function getYieldCurve(
+  productType: "FDR" | "DPS",
+  bankingMode: BankingMode = "ALL"
+): Promise<YieldCurvePoint[]> {
   const tiers = await prisma.rateTier.findMany({
     where: {
-      product: { productType, isActive: true, institution: { isActive: true } },
+      product: {
+        productType,
+        isActive: true,
+        isIslamic: isIslamicFilter(bankingMode),
+        institution: { isActive: true },
+      },
     },
     select: {
       tenureMonths: true,
@@ -54,9 +72,17 @@ export interface CategoryStat {
 }
 
 /** Best-rate summary per institution type, for a product type — powers the bar chart. */
-export async function getCategoryStats(productType: "FDR" | "DPS"): Promise<CategoryStat[]> {
+export async function getCategoryStats(
+  productType: "FDR" | "DPS",
+  bankingMode: BankingMode = "ALL"
+): Promise<CategoryStat[]> {
   const products = await prisma.rateProduct.findMany({
-    where: { productType, isActive: true, institution: { isActive: true } },
+    where: {
+      productType,
+      isActive: true,
+      isIslamic: isIslamicFilter(bankingMode),
+      institution: { isActive: true },
+    },
     select: {
       institution: { select: { type: true } },
       rateTiers: { select: { interestRatePct: true } },
@@ -98,9 +124,15 @@ export interface TopRate {
  * so one institution's several amount-tiered rows on the same product don't
  * crowd out everyone else.
  */
-export async function getTopRates(limit = 10): Promise<TopRate[]> {
+export async function getTopRates(limit = 10, bankingMode: BankingMode = "ALL"): Promise<TopRate[]> {
   const tiers = await prisma.rateTier.findMany({
-    where: { product: { isActive: true, institution: { isActive: true } } },
+    where: {
+      product: {
+        isActive: true,
+        isIslamic: isIslamicFilter(bankingMode),
+        institution: { isActive: true },
+      },
+    },
     orderBy: { interestRatePct: "desc" },
     select: {
       tenureMonths: true,
@@ -154,8 +186,16 @@ export interface GovtInstrumentRate {
   interestRatePct: number;
 }
 
-/** Every government instrument's best rate by tenure — Sanchayapatro variants, T-Bond, T-Bill side by side. */
-export async function getGovernmentInstrumentRates(): Promise<GovtInstrumentRate[]> {
+/**
+ * Every government instrument's best rate by tenure — Sanchayapatro variants,
+ * T-Bond, T-Bill side by side. These are never Islamic products, so
+ * bankingMode="ISLAMIC" correctly returns nothing rather than silently
+ * ignoring the filter.
+ */
+export async function getGovernmentInstrumentRates(
+  bankingMode: BankingMode = "ALL"
+): Promise<GovtInstrumentRate[]> {
+  if (bankingMode === "ISLAMIC") return [];
   const tiers = await prisma.rateTier.findMany({
     where: {
       product: {
@@ -211,9 +251,14 @@ const HEATMAP_PINNED_INSTITUTIONS = ["BRAC Bank", "The City Bank"];
  * be mostly-empty and unreadable. A small set of well-known banks is pinned in
  * (see HEATMAP_PINNED_INSTITUTIONS) even if their rate falls outside topN.
  */
-export async function getFDRHeatmap(topN = 14): Promise<RateHeatmapData> {
+export async function getFDRHeatmap(topN = 14, bankingMode: BankingMode = "ALL"): Promise<RateHeatmapData> {
   const products = await prisma.rateProduct.findMany({
-    where: { productType: "FDR", isActive: true, institution: { isActive: true } },
+    where: {
+      productType: "FDR",
+      isActive: true,
+      isIslamic: isIslamicFilter(bankingMode),
+      institution: { isActive: true },
+    },
     select: {
       institution: { select: { name: true, type: true } },
       rateTiers: { select: { tenureMonths: true, interestRatePct: true } },
@@ -303,9 +348,15 @@ export interface InflationBeatStat {
 }
 
 /** How many currently tracked rate tiers clear the latest published inflation figure. */
-export async function getInflationBeatStat(): Promise<InflationBeatStat> {
+export async function getInflationBeatStat(bankingMode: BankingMode = "ALL"): Promise<InflationBeatStat> {
   const tiers = await prisma.rateTier.findMany({
-    where: { product: { isActive: true, institution: { isActive: true } } },
+    where: {
+      product: {
+        isActive: true,
+        isIslamic: isIslamicFilter(bankingMode),
+        institution: { isActive: true },
+      },
+    },
     select: { interestRatePct: true },
   });
   const rates = tiers.map((t) => Number(t.interestRatePct));

@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { BrainCircuit, Crown, LayoutGrid, Lightbulb, TrendingUp, Trophy } from "lucide-react";
 import { Container } from "@/components/Container";
 import {
@@ -11,7 +12,7 @@ import {
   getTrendStatus,
   getYieldCurve,
 } from "@/lib/insights";
-import { institutionTypeLabels } from "@/lib/labels";
+import { bankingModeLabels, institutionTypeLabels, type BankingMode } from "@/lib/labels";
 import { institutionTypeStyle } from "@/lib/institution-style";
 import {
   CategoryBarChart,
@@ -24,7 +25,26 @@ import {
 
 export const revalidate = 300;
 
-export default async function InsightsPage() {
+function parseBankingMode(value: string | string[] | undefined): BankingMode {
+  const raw = Array.isArray(value) ? value[0] : value;
+  if (raw === "conventional") return "CONVENTIONAL";
+  if (raw === "islamic") return "ISLAMIC";
+  return "ALL";
+}
+
+const MODE_TO_PARAM: Record<BankingMode, string | undefined> = {
+  ALL: undefined,
+  CONVENTIONAL: "conventional",
+  ISLAMIC: "islamic",
+};
+
+export default async function InsightsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ mode?: string | string[] }>;
+}) {
+  const bankingMode = parseBankingMode((await searchParams).mode);
+
   const [
     fdrCurve,
     dpsCurve,
@@ -37,16 +57,16 @@ export default async function InsightsPage() {
     heatmap,
     inflationStat,
   ] = await Promise.all([
-    getYieldCurve("FDR"),
-    getYieldCurve("DPS"),
-    getCategoryStats("FDR"),
-    getCategoryStats("DPS"),
-    getTopRates(10),
+    getYieldCurve("FDR", bankingMode),
+    getYieldCurve("DPS", bankingMode),
+    getCategoryStats("FDR", bankingMode),
+    getCategoryStats("DPS", bankingMode),
+    getTopRates(10, bankingMode),
     getTrendStatus(),
     getInstitutionComposition(),
-    getGovernmentInstrumentRates(),
-    getFDRHeatmap(),
-    getInflationBeatStat(),
+    getGovernmentInstrumentRates(bankingMode),
+    getFDRHeatmap(14, bankingMode),
+    getInflationBeatStat(bankingMode),
   ]);
   // Derived from data already fetched above — no extra DB round-trips.
   const topRate = topRates[0] ?? null;
@@ -70,6 +90,35 @@ export default async function InsightsPage() {
       </section>
 
       <Container className="py-10 sm:py-12 space-y-12">
+        <div className="space-y-2">
+          <div className="flex flex-wrap gap-2">
+            {(["ALL", "CONVENTIONAL", "ISLAMIC"] as const).map((mode) => {
+              const param = MODE_TO_PARAM[mode];
+              const href = param ? `/insights?mode=${param}` : "/insights";
+              const active = bankingMode === mode;
+              return (
+                <Link
+                  key={mode}
+                  href={href}
+                  className={`btn-press rounded-full px-3.5 py-1.5 text-sm font-medium transition-colors ${
+                    active
+                      ? "brand-gradient text-white shadow-sm"
+                      : "bg-foreground/5 text-muted hover:bg-foreground/10 hover:text-foreground"
+                  }`}
+                >
+                  {bankingModeLabels[mode]}
+                </Link>
+              );
+            })}
+          </div>
+          {bankingMode === "ISLAMIC" && (
+            <p className="text-xs text-muted">
+              Profit rates are provisional/expected, not guaranteed — actual profit distributed
+              depends on each bank&apos;s real earnings for the period.
+            </p>
+          )}
+        </div>
+
         {topRate && (
           <section className="rounded-2xl card-surface p-6 shadow-sm flex flex-wrap items-center gap-4">
             <span className="grid h-12 w-12 place-items-center rounded-xl bg-accent/15 text-accent shrink-0">

@@ -20,6 +20,7 @@ export interface SerializedProduct {
   productType: "FDR" | "DPS" | "SANCHAYPATRO" | "TBOND" | "TBILL" | "OTHER";
   name: string;
   compounding: "SIMPLE" | "MONTHLY" | "QUARTERLY" | "YEARLY";
+  isIslamic: boolean;
   rateTiers: SerializedRateTier[];
 }
 
@@ -38,6 +39,7 @@ export function serializeProducts(
         productType: product.productType,
         name: product.name,
         compounding: product.compounding,
+        isIslamic: product.isIslamic,
         rateTiers: product.rateTiers.map((tier) => ({
           id: tier.id,
           tenureMonths: tier.tenureMonths,

@@ -515,6 +515,166 @@ const entries: RateEntry[] = [
   { institutionName: "Prime NOW", productType: "DPS", productNameHint: "Now Fixed DPS", tenureMonths: 60, minAmount: 0, interestRatePct: 9.0, sourceUrl: "https://primenow.ai/product-rates" },
   { institutionName: "Prime NOW", productType: "DPS", productNameHint: "Now Fixed DPS", tenureMonths: 84, minAmount: 0, interestRatePct: 9.0, sourceUrl: "https://primenow.ai/product-rates" },
   { institutionName: "Prime NOW", productType: "DPS", productNameHint: "Now Fixed DPS", tenureMonths: 120, minAmount: 0, interestRatePct: 9.0, sourceUrl: "https://primenow.ai/product-rates" },
+
+  // ============================================================
+  // Islamic banking (Mudaraba profit-sharing) products, sourced 2026-08-31.
+  // See research findings appended to research/rate-research-2026-08-28.md
+  // for the full per-bank methodology. Rates here are "provisional profit
+  // rates" as published by each bank — not guaranteed interest, and subject
+  // to the bank's actual earnings for the period. Institutions/products with
+  // no clearly published Islamic rate are intentionally left as shells (see
+  // notes at the end of this section) rather than filled with a guess.
+  // ============================================================
+
+  // --- Islami Bank Bangladesh --- full-fledged Islamic bank. Provisional
+  // Profit Rates on Mudaraba Deposits w.e.f 01.01.2026, read directly from
+  // the bank's own PDF, all rows marked "Unchanged" (i.e. still current).
+  { institutionName: "Islami Bank Bangladesh", productType: "FDR", productNameHint: "Mudaraba Term Deposit", tenureMonths: 1, minAmount: 0, interestRatePct: 5.25, sourceUrl: "https://www.islamibankbd.com/public/assets/profit-rate-main/1775551629_Provisional%20Profit%20rates%20w.e.f.%2001.01.2026.pdf" },
+  { institutionName: "Islami Bank Bangladesh", productType: "FDR", productNameHint: "Mudaraba Term Deposit", tenureMonths: 3, minAmount: 0, interestRatePct: 9.5, sourceUrl: "https://www.islamibankbd.com/public/assets/profit-rate-main/1775551629_Provisional%20Profit%20rates%20w.e.f.%2001.01.2026.pdf" },
+  { institutionName: "Islami Bank Bangladesh", productType: "FDR", productNameHint: "Mudaraba Term Deposit", tenureMonths: 6, minAmount: 0, interestRatePct: 9.8, sourceUrl: "https://www.islamibankbd.com/public/assets/profit-rate-main/1775551629_Provisional%20Profit%20rates%20w.e.f.%2001.01.2026.pdf" },
+  { institutionName: "Islami Bank Bangladesh", productType: "FDR", productNameHint: "Mudaraba Term Deposit", tenureMonths: 12, minAmount: 0, interestRatePct: 10.0, sourceUrl: "https://www.islamibankbd.com/public/assets/profit-rate-main/1775551629_Provisional%20Profit%20rates%20w.e.f.%2001.01.2026.pdf" },
+  { institutionName: "Islami Bank Bangladesh", productType: "FDR", productNameHint: "Mudaraba Term Deposit", tenureMonths: 24, minAmount: 0, interestRatePct: 10.2, sourceUrl: "https://www.islamibankbd.com/public/assets/profit-rate-main/1775551629_Provisional%20Profit%20rates%20w.e.f.%2001.01.2026.pdf" },
+  { institutionName: "Islami Bank Bangladesh", productType: "FDR", productNameHint: "Mudaraba Term Deposit", tenureMonths: 36, minAmount: 0, interestRatePct: 10.5, sourceUrl: "https://www.islamibankbd.com/public/assets/profit-rate-main/1775551629_Provisional%20Profit%20rates%20w.e.f.%2001.01.2026.pdf" },
+  // "Mudaraba Special Savings (Pension) including RDS MSS" — the bank's
+  // closest named product to a classic recurring-installment DPS.
+  { institutionName: "Islami Bank Bangladesh", productType: "DPS", productNameHint: "Mudaraba Deposit Pension Scheme", tenureMonths: 6, minAmount: 0, interestRatePct: 5.25, sourceUrl: "https://www.islamibankbd.com/public/assets/profit-rate-main/1775551629_Provisional%20Profit%20rates%20w.e.f.%2001.01.2026.pdf" },
+  { institutionName: "Islami Bank Bangladesh", productType: "DPS", productNameHint: "Mudaraba Deposit Pension Scheme", tenureMonths: 12, minAmount: 0, interestRatePct: 5.75, sourceUrl: "https://www.islamibankbd.com/public/assets/profit-rate-main/1775551629_Provisional%20Profit%20rates%20w.e.f.%2001.01.2026.pdf" },
+  { institutionName: "Islami Bank Bangladesh", productType: "DPS", productNameHint: "Mudaraba Deposit Pension Scheme", tenureMonths: 24, minAmount: 0, interestRatePct: 6.0, sourceUrl: "https://www.islamibankbd.com/public/assets/profit-rate-main/1775551629_Provisional%20Profit%20rates%20w.e.f.%2001.01.2026.pdf" },
+  { institutionName: "Islami Bank Bangladesh", productType: "DPS", productNameHint: "Mudaraba Deposit Pension Scheme", tenureMonths: 36, minAmount: 0, interestRatePct: 6.75, sourceUrl: "https://www.islamibankbd.com/public/assets/profit-rate-main/1775551629_Provisional%20Profit%20rates%20w.e.f.%2001.01.2026.pdf" },
+  { institutionName: "Islami Bank Bangladesh", productType: "DPS", productNameHint: "Mudaraba Deposit Pension Scheme", tenureMonths: 48, minAmount: 0, interestRatePct: 6.75, sourceUrl: "https://www.islamibankbd.com/public/assets/profit-rate-main/1775551629_Provisional%20Profit%20rates%20w.e.f.%2001.01.2026.pdf" },
+  { institutionName: "Islami Bank Bangladesh", productType: "DPS", productNameHint: "Mudaraba Deposit Pension Scheme", tenureMonths: 60, minAmount: 0, interestRatePct: 7.25, sourceUrl: "https://www.islamibankbd.com/public/assets/profit-rate-main/1775551629_Provisional%20Profit%20rates%20w.e.f.%2001.01.2026.pdf" },
+  { institutionName: "Islami Bank Bangladesh", productType: "DPS", productNameHint: "Mudaraba Deposit Pension Scheme", tenureMonths: 84, minAmount: 0, interestRatePct: 7.5, sourceUrl: "https://www.islamibankbd.com/public/assets/profit-rate-main/1775551629_Provisional%20Profit%20rates%20w.e.f.%2001.01.2026.pdf" },
+  { institutionName: "Islami Bank Bangladesh", productType: "DPS", productNameHint: "Mudaraba Deposit Pension Scheme", tenureMonths: 120, minAmount: 0, interestRatePct: 7.75, sourceUrl: "https://www.islamibankbd.com/public/assets/profit-rate-main/1775551629_Provisional%20Profit%20rates%20w.e.f.%2001.01.2026.pdf" },
+  { institutionName: "Islami Bank Bangladesh", productType: "DPS", productNameHint: "Mudaraba Deposit Pension Scheme", tenureMonths: 180, minAmount: 0, interestRatePct: 8.0, sourceUrl: "https://www.islamibankbd.com/public/assets/profit-rate-main/1775551629_Provisional%20Profit%20rates%20w.e.f.%2001.01.2026.pdf" },
+
+  // --- Agrani Bank --- Agrani Islamic Banking. "Provisional Rate of Profit
+  // (Effective From 10-02-2026)" from the bank's own Islamic banking page.
+  { institutionName: "Agrani Bank", productType: "FDR", productNameHint: "Islamic Banking Mudaraba FDR", tenureMonths: 1, minAmount: 0, interestRatePct: 3.5, sourceUrl: "https://www.agranibank.org/index.php/home/islamic_banking/Deposit-Products" },
+  { institutionName: "Agrani Bank", productType: "FDR", productNameHint: "Islamic Banking Mudaraba FDR", tenureMonths: 3, minAmount: 0, interestRatePct: 7.5, sourceUrl: "https://www.agranibank.org/index.php/home/islamic_banking/Deposit-Products" },
+  { institutionName: "Agrani Bank", productType: "FDR", productNameHint: "Islamic Banking Mudaraba FDR", tenureMonths: 6, minAmount: 0, interestRatePct: 7.75, sourceUrl: "https://www.agranibank.org/index.php/home/islamic_banking/Deposit-Products" },
+  { institutionName: "Agrani Bank", productType: "FDR", productNameHint: "Islamic Banking Mudaraba FDR", tenureMonths: 12, minAmount: 0, interestRatePct: 8.0, sourceUrl: "https://www.agranibank.org/index.php/home/islamic_banking/Deposit-Products" },
+  // Mudaraba Special Savings Scheme (MSS) — closest recurring-DPS analog in
+  // Agrani's Islamic lineup; page publishes only the 5yr/10yr boundary rates.
+  { institutionName: "Agrani Bank", productType: "DPS", productNameHint: "Islamic Banking Mudaraba DPS", tenureMonths: 60, minAmount: 0, interestRatePct: 7.5, sourceUrl: "https://www.agranibank.org/index.php/home/islamic_banking/Deposit-Products" },
+  { institutionName: "Agrani Bank", productType: "DPS", productNameHint: "Islamic Banking Mudaraba DPS", tenureMonths: 120, minAmount: 0, interestRatePct: 8.0, sourceUrl: "https://www.agranibank.org/index.php/home/islamic_banking/Deposit-Products" },
+
+  // --- Dhaka Bank --- Tayyebah Dhaka Islamic Banking. Mudaraba Special
+  // Deposit Scheme (MSDS), rates effective March 03, 2026. Only the
+  // FDR-equivalent is entered — Dhaka Bank's two DPS-style Islamic products
+  // (Tayyebah Kotipoti, Mudaraba Deposit Pension Scheme) publish only a
+  // 8.50%-10.00% range with no per-tenure breakdown, so they're skipped
+  // rather than guessing where in that range each tenure falls.
+  { institutionName: "Dhaka Bank", productType: "FDR", productNameHint: "Tayyebah Dhaka Islamic Banking Mudaraba FDR", tenureMonths: 12, minAmount: 0, interestRatePct: 9.6, sourceUrl: "https://dhakabank.com.bd/mudaraba-special-deposit-pension-scheme-msds/" },
+  { institutionName: "Dhaka Bank", productType: "FDR", productNameHint: "Tayyebah Dhaka Islamic Banking Mudaraba FDR", tenureMonths: 24, minAmount: 0, interestRatePct: 9.0, sourceUrl: "https://dhakabank.com.bd/mudaraba-special-deposit-pension-scheme-msds/" },
+  { institutionName: "Dhaka Bank", productType: "FDR", productNameHint: "Tayyebah Dhaka Islamic Banking Mudaraba FDR", tenureMonths: 36, minAmount: 0, interestRatePct: 9.0, sourceUrl: "https://dhakabank.com.bd/mudaraba-special-deposit-pension-scheme-msds/" },
+
+  // --- Prime Bank --- Prime Bank Islamic Banking. Only the DPS-equivalent
+  // has a published number: Prime Hasanah Edu DPS, flat 9.25% across its
+  // published 5/10/15/20-year tenures. Prime Hasanah Term Deposit (the real
+  // FDR-equivalent) publishes no percentage on its page ("attractive
+  // provisional profit rate" only) -- left as an FDR shell rather than
+  // guessing. Mudaraba 150% Deposit Scheme (6% over 7yr, a
+  // deposit-doubles-style product) is a different kind of scheme, not
+  // entered as a standard FDR tenure.
+  { institutionName: "Prime Bank", productType: "DPS", productNameHint: "Prime Bank Islamic Banking Mudaraba DPS", tenureMonths: 60, minAmount: 0, interestRatePct: 9.25, sourceUrl: "https://www.primebank.com.bd/islamic/save/deposit-schemes/prime-hasanah-edu-dps" },
+  { institutionName: "Prime Bank", productType: "DPS", productNameHint: "Prime Bank Islamic Banking Mudaraba DPS", tenureMonths: 120, minAmount: 0, interestRatePct: 9.25, sourceUrl: "https://www.primebank.com.bd/islamic/save/deposit-schemes/prime-hasanah-edu-dps" },
+  { institutionName: "Prime Bank", productType: "DPS", productNameHint: "Prime Bank Islamic Banking Mudaraba DPS", tenureMonths: 180, minAmount: 0, interestRatePct: 9.25, sourceUrl: "https://www.primebank.com.bd/islamic/save/deposit-schemes/prime-hasanah-edu-dps" },
+  { institutionName: "Prime Bank", productType: "DPS", productNameHint: "Prime Bank Islamic Banking Mudaraba DPS", tenureMonths: 240, minAmount: 0, interestRatePct: 9.25, sourceUrl: "https://www.primebank.com.bd/islamic/save/deposit-schemes/prime-hasanah-edu-dps" },
+
+  // --- The City Bank --- City Islamic does not publish an advertised
+  // forward-looking rate table ("cannot provide certain profit rate to the
+  // depositors in advance"). These are HISTORICAL ACTUAL PROFIT DISTRIBUTED
+  // figures from the bank's own Investment Income Sharing Ratio (IISR)
+  // report, effective 21-Apr-2026 (period: June 2026) -- a genuinely
+  // different kind of number than other banks' advertised rate cards.
+  // Included because they're real and sourced, but flagged here so this
+  // distinction isn't lost if the UI is ever changed to filter by rate type.
+  { institutionName: "The City Bank", productType: "FDR", productNameHint: "City Islamic Mudaraba FDR", tenureMonths: 12, minAmount: 0, maxAmount: 10000000, interestRatePct: 6.45, sourceUrl: "https://islamic.thecitybank.com/profit-sharing-ratio" },
+  { institutionName: "The City Bank", productType: "DPS", productNameHint: "City Islamic Mudaraba DPS", tenureMonths: 6, minAmount: 0, interestRatePct: 7.73, sourceUrl: "https://islamic.thecitybank.com/profit-sharing-ratio" },
+
+  // --- Mutual Trust Bank --- MTB Yaqeen. Full official rate sheet, PDF
+  // "MTB Islamic Savings Accounts, SND, Term Deposits & Savings Schemes".
+  // "MTB Islamic Term Deposit (Individual)" balance <50 Lac tier, effective
+  // Nov 7, 2024.
+  { institutionName: "Mutual Trust Bank", productType: "FDR", productNameHint: "MTB Yaqeen Mudaraba FDR", tenureMonths: 1, minAmount: 0, maxAmount: 5000000, interestRatePct: 3.5, sourceUrl: "https://www.mutualtrustbank.com/wp-content/uploads/2026/07/Profit-on-Deposit-Latest-july-26.pdf" },
+  { institutionName: "Mutual Trust Bank", productType: "FDR", productNameHint: "MTB Yaqeen Mudaraba FDR", tenureMonths: 3, minAmount: 0, maxAmount: 5000000, interestRatePct: 7.75, sourceUrl: "https://www.mutualtrustbank.com/wp-content/uploads/2026/07/Profit-on-Deposit-Latest-july-26.pdf" },
+  { institutionName: "Mutual Trust Bank", productType: "FDR", productNameHint: "MTB Yaqeen Mudaraba FDR", tenureMonths: 6, minAmount: 0, maxAmount: 5000000, interestRatePct: 8.0, sourceUrl: "https://www.mutualtrustbank.com/wp-content/uploads/2026/07/Profit-on-Deposit-Latest-july-26.pdf" },
+  { institutionName: "Mutual Trust Bank", productType: "FDR", productNameHint: "MTB Yaqeen Mudaraba FDR", tenureMonths: 12, minAmount: 0, maxAmount: 5000000, interestRatePct: 8.0, sourceUrl: "https://www.mutualtrustbank.com/wp-content/uploads/2026/07/Profit-on-Deposit-Latest-july-26.pdf" },
+  { institutionName: "Mutual Trust Bank", productType: "FDR", productNameHint: "MTB Yaqeen Mudaraba FDR", tenureMonths: 24, minAmount: 0, maxAmount: 5000000, interestRatePct: 8.0, sourceUrl: "https://www.mutualtrustbank.com/wp-content/uploads/2026/07/Profit-on-Deposit-Latest-july-26.pdf" },
+  { institutionName: "Mutual Trust Bank", productType: "FDR", productNameHint: "MTB Yaqeen Mudaraba FDR", tenureMonths: 36, minAmount: 0, maxAmount: 5000000, interestRatePct: 8.0, sourceUrl: "https://www.mutualtrustbank.com/wp-content/uploads/2026/07/Profit-on-Deposit-Latest-july-26.pdf" },
+  // "MTB Islamic Brick by Brick / Flexible / Angona Scheme" — recurring
+  // Islamic DPS-equivalent, effective Nov 7, 2024.
+  { institutionName: "Mutual Trust Bank", productType: "DPS", productNameHint: "MTB Yaqeen Mudaraba DPS", tenureMonths: 12, minAmount: 0, interestRatePct: 10.0, sourceUrl: "https://www.mutualtrustbank.com/wp-content/uploads/2026/07/Profit-on-Deposit-Latest-july-26.pdf" },
+  { institutionName: "Mutual Trust Bank", productType: "DPS", productNameHint: "MTB Yaqeen Mudaraba DPS", tenureMonths: 24, minAmount: 0, interestRatePct: 10.0, sourceUrl: "https://www.mutualtrustbank.com/wp-content/uploads/2026/07/Profit-on-Deposit-Latest-july-26.pdf" },
+  { institutionName: "Mutual Trust Bank", productType: "DPS", productNameHint: "MTB Yaqeen Mudaraba DPS", tenureMonths: 36, minAmount: 0, interestRatePct: 10.0, sourceUrl: "https://www.mutualtrustbank.com/wp-content/uploads/2026/07/Profit-on-Deposit-Latest-july-26.pdf" },
+  { institutionName: "Mutual Trust Bank", productType: "DPS", productNameHint: "MTB Yaqeen Mudaraba DPS", tenureMonths: 60, minAmount: 0, interestRatePct: 10.0, sourceUrl: "https://www.mutualtrustbank.com/wp-content/uploads/2026/07/Profit-on-Deposit-Latest-july-26.pdf" },
+  { institutionName: "Mutual Trust Bank", productType: "DPS", productNameHint: "MTB Yaqeen Mudaraba DPS", tenureMonths: 96, minAmount: 0, interestRatePct: 9.5, sourceUrl: "https://www.mutualtrustbank.com/wp-content/uploads/2026/07/Profit-on-Deposit-Latest-july-26.pdf" },
+  { institutionName: "Mutual Trust Bank", productType: "DPS", productNameHint: "MTB Yaqeen Mudaraba DPS", tenureMonths: 120, minAmount: 0, interestRatePct: 9.5, sourceUrl: "https://www.mutualtrustbank.com/wp-content/uploads/2026/07/Profit-on-Deposit-Latest-july-26.pdf" },
+  { institutionName: "Mutual Trust Bank", productType: "DPS", productNameHint: "MTB Yaqeen Mudaraba DPS", tenureMonths: 144, minAmount: 0, interestRatePct: 9.0, sourceUrl: "https://www.mutualtrustbank.com/wp-content/uploads/2026/07/Profit-on-Deposit-Latest-july-26.pdf" },
+  { institutionName: "Mutual Trust Bank", productType: "DPS", productNameHint: "MTB Yaqeen Mudaraba DPS", tenureMonths: 180, minAmount: 0, interestRatePct: 8.75, sourceUrl: "https://www.mutualtrustbank.com/wp-content/uploads/2026/07/Profit-on-Deposit-Latest-july-26.pdf" },
+
+  // --- Bank Asia --- Bank Asia Islamic Banking. "Mudaraba Term Deposit
+  // Account (MTDA)", Individual tier, effective August 09, 2026.
+  { institutionName: "Bank Asia", productType: "FDR", productNameHint: "Bank Asia Islamic Banking Mudaraba FDR", tenureMonths: 1, minAmount: 0, interestRatePct: 4.0, sourceUrl: "https://www.bankasia-bd.com/islamic/product/Profit-on-Deposit" },
+  { institutionName: "Bank Asia", productType: "FDR", productNameHint: "Bank Asia Islamic Banking Mudaraba FDR", tenureMonths: 3, minAmount: 0, interestRatePct: 6.8, sourceUrl: "https://www.bankasia-bd.com/islamic/product/Profit-on-Deposit" },
+  { institutionName: "Bank Asia", productType: "FDR", productNameHint: "Bank Asia Islamic Banking Mudaraba FDR", tenureMonths: 6, minAmount: 0, interestRatePct: 7.0, sourceUrl: "https://www.bankasia-bd.com/islamic/product/Profit-on-Deposit" },
+  { institutionName: "Bank Asia", productType: "FDR", productNameHint: "Bank Asia Islamic Banking Mudaraba FDR", tenureMonths: 12, minAmount: 0, interestRatePct: 7.0, sourceUrl: "https://www.bankasia-bd.com/islamic/product/Profit-on-Deposit" },
+  { institutionName: "Bank Asia", productType: "FDR", productNameHint: "Bank Asia Islamic Banking Mudaraba FDR", tenureMonths: 24, minAmount: 0, interestRatePct: 7.0, sourceUrl: "https://www.bankasia-bd.com/islamic/product/Profit-on-Deposit" },
+  { institutionName: "Bank Asia", productType: "FDR", productNameHint: "Bank Asia Islamic Banking Mudaraba FDR", tenureMonths: 36, minAmount: 0, interestRatePct: 7.0, sourceUrl: "https://www.bankasia-bd.com/islamic/product/Profit-on-Deposit" },
+  { institutionName: "Bank Asia", productType: "FDR", productNameHint: "Bank Asia Islamic Banking Mudaraba FDR", tenureMonths: 48, minAmount: 0, interestRatePct: 7.0, sourceUrl: "https://www.bankasia-bd.com/islamic/product/Profit-on-Deposit" },
+  { institutionName: "Bank Asia", productType: "FDR", productNameHint: "Bank Asia Islamic Banking Mudaraba FDR", tenureMonths: 60, minAmount: 0, interestRatePct: 7.0, sourceUrl: "https://www.bankasia-bd.com/islamic/product/Profit-on-Deposit" },
+  // "Mudaraba Deposit Pension Scheme (MDPS)" — single flat provisional rate
+  // published for the whole 3-12yr range, no per-tenure step given.
+  { institutionName: "Bank Asia", productType: "DPS", productNameHint: "Bank Asia Islamic Banking Mudaraba DPS", tenureMonths: 36, minAmount: 0, interestRatePct: 6.45, sourceUrl: "https://www.bankasia-bd.com/islamic/product/Profit-on-Deposit" },
+  { institutionName: "Bank Asia", productType: "DPS", productNameHint: "Bank Asia Islamic Banking Mudaraba DPS", tenureMonths: 144, minAmount: 0, interestRatePct: 6.45, sourceUrl: "https://www.bankasia-bd.com/islamic/product/Profit-on-Deposit" },
+
+  // --- Trust Bank --- Trust Islamic Banking (TIB). "Mudaraba Term Deposit
+  // (MTDR)", Individuals & Provident Funds category, effective August 10, 2026.
+  { institutionName: "Trust Bank", productType: "FDR", productNameHint: "Trust Islamic Banking Mudaraba FDR", tenureMonths: 1, minAmount: 0, interestRatePct: 3.0, sourceUrl: "https://www.tblbd.com/rates-and-charges/mudaraba-deposit-rates" },
+  { institutionName: "Trust Bank", productType: "FDR", productNameHint: "Trust Islamic Banking Mudaraba FDR", tenureMonths: 3, minAmount: 0, interestRatePct: 7.5, sourceUrl: "https://www.tblbd.com/rates-and-charges/mudaraba-deposit-rates" },
+  { institutionName: "Trust Bank", productType: "FDR", productNameHint: "Trust Islamic Banking Mudaraba FDR", tenureMonths: 6, minAmount: 0, interestRatePct: 7.5, sourceUrl: "https://www.tblbd.com/rates-and-charges/mudaraba-deposit-rates" },
+  { institutionName: "Trust Bank", productType: "FDR", productNameHint: "Trust Islamic Banking Mudaraba FDR", tenureMonths: 12, minAmount: 0, interestRatePct: 7.5, sourceUrl: "https://www.tblbd.com/rates-and-charges/mudaraba-deposit-rates" },
+  // "Mudaraba Monthly Savings Scheme (MMSS)" — single flat rate published
+  // across the scheme's stated 3/5/8/10/12-year tenure options.
+  { institutionName: "Trust Bank", productType: "DPS", productNameHint: "Trust Islamic Banking Mudaraba DPS", tenureMonths: 36, minAmount: 0, interestRatePct: 8.0, sourceUrl: "https://www.tblbd.com/islamic-banking/deposit-accounts/mudaraba-monthly-savings-scheme" },
+  { institutionName: "Trust Bank", productType: "DPS", productNameHint: "Trust Islamic Banking Mudaraba DPS", tenureMonths: 60, minAmount: 0, interestRatePct: 8.0, sourceUrl: "https://www.tblbd.com/islamic-banking/deposit-accounts/mudaraba-monthly-savings-scheme" },
+  { institutionName: "Trust Bank", productType: "DPS", productNameHint: "Trust Islamic Banking Mudaraba DPS", tenureMonths: 96, minAmount: 0, interestRatePct: 8.0, sourceUrl: "https://www.tblbd.com/islamic-banking/deposit-accounts/mudaraba-monthly-savings-scheme" },
+  { institutionName: "Trust Bank", productType: "DPS", productNameHint: "Trust Islamic Banking Mudaraba DPS", tenureMonths: 120, minAmount: 0, interestRatePct: 8.0, sourceUrl: "https://www.tblbd.com/islamic-banking/deposit-accounts/mudaraba-monthly-savings-scheme" },
+  { institutionName: "Trust Bank", productType: "DPS", productNameHint: "Trust Islamic Banking Mudaraba DPS", tenureMonths: 144, minAmount: 0, interestRatePct: 8.0, sourceUrl: "https://www.tblbd.com/islamic-banking/deposit-accounts/mudaraba-monthly-savings-scheme" },
+
+  // --- IFIC Bank --- IFIC Islamic. "Mudaraba Term Deposit", Provisional
+  // Rates W.E.F. 16.08.2026 (read directly from the bank's own PDF).
+  // No DPS entry: the PDF's other candidate recurring-deposit products
+  // ("Mudaraba Hajj DPS" is Hajj-purpose-restricted; "Mudaraba Aamar
+  // Bhobishawt" has no published tenure breakdown and its product type
+  // couldn't be confirmed) -- left as a DPS shell rather than guessing.
+  { institutionName: "IFIC Bank", productType: "FDR", productNameHint: "IFIC Islamic Mudaraba FDR", tenureMonths: 1, minAmount: 0, interestRatePct: 5.0, sourceUrl: "https://ificbank.com.bd/public/islamic/Latest-Deposit-Rate-Islamic-16-08-2026.pdf" },
+  { institutionName: "IFIC Bank", productType: "FDR", productNameHint: "IFIC Islamic Mudaraba FDR", tenureMonths: 3, minAmount: 0, interestRatePct: 8.0, sourceUrl: "https://ificbank.com.bd/public/islamic/Latest-Deposit-Rate-Islamic-16-08-2026.pdf" },
+  { institutionName: "IFIC Bank", productType: "FDR", productNameHint: "IFIC Islamic Mudaraba FDR", tenureMonths: 6, minAmount: 0, interestRatePct: 8.0, sourceUrl: "https://ificbank.com.bd/public/islamic/Latest-Deposit-Rate-Islamic-16-08-2026.pdf" },
+  { institutionName: "IFIC Bank", productType: "FDR", productNameHint: "IFIC Islamic Mudaraba FDR", tenureMonths: 12, minAmount: 0, interestRatePct: 8.0, sourceUrl: "https://ificbank.com.bd/public/islamic/Latest-Deposit-Rate-Islamic-16-08-2026.pdf" },
+  { institutionName: "IFIC Bank", productType: "FDR", productNameHint: "IFIC Islamic Mudaraba FDR", tenureMonths: 24, minAmount: 0, interestRatePct: 8.0, sourceUrl: "https://ificbank.com.bd/public/islamic/Latest-Deposit-Rate-Islamic-16-08-2026.pdf" },
+  { institutionName: "IFIC Bank", productType: "FDR", productNameHint: "IFIC Islamic Mudaraba FDR", tenureMonths: 36, minAmount: 0, interestRatePct: 8.0, sourceUrl: "https://ificbank.com.bd/public/islamic/Latest-Deposit-Rate-Islamic-16-08-2026.pdf" },
+
+  // --- Southeast Bank, Sonali Bank, Rupali Bank, Eastern Bank (EBL),
+  // United Commercial Bank (UCB Taqwa), Jamuna Bank, NCC Bank, Pubali Bank ---
+  // No Islamic FDR/DPS rate entries. Each confirmed during 2026-08-31
+  // research to have no clearly published, tenure-itemized provisional
+  // profit rate for their Islamic banking window:
+  //   - Southeast Bank: product pages (MTDR/MMSS) publish no rate table at
+  //     all ("contact nearest branch"); the bank's full deposit-rate PDF
+  //     only shows a dual-branded "Esteem Mudaraba" scheme, not the
+  //     standard MTDR/MMSS products, so not used.
+  //   - Sonali Bank, Rupali Bank: Islamic banking rate pages are
+  //     inaccessible to automated fetching (unrenderable / 403) -- needs a
+  //     human to open them in a real browser before any number is entered.
+  //   - Eastern Bank (EBL): product pages exist and 35:65 profit-sharing
+  //     ratio is published, but no advertised percentage rate -- a PSR is
+  //     not a substitute for a rate.
+  //   - United Commercial Bank: UCB's own site explicitly states "UCB
+  //     TAQWA does not offer any provisional rate for any types of
+  //     Mudaraba Accounts" -- confirmed no-rate, not a research gap.
+  //   - Jamuna Bank, NCC Bank, Pubali Bank: Islamic banking pages list
+  //     product names only, no rate figures published anywhere found.
 ];
 
 async function main() {

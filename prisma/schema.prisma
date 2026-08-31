@@ -81,6 +81,11 @@ model RateProduct {
   maxTenureMonths Int
   minAmount       Decimal?      @db.Decimal(18, 2)
   isActive        Boolean       @default(true)
+  /// Islamic (Shariah/Mudaraba-based, profit-sharing) product vs conventional
+  /// interest-based. Same Institution can offer both — this is a product-level
+  /// flag, not an institution-level one. See src/lib/labels.ts for the
+  /// "Profit rate" vs "Interest rate" display-label split this drives.
+  isIslamic       Boolean       @default(false)
   createdAt       DateTime      @default(now())
   updatedAt       DateTime      @updatedAt
   rateTiers       RateTier[]

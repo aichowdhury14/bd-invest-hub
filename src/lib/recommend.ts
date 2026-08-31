@@ -3,7 +3,7 @@ import { Crown, Gauge, LineChart, ShieldCheck, Zap } from "lucide-react";
 import type { ProductType } from "@prisma/client";
 import type { SerializedProduct } from "@/lib/serialize";
 import { calculateDPSMaturity, calculateLumpSumMaturity } from "@/lib/calculations";
-import { isRecurringProduct } from "@/lib/labels";
+import { isRecurringProduct, type BankingMode } from "@/lib/labels";
 
 export type RiskProfile = "CONSERVATIVE" | "BALANCED" | "GROWTH";
 
@@ -36,6 +36,7 @@ export interface RecommendParams {
   tenureMonths: number;
   typeFilter: ProductType | "ALL";
   riskProfile: RiskProfile;
+  bankingMode?: BankingMode;
 }
 
 /**
@@ -48,10 +49,13 @@ export function buildRecommendations(
   products: SerializedProduct[],
   params: RecommendParams
 ): { rows: Row[]; picks: Picks; recommendations: Recommendation[] } {
-  const { amount, tenureMonths, typeFilter, riskProfile } = params;
+  const { amount, tenureMonths, typeFilter, riskProfile, bankingMode = "ALL" } = params;
 
   const rows: Row[] = products
     .filter((p) => typeFilter === "ALL" || p.productType === typeFilter)
+    .filter((p) =>
+      bankingMode === "ALL" ? true : bankingMode === "ISLAMIC" ? p.isIslamic : !p.isIslamic
+    )
     .map((product) => {
       const tier =
         product.rateTiers.find(

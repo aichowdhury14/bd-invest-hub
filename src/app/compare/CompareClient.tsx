@@ -4,8 +4,14 @@ import { useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { BarChart3, Check, Link as LinkIcon, Search, Sparkles, Users, X } from "lucide-react";
 import type { SerializedProduct } from "@/lib/serialize";
-import { institutionTypeLabels, isRecurringProduct, productTypeLabels } from "@/lib/labels";
-import { institutionTypeStyle } from "@/lib/institution-style";
+import {
+  bankingModeLabels,
+  institutionTypeLabels,
+  isRecurringProduct,
+  productTypeLabels,
+  type BankingMode,
+} from "@/lib/labels";
+import { institutionTypeStyle, islamicBadgeClass } from "@/lib/institution-style";
 import { InstitutionLogo } from "@/components/InstitutionLogo";
 import { calculateDPSMaturity, calculateLumpSumMaturity } from "@/lib/calculations";
 import type { InstitutionType, ProductType } from "@prisma/client";
@@ -42,6 +48,7 @@ export function CompareClient({ products }: { products: SerializedProduct[] }) {
   const [selectedIds, setSelectedIds] = useState<string[]>(() => sharedIds ?? []);
   const [instFilter, setInstFilter] = useState<InstitutionType | "ALL">("ALL");
   const [typeFilter, setTypeFilter] = useState<ProductType | "ALL">("ALL");
+  const [bankingMode, setBankingMode] = useState<BankingMode>("ALL");
   const [sortBy, setSortBy] = useState<"rate" | "name">("rate");
   const [copied, setCopied] = useState(false);
   const [relatedProducts, setRelatedProducts] = useState<RelatedProduct[]>([]);
@@ -123,6 +130,7 @@ export function CompareClient({ products }: { products: SerializedProduct[] }) {
       (p) =>
         (instFilter === "ALL" || p.institutionType === instFilter) &&
         (typeFilter === "ALL" || p.productType === typeFilter) &&
+        (bankingMode === "ALL" || (bankingMode === "ISLAMIC" ? p.isIslamic : !p.isIslamic)) &&
         (q === "" ||
           p.institutionName.toLowerCase().includes(q) ||
           p.name.toLowerCase().includes(q) ||
@@ -142,7 +150,7 @@ export function CompareClient({ products }: { products: SerializedProduct[] }) {
     });
     return list;
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [products, query, instFilter, typeFilter, sortBy, tenureMonths, amount]);
+  }, [products, query, instFilter, typeFilter, bankingMode, sortBy, tenureMonths, amount]);
 
   const selected = products.filter((p) => selectedIds.includes(p.id));
 
@@ -298,6 +306,14 @@ export function CompareClient({ products }: { products: SerializedProduct[] }) {
           ))}
         </div>
 
+        <div className="flex flex-wrap items-center gap-2">
+          {(["ALL", "CONVENTIONAL", "ISLAMIC"] as const).map((mode) => (
+            <FilterChip key={mode} active={bankingMode === mode} onClick={() => setBankingMode(mode)}>
+              {bankingModeLabels[mode]}
+            </FilterChip>
+          ))}
+        </div>
+
         <div className="flex flex-wrap items-center justify-between gap-3 pt-1 border-t border-border">
           <div className="flex items-center gap-2 text-xs">
             <span className="text-muted">Sort:</span>
@@ -354,8 +370,15 @@ export function CompareClient({ products }: { products: SerializedProduct[] }) {
                     </span>
                   </span>
                   <span className="block text-xs text-muted truncate">{product.name}</span>
-                  <span className={`inline-block mt-1 rounded-full px-2 py-0.5 text-[11px] font-medium ${style.badge}`}>
-                    {productTypeLabels[product.productType]}
+                  <span className="mt-1 flex flex-wrap gap-1">
+                    <span className={`inline-block rounded-full px-2 py-0.5 text-[11px] font-medium ${style.badge}`}>
+                      {productTypeLabels[product.productType]}
+                    </span>
+                    {product.isIslamic && (
+                      <span className={`inline-block rounded-full px-2 py-0.5 text-[11px] font-medium ${islamicBadgeClass}`}>
+                        Islamic
+                      </span>
+                    )}
                   </span>
                 </span>
               </label>
@@ -417,8 +440,15 @@ export function CompareClient({ products }: { products: SerializedProduct[] }) {
                     <div className="min-w-0">
                       <h3 className="font-display font-semibold leading-snug">{product.institutionName}</h3>
                       <p className="text-xs text-muted mt-0.5">{product.name}</p>
-                      <span className={`inline-block mt-1.5 rounded-full px-2 py-0.5 text-[11px] font-medium ${style.badge}`}>
-                        {institutionTypeLabels[product.institutionType]} · {productTypeLabels[product.productType]}
+                      <span className="mt-1.5 flex flex-wrap gap-1">
+                        <span className={`inline-block rounded-full px-2 py-0.5 text-[11px] font-medium ${style.badge}`}>
+                          {institutionTypeLabels[product.institutionType]} · {productTypeLabels[product.productType]}
+                        </span>
+                        {product.isIslamic && (
+                          <span className={`inline-block rounded-full px-2 py-0.5 text-[11px] font-medium ${islamicBadgeClass}`}>
+                            Islamic
+                          </span>
+                        )}
                       </span>
                     </div>
                   </div>

@@ -8,7 +8,7 @@ import { Crown, LineChart, ShieldCheck, Zap } from "lucide-react";
 import type { ProductType } from "@prisma/client";
 import { dpsGrowthFactor, lumpSumGrowthFactor, type Compounding } from "@/lib/calculations";
 import type { SerializedProduct } from "@/lib/serialize";
-import { isRecurringProduct } from "@/lib/labels";
+import { isRecurringProduct, type BankingMode } from "@/lib/labels";
 
 export interface GoalInput {
   targetAmount: number;
@@ -83,6 +83,7 @@ export interface GoalRecommendParams {
   targetAmount: number;
   tenureMonths: number;
   typeFilter: ProductType | "ALL";
+  bankingMode?: BankingMode;
 }
 
 function buildGoalRow(
@@ -126,9 +127,13 @@ export function buildGoalRecommendations(
   picks: GoalPicks;
   groups: GoalRecommendationGroup[];
 } {
-  const { targetAmount, tenureMonths, typeFilter } = params;
+  const { targetAmount, tenureMonths, typeFilter, bankingMode = "ALL" } = params;
 
-  const filtered = products.filter((p) => typeFilter === "ALL" || p.productType === typeFilter);
+  const filtered = products
+    .filter((p) => typeFilter === "ALL" || p.productType === typeFilter)
+    .filter((p) =>
+      bankingMode === "ALL" ? true : bankingMode === "ISLAMIC" ? p.isIslamic : !p.isIslamic
+    );
   const byRequiredDeposit = (a: GoalRow, b: GoalRow) =>
     (a.requiredDeposit ?? Infinity) - (b.requiredDeposit ?? Infinity);
 

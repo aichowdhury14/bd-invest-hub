@@ -2,7 +2,7 @@ import Link from "next/link";
 import { ArrowRight, ExternalLink, Sparkles } from "lucide-react";
 import { getActiveInstitutionsWithProducts, bestRateForProduct } from "@/lib/products";
 import { institutionTypeLabels, productTypeLabels } from "@/lib/labels";
-import { institutionTypeStyle } from "@/lib/institution-style";
+import { institutionTypeStyle, islamicBadgeClass } from "@/lib/institution-style";
 import { Container } from "@/components/Container";
 import { InstitutionLogo } from "@/components/InstitutionLogo";
 import { TrendingWidget } from "@/components/TrendingWidget";
@@ -152,8 +152,13 @@ export default async function HomePage() {
                           const best = bestRateForProduct(product.rateTiers);
                           return (
                             <li key={product.id} className="flex items-center justify-between text-sm gap-2">
-                              <span className="min-w-0 flex-1 truncate text-muted" title={product.name}>
-                                {product.name}
+                              <span className="min-w-0 flex-1 truncate text-muted flex items-center gap-1.5" title={product.name}>
+                                <span className="truncate">{product.name}</span>
+                                {product.isIslamic && (
+                                  <span className={`shrink-0 rounded-full px-1.5 py-0.5 text-[10px] font-medium ${islamicBadgeClass}`}>
+                                    Islamic
+                                  </span>
+                                )}
                               </span>
                               {best !== null ? (
                                 <span
