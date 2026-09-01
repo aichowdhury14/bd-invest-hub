@@ -893,3 +893,58 @@ Applied to local dev DB and verified end-to-end (typecheck, lint, test
 suite, production build, Playwright homepage check confirming each updated
 bank's card shows the new values) before promotion to production
 (Supabase).
+
+## Dhaka Bank / EBL / Jamuna / IFIC follow-up, plus Bangladesh Bank as a source (2026-09-01)
+
+User supplied four specific URLs to re-check, one of them a Bangladesh Bank
+regulator page not previously used as a source.
+
+- **Dhaka Bank Mudaraba DPS** (`https://dhakabank.com.bd/mudaraba-deposit-pension-scheme/`):
+  still only an 8.50%-10.00% range, no per-tenure table. The page does show a
+  maturity-value grid (2/3/4/5/6/7/8/10-year tenures, updated Mar 27, 2024).
+  Attempted the same back-solve-from-maturity-grid technique already trusted
+  elsewhere in this codebase (implied monthly-compounded annuity rate from
+  FV = P·[((1+r)^n−1)/r]). Unlike the earlier successful back-solve, the
+  implied rates here are non-monotonic and noisy (9.44%, 9.16%, 9.03%, 9.90%,
+  9.37%, 8.86%, 8.59%, 8.32% across 2/3/4/5/6/7/8/10yr) — they don't trend
+  smoothly with tenure, meaning the grid isn't a simple flat-rate-per-tenure
+  annuity. Forcing a computed number in would fabricate precision the source
+  doesn't support, so left as a shell.
+- **EBL** (`https://ebl.com.bd/islamic/profit-distribution`): previously
+  403-blocked, now live and publishing a full "Weightage and Provisional
+  Rate of Return" table (genuine percentages, effective May 03, 2026) —
+  supersedes the earlier 35:65-ratio-only finding entirely. Retail FDR:
+  1/3/6/12/24/36mo = 3.00/8.00/8.25/8.50/8.00/8.00%. DPS: found "EBL Islamic
+  DPS Account - Confidence" (a genuine recurring deposit, distinct from the
+  lump-sum "Mudarabah Monthly Profit Scheme" — same distinction as the City
+  Bank DPS fix) at 1/3/5yr=10.00%, 8/10/12/15yr=9.50%.
+- **Jamuna Bank** (`https://jamunabankbd.com/islamic/#Products` and
+  `/interest-rates/`): still only lists product names, zero rate figures
+  anywhere on the bank's own site (third confirmation). Bangladesh Bank's
+  official regulator page (see below) filled this gap instead.
+- **IFIC Mudaraba/Hajj DPS**: re-read the same PDF used for IFIC's FDR
+  entries. "Mudaraba Hajj DPS" publishes a genuine flat 9.00% p.a. — the
+  only recurring-deposit-shaped Islamic product IFIC gives a number for
+  ("Mudaraba Mashik Munafa Scheme" is a lump-sum monthly-payout product,
+  not a recurring deposit). Entered as the DPS shell's rate, noting it's
+  purpose-labeled for Hajj.
+- **Bangladesh Bank** (`https://www.bb.org.bd/en/index.php/financialactivity/intdepo_bankislamic`):
+  a genuinely new, authoritative source — the regulator's own "Interest
+  Rate of Scheduled Banks - Islamic Banking Window" table, aggregating
+  every bank's Savings/SND/Fixed-Deposit rates monthly. Unlike every other
+  source used in this project, most of its figures are RANGES per tenure
+  band (e.g. Jamuna's FDR 3-6mo band: "7.25-9.90%"), not single advertised
+  rates — likely aggregating across products/amount-tiers per bank. Used
+  the upper bound as the "best/up to" rate (consistent with how this app
+  already frames every other rate), entered only for Jamuna (the one bank
+  in this batch with zero data on its own site): 3mo=9.90%, 6mo=9.60%,
+  12mo=9.40% (2-3yr and 3yr+ bands are blank in BB's table for Jamuna, so
+  no entry for those tenures). This source is available for every other
+  Islamic-window bank in the system too and could be used to cross-check
+  or fill further gaps in a future pass — worth remembering as a fallback
+  when a bank's own site has nothing.
+
+Applied to local dev DB, verified (typecheck, lint, test suite, production
+build all passed; Playwright homepage check confirmed EBL/Jamuna/IFIC cards
+show the new values with zero console errors) before promotion to
+production.

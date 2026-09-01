@@ -716,11 +716,63 @@ const entries: RateEntry[] = [
   { institutionName: "United Commercial Bank", productType: "DPS", productNameHint: "UCB Taqwa Mudaraba DPS", tenureMonths: 84, minAmount: 0, interestRatePct: 8.06, sourceUrl: "https://www.ucb.com.bd/reports/interest-rates/ucb-islamic-rate-sheet-july-2026.pdf" },
   { institutionName: "United Commercial Bank", productType: "DPS", productNameHint: "UCB Taqwa Mudaraba DPS", tenureMonths: 120, minAmount: 0, interestRatePct: 8.06, sourceUrl: "https://www.ucb.com.bd/reports/interest-rates/ucb-islamic-rate-sheet-july-2026.pdf" },
 
-  // --- Southeast Bank, Sonali Bank, Rupali Bank, Eastern Bank (EBL),
-  // Jamuna Bank, NCC Bank, Pubali Bank ---
-  // No Islamic FDR/DPS rate entries. Each confirmed during 2026-08-31
-  // research to have no clearly published, tenure-itemized provisional
-  // profit rate for their Islamic banking window:
+  // --- Eastern Bank (EBL) Islamic --- found 2026-09-01: EBL's profit-
+  // distribution page (previously 403-blocked, now live) now publishes a
+  // full "Weightage and Provisional Rate of Return" table with genuine
+  // percentages, effective from May 03, 2026 -- superseding the earlier
+  // bank-wide-35:65-ratio-only finding entirely. Retail tier used, matching
+  // the base-tier convention used for other banks. DPS uses "EBL Islamic
+  // DPS Account - Confidence", a genuine recurring-deposit product (not the
+  // separate "Mudarabah Monthly Profit Scheme," which is a lump-sum
+  // monthly-payout product -- same distinction as the City Bank DPS fix).
+  { institutionName: "Eastern Bank", productType: "FDR", productNameHint: "EBL Islamic Banking Mudaraba FDR", tenureMonths: 1, minAmount: 0, interestRatePct: 3.0, sourceUrl: "https://ebl.com.bd/islamic/profit-distribution" },
+  { institutionName: "Eastern Bank", productType: "FDR", productNameHint: "EBL Islamic Banking Mudaraba FDR", tenureMonths: 3, minAmount: 0, interestRatePct: 8.0, sourceUrl: "https://ebl.com.bd/islamic/profit-distribution" },
+  { institutionName: "Eastern Bank", productType: "FDR", productNameHint: "EBL Islamic Banking Mudaraba FDR", tenureMonths: 6, minAmount: 0, interestRatePct: 8.25, sourceUrl: "https://ebl.com.bd/islamic/profit-distribution" },
+  { institutionName: "Eastern Bank", productType: "FDR", productNameHint: "EBL Islamic Banking Mudaraba FDR", tenureMonths: 12, minAmount: 0, interestRatePct: 8.5, sourceUrl: "https://ebl.com.bd/islamic/profit-distribution" },
+  { institutionName: "Eastern Bank", productType: "FDR", productNameHint: "EBL Islamic Banking Mudaraba FDR", tenureMonths: 24, minAmount: 0, interestRatePct: 8.0, sourceUrl: "https://ebl.com.bd/islamic/profit-distribution" },
+  { institutionName: "Eastern Bank", productType: "FDR", productNameHint: "EBL Islamic Banking Mudaraba FDR", tenureMonths: 36, minAmount: 0, interestRatePct: 8.0, sourceUrl: "https://ebl.com.bd/islamic/profit-distribution" },
+  { institutionName: "Eastern Bank", productType: "DPS", productNameHint: "EBL Islamic Banking Mudaraba DPS", tenureMonths: 12, minAmount: 0, interestRatePct: 10.0, sourceUrl: "https://ebl.com.bd/islamic/profit-distribution" },
+  { institutionName: "Eastern Bank", productType: "DPS", productNameHint: "EBL Islamic Banking Mudaraba DPS", tenureMonths: 36, minAmount: 0, interestRatePct: 10.0, sourceUrl: "https://ebl.com.bd/islamic/profit-distribution" },
+  { institutionName: "Eastern Bank", productType: "DPS", productNameHint: "EBL Islamic Banking Mudaraba DPS", tenureMonths: 60, minAmount: 0, interestRatePct: 10.0, sourceUrl: "https://ebl.com.bd/islamic/profit-distribution" },
+  { institutionName: "Eastern Bank", productType: "DPS", productNameHint: "EBL Islamic Banking Mudaraba DPS", tenureMonths: 96, minAmount: 0, interestRatePct: 9.5, sourceUrl: "https://ebl.com.bd/islamic/profit-distribution" },
+  { institutionName: "Eastern Bank", productType: "DPS", productNameHint: "EBL Islamic Banking Mudaraba DPS", tenureMonths: 120, minAmount: 0, interestRatePct: 9.5, sourceUrl: "https://ebl.com.bd/islamic/profit-distribution" },
+  { institutionName: "Eastern Bank", productType: "DPS", productNameHint: "EBL Islamic Banking Mudaraba DPS", tenureMonths: 144, minAmount: 0, interestRatePct: 9.5, sourceUrl: "https://ebl.com.bd/islamic/profit-distribution" },
+  { institutionName: "Eastern Bank", productType: "DPS", productNameHint: "EBL Islamic Banking Mudaraba DPS", tenureMonths: 180, minAmount: 0, interestRatePct: 9.5, sourceUrl: "https://ebl.com.bd/islamic/profit-distribution" },
+
+  // --- Jamuna Bank Islamic --- Jamuna's own site (both /islamic/ and
+  // /interest-rates/) still publishes product names only, no rate figures
+  // anywhere (re-confirmed 2026-09-01). But Bangladesh Bank's official
+  // regulator page (the actual government authority these banks report
+  // to) publishes an aggregate "Interest Rate of Scheduled Banks - Islamic
+  // Banking Window" table covering every bank including Jamuna, for
+  // August 2026. Its Fixed Deposit columns are RANGES per tenure band
+  // (e.g. "7.25-9.90%" for 3-6mo) rather than one number -- using the
+  // upper bound as the advertised "best/up to" rate, consistent with how
+  // this app already frames every other rate. Tenure bands mapped to their
+  // starting month (3-6mo band -> 3mo, 6mo-1yr band -> 6mo, 1-2yr band ->
+  // 12mo); Jamuna's 2-3yr and 3yr+ bands are blank in BB's table, so no
+  // entry for those tenures. No DPS entry: BB's table only covers Fixed
+  // Deposit, Savings, and SND -- not a recurring DPS product.
+  { institutionName: "Jamuna Bank", productType: "FDR", productNameHint: "Jamuna Islami Banking Mudaraba FDR", tenureMonths: 3, minAmount: 0, interestRatePct: 9.90, sourceUrl: "https://www.bb.org.bd/en/index.php/financialactivity/intdepo_bankislamic" },
+  { institutionName: "Jamuna Bank", productType: "FDR", productNameHint: "Jamuna Islami Banking Mudaraba FDR", tenureMonths: 6, minAmount: 0, interestRatePct: 9.60, sourceUrl: "https://www.bb.org.bd/en/index.php/financialactivity/intdepo_bankislamic" },
+  { institutionName: "Jamuna Bank", productType: "FDR", productNameHint: "Jamuna Islami Banking Mudaraba FDR", tenureMonths: 12, minAmount: 0, interestRatePct: 9.40, sourceUrl: "https://www.bb.org.bd/en/index.php/financialactivity/intdepo_bankislamic" },
+
+  // --- IFIC Bank Islamic DPS --- found 2026-09-01, re-reading the same
+  // PDF used for IFIC's FDR entries above: "Mudaraba Hajj DPS" publishes a
+  // genuine flat 9.00% p.a. rate. It's the only recurring-deposit-shaped
+  // Islamic product IFIC gives a number for (Mudaraba Aamar Bhobishawt is
+  // a different, unconfirmed product type; Mudaraba Mashik Munafa Scheme
+  // is a lump-sum monthly-payout product, not a recurring deposit -- same
+  // distinction as EBL/City Bank's DPS fixes). Purpose-labeled for Hajj,
+  // but it's real, sourced, and the only DPS-shaped number this bank
+  // publishes, so entered as the DPS shell's rate with a note in case the
+  // Hajj-specific framing matters for display later.
+  { institutionName: "IFIC Bank", productType: "DPS", productNameHint: "IFIC Islamic Mudaraba DPS", tenureMonths: 12, minAmount: 0, interestRatePct: 9.0, sourceUrl: "https://ificbank.com.bd/public/islamic/Latest-Deposit-Rate-Islamic-16-08-2026.pdf" },
+
+  // --- Southeast Bank, Sonali Bank, Rupali Bank, NCC Bank, Pubali Bank ---
+  // No Islamic FDR/DPS rate entries. Each confirmed during 2026-08-31/
+  // 2026-09-01 research to have no clearly published, tenure-itemized
+  // provisional profit rate for their Islamic banking window:
   //   - Southeast Bank: product pages (MTDR/MMSS) publish no rate table at
   //     all ("contact nearest branch"); the bank's full deposit-rate PDF
   //     only shows a dual-branded "Esteem Mudaraba" scheme, not the
@@ -731,17 +783,23 @@ const entries: RateEntry[] = [
   //   - Sonali Bank: no percentage rate published (see ratioEntries below --
   //     its real, sourced profit-SHARING RATIO is entered as a
   //     ProfitSharingRatio, never as a fabricated interestRatePct).
-  //   - Eastern Bank (EBL): product pages exist and 35:65 profit-sharing
-  //     ratio is published, but no advertised percentage rate, and the
-  //     35:65 figure has no tenure breakdown (re-confirmed 2026-09-01 --
-  //     T&C PDF that might contain a tenure table is 403-blocked to
-  //     automated fetch) -- a single bank-wide PSR with no tenure mapping
-  //     isn't enough to populate a tenure-keyed ratio row honestly.
-  //   - Jamuna Bank, NCC Bank, Pubali Bank: Islamic banking pages list
-  //     product names only (Pubali's site additionally Cloudflare-blocks all
-  //     automated access, confirmed again 2026-09-01), no rate figures
-  //     published anywhere found. United Commercial Bank moved to a real
-  //     FDR/DPS rate entry above (2026-09-01) -- no longer a shell.
+  //   - NCC Bank, Pubali Bank: Islamic banking pages list product names
+  //     only (Pubali's site additionally Cloudflare-blocks all automated
+  //     access, confirmed again 2026-09-01), no rate figures published
+  //     anywhere found. Eastern Bank (EBL), Jamuna Bank, and United
+  //     Commercial Bank all moved to real rate entries above -- no longer
+  //     shells.
+  //   - Dhaka Bank's Mudaraba DPS product (separate from the FDR entries
+  //     above): the bank publishes only an 8.50%-10.00% range, no per-
+  //     tenure table, but does show a maturity-value grid across
+  //     2/3/4/5/6/7/8/10-year tenures. Attempted the same back-solve-from-
+  //     maturity-grid technique successfully used elsewhere in this file,
+  //     but the implied rates came out non-monotonic and noisy (9.44%,
+  //     9.16%, 9.03%, 9.90%, 9.37%, 8.86%, 8.59%, 8.32% -- jumping up and
+  //     down rather than trending with tenure), unlike the earlier clean
+  //     back-solve. That inconsistency means the grid isn't a simple flat-
+  //     rate-per-tenure annuity, so forcing a computed number in would
+  //     fabricate precision the source doesn't support -- left as a shell.
 ];
 
 const ratioEntries: RatioEntry[] = [
