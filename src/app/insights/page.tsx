@@ -2,15 +2,10 @@ import Link from "next/link";
 import { BrainCircuit, Crown, LayoutGrid, Lightbulb, TrendingUp, Trophy } from "lucide-react";
 import { Container } from "@/components/Container";
 import {
-  buildMarketInsights,
-  getCategoryStats,
-  getFDRHeatmap,
   getGovernmentInstrumentRates,
-  getInflationBeatStat,
+  getInsightsData,
   getInstitutionComposition,
-  getTopRates,
   getTrendStatus,
-  getYieldCurve,
 } from "@/lib/insights";
 import { bankingModeLabels, institutionTypeLabels, type BankingMode } from "@/lib/labels";
 import { institutionTypeStyle } from "@/lib/institution-style";
@@ -45,32 +40,14 @@ export default async function InsightsPage({
 }) {
   const bankingMode = parseBankingMode((await searchParams).mode);
 
-  const [
-    fdrCurve,
-    dpsCurve,
-    fdrStats,
-    dpsStats,
-    topRates,
-    trendStatus,
-    composition,
-    govtRates,
-    heatmap,
-    inflationStat,
-  ] = await Promise.all([
-    getYieldCurve("FDR", bankingMode),
-    getYieldCurve("DPS", bankingMode),
-    getCategoryStats("FDR", bankingMode),
-    getCategoryStats("DPS", bankingMode),
-    getTopRates(10, bankingMode),
+  const [insights, trendStatus, composition, govtRates] = await Promise.all([
+    getInsightsData(bankingMode),
     getTrendStatus(),
     getInstitutionComposition(),
     getGovernmentInstrumentRates(bankingMode),
-    getFDRHeatmap(14, bankingMode),
-    getInflationBeatStat(bankingMode),
   ]);
-  // Derived from data already fetched above — no extra DB round-trips.
+  const { fdrCurve, dpsCurve, fdrStats, dpsStats, topRates, heatmap, marketInsights } = insights;
   const topRate = topRates[0] ?? null;
-  const marketInsights = buildMarketInsights({ fdrCurve, fdrStats, dpsStats, inflationStat });
 
   return (
     <div>

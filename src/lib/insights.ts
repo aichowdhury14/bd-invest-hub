@@ -23,18 +23,42 @@ export interface YieldCurvePoint {
 }
 
 /**
- * For a given product type (FDR or DPS), the best rate offered at each tenure,
- * grouped by institution type — a "yield curve" per category. Only tenures with
- * at least one real rate tier appear; missing cells stay null (never interpolated).
+ * A single active rate tier plus just enough of its product/institution
+ * context to power every chart on the Insights page. Fetched once per
+ * banking-mode selection (see `getInsightsRateTiers`) and reused by every
+ * `build*`/`get*` function below instead of each one re-querying the same
+ * rows — see that function's comment for why this matters.
  */
-export async function getYieldCurve(
-  productType: "FDR" | "DPS",
-  bankingMode: BankingMode = "ALL"
-): Promise<YieldCurvePoint[]> {
+interface InsightsRateTier {
+  tenureMonths: number;
+  interestRatePct: number;
+  productType: ProductType;
+  productName: string;
+  institutionName: string;
+  institutionType: InstitutionType;
+}
+
+/**
+ * Every active rate tier for active, non-government products matching the
+ * given banking mode — the one query the whole Insights page is built from.
+ *
+ * Previously each chart/stat had its own `prisma.rateTier.findMany` (or
+ * `rateProduct.findMany` with a `rateTiers` include covering the same rows),
+ * so loading the page fired 7 near-identical queries in one `Promise.all`.
+ * Against Supabase's pooled connection (connection_limit: 3), most of those
+ * queued behind each other instead of running concurrently — the exact
+ * mechanism that once timed out `next build`'s static generation (see the
+ * comment on `buildMarketInsights`) and, worse for users, made every
+ * Conventional/Islamic toggle click feel like a hang: the whole page is a
+ * dynamic route once `searchParams.mode` is read, so there's no cache to
+ * fall back on and every click re-pays the full queueing cost. Fetching
+ * every tier once and deriving all charts from it in JS turns 7 round-trips
+ * into 1, independent of pool size.
+ */
+async function getInsightsRateTiers(bankingMode: BankingMode = "ALL"): Promise<InsightsRateTier[]> {
   const tiers = await prisma.rateTier.findMany({
     where: {
       product: {
-        productType,
         isActive: true,
         isIslamic: isIslamicFilter(bankingMode),
         institution: { isActive: true },
@@ -43,20 +67,42 @@ export async function getYieldCurve(
     select: {
       tenureMonths: true,
       interestRatePct: true,
-      product: { select: { institution: { select: { type: true } } } },
+      product: {
+        select: {
+          productType: true,
+          name: true,
+          institution: { select: { name: true, type: true } },
+        },
+      },
     },
   });
 
+  return tiers.map((tier) => ({
+    tenureMonths: tier.tenureMonths,
+    interestRatePct: Number(tier.interestRatePct),
+    productType: tier.product.productType,
+    productName: tier.product.name,
+    institutionName: tier.product.institution.name,
+    institutionType: tier.product.institution.type,
+  }));
+}
+
+/**
+ * For a given product type (FDR or DPS), the best rate offered at each tenure,
+ * grouped by institution type — a "yield curve" per category. Only tenures with
+ * at least one real rate tier appear; missing cells stay null (never interpolated).
+ */
+function buildYieldCurve(tiers: InsightsRateTier[], productType: "FDR" | "DPS"): YieldCurvePoint[] {
   const byTenure = new Map<number, Record<InstitutionType, number | null>>();
   for (const tier of tiers) {
+    if (tier.productType !== productType) continue;
     const tenure = tier.tenureMonths;
-    const type = tier.product.institution.type;
-    const rate = Number(tier.interestRatePct);
+    const type = tier.institutionType;
     if (!byTenure.has(tenure)) {
       byTenure.set(tenure, { BANK: null, GOVERNMENT: null, INVESTMENT_ORG: null, DIGITAL_BANK: null });
     }
     const row = byTenure.get(tenure)!;
-    row[type] = row[type] === null ? rate : Math.max(row[type]!, rate);
+    row[type] = row[type] === null ? tier.interestRatePct : Math.max(row[type]!, tier.interestRatePct);
   }
 
   return Array.from(byTenure.entries())
@@ -72,30 +118,23 @@ export interface CategoryStat {
 }
 
 /** Best-rate summary per institution type, for a product type — powers the bar chart. */
-export async function getCategoryStats(
-  productType: "FDR" | "DPS",
-  bankingMode: BankingMode = "ALL"
-): Promise<CategoryStat[]> {
-  const products = await prisma.rateProduct.findMany({
-    where: {
-      productType,
-      isActive: true,
-      isIslamic: isIslamicFilter(bankingMode),
-      institution: { isActive: true },
-    },
-    select: {
-      institution: { select: { type: true } },
-      rateTiers: { select: { interestRatePct: true } },
-    },
-  });
+function buildCategoryStats(tiers: InsightsRateTier[], productType: "FDR" | "DPS"): CategoryStat[] {
+  // Best rate per (institution, product) pair — mirrors the old per-product
+  // grouping (a product with no tiers simply contributes nothing here).
+  const bestByProduct = new Map<string, { type: InstitutionType; best: number }>();
+  for (const tier of tiers) {
+    if (tier.productType !== productType) continue;
+    const key = `${tier.institutionName}::${tier.productName}`;
+    const existing = bestByProduct.get(key);
+    if (!existing || tier.interestRatePct > existing.best) {
+      bestByProduct.set(key, { type: tier.institutionType, best: tier.interestRatePct });
+    }
+  }
 
   const byType = new Map<InstitutionType, number[]>();
   for (const type of TYPES) byType.set(type, []);
-
-  for (const product of products) {
-    if (product.rateTiers.length === 0) continue;
-    const best = Math.max(...product.rateTiers.map((t) => Number(t.interestRatePct)));
-    byType.get(product.institution.type)?.push(best);
+  for (const { type, best } of bestByProduct.values()) {
+    byType.get(type)?.push(best);
   }
 
   return TYPES.map((type) => {
@@ -122,40 +161,23 @@ export interface TopRate {
  * The N highest rates currently tracked, one entry per institution — a "best
  * deals" leaderboard. Deduplicated by institution (rather than raw rate tiers)
  * so one institution's several amount-tiered rows on the same product don't
- * crowd out everyone else.
+ * crowd out everyone else. Government instruments are included, same as before.
  */
-export async function getTopRates(limit = 10, bankingMode: BankingMode = "ALL"): Promise<TopRate[]> {
-  const tiers = await prisma.rateTier.findMany({
-    where: {
-      product: {
-        isActive: true,
-        isIslamic: isIslamicFilter(bankingMode),
-        institution: { isActive: true },
-      },
-    },
-    orderBy: { interestRatePct: "desc" },
-    select: {
-      tenureMonths: true,
-      interestRatePct: true,
-      product: {
-        select: { name: true, productType: true, institution: { select: { name: true, type: true } } },
-      },
-    },
-  });
+function buildTopRates(tiers: InsightsRateTier[], limit = 10): TopRate[] {
+  const sorted = [...tiers].sort((a, b) => b.interestRatePct - a.interestRatePct);
 
   const seen = new Set<string>();
   const result: TopRate[] = [];
-  for (const tier of tiers) {
-    const institutionName = tier.product.institution.name;
-    if (seen.has(institutionName)) continue;
-    seen.add(institutionName);
+  for (const tier of sorted) {
+    if (seen.has(tier.institutionName)) continue;
+    seen.add(tier.institutionName);
     result.push({
-      institutionName,
-      institutionType: tier.product.institution.type,
-      productName: tier.product.name,
-      productType: tier.product.productType,
+      institutionName: tier.institutionName,
+      institutionType: tier.institutionType,
+      productName: tier.productName,
+      productType: tier.productType,
       tenureMonths: tier.tenureMonths,
-      interestRatePct: Number(tier.interestRatePct),
+      interestRatePct: tier.interestRatePct,
     });
     if (result.length >= limit) break;
   }
@@ -251,26 +273,13 @@ const HEATMAP_PINNED_INSTITUTIONS = ["BRAC Bank", "The City Bank"];
  * be mostly-empty and unreadable. A small set of well-known banks is pinned in
  * (see HEATMAP_PINNED_INSTITUTIONS) even if their rate falls outside topN.
  */
-export async function getFDRHeatmap(topN = 14, bankingMode: BankingMode = "ALL"): Promise<RateHeatmapData> {
-  const products = await prisma.rateProduct.findMany({
-    where: {
-      productType: "FDR",
-      isActive: true,
-      isIslamic: isIslamicFilter(bankingMode),
-      institution: { isActive: true },
-    },
-    select: {
-      institution: { select: { name: true, type: true } },
-      rateTiers: { select: { tenureMonths: true, interestRatePct: true } },
-    },
-  });
+function buildFDRHeatmap(tiers: InsightsRateTier[], topN = 14): RateHeatmapData {
+  const fdrTiers = tiers.filter((t) => t.productType === "FDR");
 
   // Common tenures = the ones offered by the most institutions.
   const tenureFrequency = new Map<number, number>();
-  for (const product of products) {
-    for (const tier of product.rateTiers) {
-      tenureFrequency.set(tier.tenureMonths, (tenureFrequency.get(tier.tenureMonths) ?? 0) + 1);
-    }
+  for (const tier of fdrTiers) {
+    tenureFrequency.set(tier.tenureMonths, (tenureFrequency.get(tier.tenureMonths) ?? 0) + 1);
   }
   const tenures = Array.from(tenureFrequency.entries())
     .sort(([, a], [, b]) => b - a)
@@ -279,23 +288,22 @@ export async function getFDRHeatmap(topN = 14, bankingMode: BankingMode = "ALL")
     .sort((a, b) => a - b);
   const tenureSet = new Set(tenures);
 
-  const allInstitutions = products
-    .map((product) => {
-      const rates: Record<number, number> = {};
-      for (const tier of product.rateTiers) {
-        if (!tenureSet.has(tier.tenureMonths)) continue;
-        const rate = Number(tier.interestRatePct);
-        rates[tier.tenureMonths] = rates[tier.tenureMonths]
-          ? Math.max(rates[tier.tenureMonths], rate)
-          : rate;
-      }
+  const byInstitution = new Map<string, { type: InstitutionType; rates: Record<number, number> }>();
+  for (const tier of fdrTiers) {
+    if (!tenureSet.has(tier.tenureMonths)) continue;
+    if (!byInstitution.has(tier.institutionName)) {
+      byInstitution.set(tier.institutionName, { type: tier.institutionType, rates: {} });
+    }
+    const entry = byInstitution.get(tier.institutionName)!;
+    entry.rates[tier.tenureMonths] = entry.rates[tier.tenureMonths]
+      ? Math.max(entry.rates[tier.tenureMonths], tier.interestRatePct)
+      : tier.interestRatePct;
+  }
+
+  const allInstitutions = Array.from(byInstitution.entries())
+    .map(([name, { type, rates }]) => {
       const best = Object.values(rates);
-      return {
-        name: product.institution.name,
-        type: product.institution.type,
-        rates,
-        bestRate: best.length > 0 ? Math.max(...best) : -1,
-      };
+      return { name, type, rates, bestRate: best.length > 0 ? Math.max(...best) : -1 };
     })
     .filter((p) => p.bestRate >= 0)
     .sort((a, b) => b.bestRate - a.bestRate);
@@ -348,18 +356,8 @@ export interface InflationBeatStat {
 }
 
 /** How many currently tracked rate tiers clear the latest published inflation figure. */
-export async function getInflationBeatStat(bankingMode: BankingMode = "ALL"): Promise<InflationBeatStat> {
-  const tiers = await prisma.rateTier.findMany({
-    where: {
-      product: {
-        isActive: true,
-        isIslamic: isIslamicFilter(bankingMode),
-        institution: { isActive: true },
-      },
-    },
-    select: { interestRatePct: true },
-  });
-  const rates = tiers.map((t) => Number(t.interestRatePct));
+function buildInflationBeatStat(tiers: InsightsRateTier[]): InflationBeatStat {
+  const rates = tiers.map((t) => t.interestRatePct);
   const beating = rates.filter((r) => r > CURRENT_INFLATION.ratePct);
   return {
     beatingCount: beating.length,
@@ -460,4 +458,37 @@ export function buildMarketInsights(data: {
   }
 
   return insights;
+}
+
+export interface InsightsData {
+  fdrCurve: YieldCurvePoint[];
+  dpsCurve: YieldCurvePoint[];
+  fdrStats: CategoryStat[];
+  dpsStats: CategoryStat[];
+  topRates: TopRate[];
+  heatmap: RateHeatmapData;
+  inflationStat: InflationBeatStat;
+  marketInsights: MarketInsight[];
+}
+
+/**
+ * Everything the Insights page needs for a given banking-mode selection, from
+ * a single database round-trip (see `getInsightsRateTiers`). This is the one
+ * function `src/app/insights/page.tsx` should call for its mode-dependent
+ * data — do not reintroduce separate `get*` calls per chart, that's the
+ * queueing/hang problem this refactor fixes.
+ */
+export async function getInsightsData(bankingMode: BankingMode = "ALL"): Promise<InsightsData> {
+  const tiers = await getInsightsRateTiers(bankingMode);
+
+  const fdrCurve = buildYieldCurve(tiers, "FDR");
+  const dpsCurve = buildYieldCurve(tiers, "DPS");
+  const fdrStats = buildCategoryStats(tiers, "FDR");
+  const dpsStats = buildCategoryStats(tiers, "DPS");
+  const topRates = buildTopRates(tiers, 10);
+  const heatmap = buildFDRHeatmap(tiers, 14);
+  const inflationStat = buildInflationBeatStat(tiers);
+  const marketInsights = buildMarketInsights({ fdrCurve, fdrStats, dpsStats, inflationStat });
+
+  return { fdrCurve, dpsCurve, fdrStats, dpsStats, topRates, heatmap, inflationStat, marketInsights };
 }
