@@ -824,3 +824,72 @@ Real data entered via `scripts/import-real-rates.ts`'s new `ratioEntries`
 array (5 rows for Sonali's MTDR) and applied to both local and production
 (Supabase) databases; production values spot-checked post-import against the
 source PDF and matched exactly.
+
+## Full Islamic banking re-check, all 17 banks (2026-09-01)
+
+Re-verified every Islamic FDR/DPS product in the system (10 with existing
+real rates, 1 with ratio data, 6 empty shells at the time) directly against
+each bank's live source, using parallel research passes followed by direct
+curl/PDF verification of every finding before writing anything (never
+trusting agent summaries alone for numbers going into the database).
+
+**Confirmed unchanged, no action:** Agrani Bank (FDR+DPS), Bank Asia (FDR;
+DPS numerically unchanged — see naming note below), Dhaka Bank FDR, IFIC
+Bank, Islami Bank Bangladesh (both products — confirmed still the latest
+dated PDF via the bank's own rate-history page), Mutual Trust Bank (both
+products — branding on the bank's site has quietly moved from "MTB Yaqeen"
+to "MTB Islamic Term Deposit" / "Brick by Brick / Flexible / Angona Scheme,"
+numbers unchanged), Trust Bank FDR, Southeast Bank (still no MTDR/MMSS rate
+table anywhere, only the unrelated dual-branded "Esteem Mudaraba" 9.00%
+scheme), Jamuna Bank, NCC Bank, Pubali Bank (still Cloudflare-blocked),
+Rupali Bank (page now loads but genuinely has no rate table), Eastern Bank
+(EBL, still only the bank-wide 35:65 PSR with no tenure breakdown).
+
+**Real changes applied:**
+- **Trust Bank DPS (Mudaraba Monthly Savings Scheme)**: rate dropped from
+  8.00% to a flat **6.00% p.a.** across all tenures — confirmed verbatim on
+  the live page ("Present Provisional Profit rate for MMSS is 6.00% p.a.").
+- **United Commercial Bank (UCB Taqwa)**: no longer a shell. UCB's
+  `income-sharing-ratio-and-deposit` page still explains only the ISR
+  methodology, but a separate, actively-updated monthly PDF
+  (`ucb-islamic-rate-sheet-july-2026.pdf`, found via UCB's general rates
+  listing page) publishes both the ISR% and a computed Profit Rate% — a real
+  percentage, verified directly by downloading and reading the PDF (2 pages,
+  genuine `application/pdf`). Entered FDR (1/3/6/12/24/36mo, 3.79–8.06%) and
+  DPS (3/5/7/10yr, 7.59–8.06%) from the July-2026 "General Product (Retail)"
+  column. Filename is dated and rolls monthly — if it 404s on a future
+  check, re-resolve via `https://www.ucb.com.bd/rates/interest-rates/`
+  rather than concluding no data exists again.
+- **Prime Bank Islamic FDR**: no longer a shell. The old "Mudaraba Term
+  Deposit" is now listed as discontinued (fresh booking disallowed) in the
+  bank's Aug-31-2026 provisional-rate PDF, but the exact same rate table
+  carried over verbatim to its live replacement, "Prime Hasanah Term
+  Deposit" — a rebrand, not a rate change. Entered 1/3/4/6/7/12/13/14/24/36mo
+  (2.00–7.00%, "Any Amount" tier) from the same PDF. DPS
+  (Prime Hasanah Edu DPS, 9.25% flat) reconfirmed unchanged.
+- **City Bank Islamic DPS — product-mapping fix**: the previously-stored
+  7.73%/6mo was pulled from "Islamic Monthly Benefit Scheme," a lump-sum,
+  monthly-payout product — not a recurring deposit. Re-extracted the live
+  page's full table directly (not via summarization) and found the actual
+  DPS analog, "Islamic Monthly Deposit Scheme," publishes a flat **7.64%**
+  across all its stated tenures (1–10 years). Also expanded City Bank's FDR
+  ("Islamic Term Deposit Receipt") from a single 12mo snapshot to its full
+  published tenure ladder (1/3/6/12/15/24/36mo, 1.53–6.96%, "Individual,
+  Upto 1 crore" tier — the bank publishes several amount tiers per tenure;
+  this tier was chosen for consistency with how other banks' base tier was
+  captured).
+
+**Noted but not changed:** Agrani's stored DPS tenure/rate pairing
+(60mo=7.5%, 120mo=8%) matches the bank's "Mudaraba Special Savings
+Scheme-MSS (Monthly Deposit)" product, not "Mudaraba Monthly Profit Deposit
+Scheme" as the generic label might suggest — confirmed correct, no rate
+change needed. Bank Asia's DPS (Mudaraba Deposit Pension Scheme) is
+genuinely a flat 6.45% across its whole 3–12yr range, not two independently-
+published tenure points — the stored 36mo/144mo values are numerically
+correct but the two-row shape slightly overstates precision the source
+doesn't have; left as-is since it doesn't misrepresent the actual number.
+
+Applied to local dev DB and verified end-to-end (typecheck, lint, test
+suite, production build, Playwright homepage check confirming each updated
+bank's card shows the new values) before promotion to production
+(Supabase).
