@@ -32,7 +32,7 @@
 //     cross-bank comparison meaningful. Others can be added later as
 //     additional named products via the admin panel.
 
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient, Prisma } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
@@ -816,110 +816,165 @@ const ratioEntries: RatioEntry[] = [
   { institutionName: "Sonali Bank", productType: "FDR", productNameHint: "Mudaraba FDR", tenureMonths: 36, customerRatio: 70, bankRatio: 30, sourceUrl: "https://www.sonalibank.com.bd/PDF_file/islami_banking/islami_banking_overview.pdf" },
 ];
 
-async function main() {
-  const touchedProductIds = new Set<string>();
-  let created = 0;
+/** Shared shape RateEntry and RatioEntry both satisfy (as literal unions, not widened to string). */
+type ResolvableEntry = Pick<RateEntry, "institutionName" | "productType" | "productNameHint">;
+
+/**
+ * Resolves an entry's institution/product, given the name + productType +
+ * optional productNameHint every entry shape (RateEntry, RatioEntry) shares.
+ * Read-only — safe to run outside a transaction. Generic over the entry type
+ * so callers keep RateEntry/RatioEntry's literal-union `productType` typing
+ * instead of widening it to a plain `string` (which would let a typo'd or
+ * stale productType value type-check here and only fail at runtime).
+ */
+async function resolveProduct<T extends ResolvableEntry>(
+  entry: T
+): Promise<{ productId: string } | { error: "no-institution" | "no-product" }> {
+  // orderBy: createdAt makes an ambiguous match (e.g. two FDR products at
+  // one institution with a productNameHint too broad to disambiguate)
+  // deterministic across runs instead of whatever order Postgres happens to
+  // return rows in -- doesn't prevent a genuinely ambiguous entry from
+  // resolving to the wrong product, but does mean re-running the script
+  // never silently flips which one it picks.
+  const institution = await prisma.institution.findFirst({
+    where: { name: entry.institutionName },
+    orderBy: { createdAt: "asc" },
+  });
+  if (!institution) return { error: "no-institution" };
+
+  const product = await prisma.rateProduct.findFirst({
+    where: {
+      institutionId: institution.id,
+      productType: entry.productType,
+      ...(entry.productNameHint ? { name: { contains: entry.productNameHint } } : {}),
+    },
+    orderBy: { createdAt: "asc" },
+  });
+  if (!product) return { error: "no-product" };
+
+  return { productId: product.id };
+}
+
+/**
+ * Resolves every entry to its productId (read-only), grouped by product so
+ * each product's replacement can run as one atomic transaction — see
+ * `importByProduct`'s comment for why this matters. Shared by both the
+ * RateEntry and RatioEntry passes so the resolve/group logic (and any future
+ * fix to it) exists in exactly one place.
+ */
+async function groupByProduct<T extends ResolvableEntry>(
+  entries: T[],
+  label: string
+): Promise<Map<string, T[]>> {
+  const byProduct = new Map<string, T[]>();
   let skippedNoInstitution = 0;
   let skippedNoProduct = 0;
 
   for (const entry of entries) {
-    const institution = await prisma.institution.findFirst({
-      where: { name: entry.institutionName },
-    });
-    if (!institution) {
-      console.warn(`SKIP: institution not found: ${entry.institutionName}`);
-      skippedNoInstitution++;
+    const resolved = await resolveProduct(entry);
+    if ("error" in resolved) {
+      if (resolved.error === "no-institution") {
+        console.warn(`SKIP${label}: institution not found: ${entry.institutionName}`);
+        skippedNoInstitution++;
+      } else {
+        console.warn(`SKIP${label}: product not found: ${entry.institutionName} / ${entry.productType} ${entry.productNameHint ?? ""}`);
+        skippedNoProduct++;
+      }
       continue;
     }
-
-    const product = await prisma.rateProduct.findFirst({
-      where: {
-        institutionId: institution.id,
-        productType: entry.productType,
-        ...(entry.productNameHint ? { name: { contains: entry.productNameHint } } : {}),
-      },
-    });
-    if (!product) {
-      console.warn(`SKIP: product not found: ${entry.institutionName} / ${entry.productType} ${entry.productNameHint ?? ""}`);
-      skippedNoProduct++;
-      continue;
-    }
-
-    // Clear this product's previously-imported MANUAL tiers exactly once per run,
-    // right before inserting its first entry, so re-running the script is idempotent.
-    if (!touchedProductIds.has(product.id)) {
-      await prisma.rateTier.deleteMany({ where: { productId: product.id, source: "MANUAL" } });
-      touchedProductIds.add(product.id);
-    }
-
-    await prisma.rateTier.create({
-      data: {
-        productId: product.id,
-        tenureMonths: entry.tenureMonths,
-        minAmount: entry.minAmount,
-        maxAmount: entry.maxAmount ?? null,
-        interestRatePct: entry.interestRatePct,
-        source: "MANUAL",
-        sourceUrl: entry.sourceUrl,
-      },
-    });
-    created++;
+    const list = byProduct.get(resolved.productId) ?? [];
+    list.push(entry);
+    byProduct.set(resolved.productId, list);
   }
 
-  console.log(`Imported ${created} rate tiers across ${touchedProductIds.size} products.`);
   if (skippedNoInstitution || skippedNoProduct) {
-    console.log(`Skipped: ${skippedNoInstitution} (no institution match), ${skippedNoProduct} (no product match).`);
+    console.log(`Skipped${label}: ${skippedNoInstitution} (no institution match), ${skippedNoProduct} (no product match).`);
   }
+  return byProduct;
+}
 
-  const touchedRatioProductIds = new Set<string>();
-  let ratiosCreated = 0;
-  let ratiosSkippedNoInstitution = 0;
-  let ratiosSkippedNoProduct = 0;
-
-  for (const entry of ratioEntries) {
-    const institution = await prisma.institution.findFirst({
-      where: { name: entry.institutionName },
-    });
-    if (!institution) {
-      console.warn(`SKIP (ratio): institution not found: ${entry.institutionName}`);
-      ratiosSkippedNoInstitution++;
-      continue;
+/**
+ * Replaces each product's rows with a fresh set, one atomic transaction per
+ * product. Previously this was delete, then N separate creates, all as
+ * un-batched round trips -- if the script crashed or the pooled connection
+ * dropped between the delete and its creates (this has happened twice in
+ * production against Supabase's pgbouncer), that product was left with its
+ * old rows gone and only some/none of the new ones inserted: a live gap on
+ * the public site until manually restored. A failure partway through this
+ * function now rolls only the current product back to its pre-run state --
+ * never a partial one -- and products not yet reached are simply unaffected.
+ */
+async function importByProduct<T>(
+  byProduct: Map<string, T[]>,
+  deleteFor: (productId: string) => Prisma.PrismaPromise<unknown>,
+  createFor: (productId: string, entry: T) => Prisma.PrismaPromise<unknown>
+): Promise<number> {
+  let created = 0;
+  let processed = 0;
+  for (const [productId, productEntries] of byProduct) {
+    try {
+      await prisma.$transaction([
+        deleteFor(productId),
+        ...productEntries.map((entry) => createFor(productId, entry)),
+      ]);
+    } catch (err) {
+      // Deliberately fail fast rather than skip and continue: a transaction
+      // failure here (e.g. a duplicate tenureMonths within one product's
+      // entries) usually means the source data itself has a real problem
+      // worth stopping to look at, not something safe to silently work
+      // around. But say exactly which product and how many were never
+      // reached, since every already-committed product's transaction stays
+      // committed (this loop's per-product atomicity is unaffected) and
+      // it's safe to fix the bad entry and simply re-run the whole script.
+      const remaining = byProduct.size - processed - 1;
+      console.error(
+        `FAILED on product ${productId} (${processed + 1} of ${byProduct.size} attempted, ` +
+          `${created} tiers already committed for earlier products, ${remaining} product(s) never reached):`
+      );
+      throw err;
     }
-
-    const product = await prisma.rateProduct.findFirst({
-      where: {
-        institutionId: institution.id,
-        productType: entry.productType,
-        ...(entry.productNameHint ? { name: { contains: entry.productNameHint } } : {}),
-      },
-    });
-    if (!product) {
-      console.warn(`SKIP (ratio): product not found: ${entry.institutionName} / ${entry.productType} ${entry.productNameHint ?? ""}`);
-      ratiosSkippedNoProduct++;
-      continue;
-    }
-
-    if (!touchedRatioProductIds.has(product.id)) {
-      await prisma.profitSharingRatio.deleteMany({ where: { productId: product.id } });
-      touchedRatioProductIds.add(product.id);
-    }
-
-    await prisma.profitSharingRatio.create({
-      data: {
-        productId: product.id,
-        tenureMonths: entry.tenureMonths,
-        customerRatio: entry.customerRatio,
-        bankRatio: entry.bankRatio,
-        sourceUrl: entry.sourceUrl,
-      },
-    });
-    ratiosCreated++;
+    created += productEntries.length;
+    processed++;
   }
+  return created;
+}
 
-  console.log(`Imported ${ratiosCreated} profit-sharing ratios across ${touchedRatioProductIds.size} products.`);
-  if (ratiosSkippedNoInstitution || ratiosSkippedNoProduct) {
-    console.log(`Skipped (ratio): ${ratiosSkippedNoInstitution} (no institution match), ${ratiosSkippedNoProduct} (no product match).`);
-  }
+async function main() {
+  const byProduct = await groupByProduct(entries, "");
+  const created = await importByProduct(
+    byProduct,
+    (productId) => prisma.rateTier.deleteMany({ where: { productId, source: "MANUAL" } }),
+    (productId, entry) =>
+      prisma.rateTier.create({
+        data: {
+          productId,
+          tenureMonths: entry.tenureMonths,
+          minAmount: entry.minAmount,
+          maxAmount: entry.maxAmount ?? null,
+          interestRatePct: entry.interestRatePct,
+          source: "MANUAL",
+          sourceUrl: entry.sourceUrl,
+        },
+      })
+  );
+  console.log(`Imported ${created} rate tiers across ${byProduct.size} products.`);
+
+  const byRatioProduct = await groupByProduct(ratioEntries, " (ratio)");
+  const ratiosCreated = await importByProduct(
+    byRatioProduct,
+    (productId) => prisma.profitSharingRatio.deleteMany({ where: { productId } }),
+    (productId, entry) =>
+      prisma.profitSharingRatio.create({
+        data: {
+          productId,
+          tenureMonths: entry.tenureMonths,
+          customerRatio: entry.customerRatio,
+          bankRatio: entry.bankRatio,
+          sourceUrl: entry.sourceUrl,
+        },
+      })
+  );
+  console.log(`Imported ${ratiosCreated} profit-sharing ratios across ${byRatioProduct.size} products.`);
 
   // Dhaka Bank's DPS rates were back-solved assuming monthly-compounded annuity
   // math (see the comment above those entries) — set the product's compounding

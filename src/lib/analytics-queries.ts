@@ -18,24 +18,43 @@ function lastNDays(n: number): string[] {
   return days;
 }
 
+/**
+ * This page is `force-dynamic` (no cache), so every admin visit pays the
+ * full query cost, and Supabase's pooled connection is limited to
+ * connection_limit:3 — the same queueing/hang mechanism documented and
+ * fixed for the Insights page in `src/lib/insights.ts`. Fixed the same way:
+ * fewer round trips, not just reordered ones. The 3 independent `count()`
+ * calls collapse into 1 raw-SQL query (same technique as `getTrendStatus`
+ * below), so this function itself issues 3 concurrent queries (not 2) —
+ * still within the pool limit on its own, but with no headroom to spare.
+ * That's why every caller of this function (`src/app/admin/(protected)/
+ * dashboard/page.tsx` and its layout) awaits it SEQUENTIALLY, never
+ * alongside another Prisma-backed call via `Promise.all` — concurrency
+ * budget is spent entirely here, not shared with a caller.
+ */
 export async function getDashboardStats() {
   const since = new Date();
   since.setUTCDate(since.getUTCDate() - DAYS);
 
-  const [institutionCount, productCount, rateTierCount, pageViews, calculatorEvents] =
-    await Promise.all([
-      prisma.institution.count(),
-      prisma.rateProduct.count(),
-      prisma.rateTier.count(),
-      prisma.pageViewEvent.findMany({
-        where: { createdAt: { gte: since } },
-        select: { createdAt: true, path: true, sessionId: true },
-      }),
-      prisma.calculatorEvent.findMany({
-        where: { createdAt: { gte: since } },
-        select: { createdAt: true, productType: true, sessionId: true },
-      }),
-    ]);
+  const [counts, pageViews, calculatorEvents] = await Promise.all([
+    prisma.$queryRaw<{ institutions: bigint; products: bigint; tiers: bigint }[]>`
+      SELECT
+        (SELECT COUNT(*) FROM "Institution") AS institutions,
+        (SELECT COUNT(*) FROM "RateProduct") AS products,
+        (SELECT COUNT(*) FROM "RateTier") AS tiers
+    `,
+    prisma.pageViewEvent.findMany({
+      where: { createdAt: { gte: since } },
+      select: { createdAt: true, path: true, sessionId: true },
+    }),
+    prisma.calculatorEvent.findMany({
+      where: { createdAt: { gte: since } },
+      select: { createdAt: true, productType: true, sessionId: true },
+    }),
+  ]);
+  const institutionCount = Number(counts[0]?.institutions ?? 0);
+  const productCount = Number(counts[0]?.products ?? 0);
+  const rateTierCount = Number(counts[0]?.tiers ?? 0);
 
   const days = lastNDays(DAYS);
   const pageViewsByDay = new Map<string, Set<string>>();

@@ -16,7 +16,15 @@ export default async function AdminProtectedLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const [session, pendingDriftCount] = await Promise.all([auth(), getPendingDriftCount()]);
+  // Sequential, not Promise.all — this layout wraps every admin page (the
+  // dashboard included), and Next.js renders a layout's Server Component
+  // concurrently with its page's, so getPendingDriftCount here adds to
+  // whatever the page itself queries. See the comment on getDashboardStats
+  // (src/lib/analytics-queries.ts) for the connection_limit:3 budget this
+  // is protecting; auth() also touches the DB for session lookups, so
+  // treat both calls here as consuming pool budget, not just the Prisma one.
+  const session = await auth();
+  const pendingDriftCount = await getPendingDriftCount();
 
   return (
     <div>

@@ -13,7 +13,11 @@ function StatTile({ label, value }: { label: string; value: number }) {
 }
 
 export default async function AdminDashboardPage() {
-  const [stats, trending] = await Promise.all([getDashboardStats(), getTrendingProducts()]);
+  // Sequential, not Promise.all — see the comment on getDashboardStats for
+  // why: this page's total query concurrency must stay within Supabase's
+  // connection_limit:3, and getDashboardStats alone already uses 3.
+  const stats = await getDashboardStats();
+  const trending = await getTrendingProducts();
 
   return (
     <div className="space-y-6">
