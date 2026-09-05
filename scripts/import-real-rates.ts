@@ -628,26 +628,32 @@ const entries: RateEntry[] = [
   { institutionName: "The City Bank", productType: "DPS", productNameHint: "City Islamic Mudaraba DPS", tenureMonths: 60, minAmount: 0, interestRatePct: 7.64, sourceUrl: "https://islamic.thecitybank.com/profit-sharing-ratio" },
   { institutionName: "The City Bank", productType: "DPS", productNameHint: "City Islamic Mudaraba DPS", tenureMonths: 120, minAmount: 0, interestRatePct: 7.64, sourceUrl: "https://islamic.thecitybank.com/profit-sharing-ratio" },
 
-  // --- Mutual Trust Bank --- MTB Yaqeen. Full official rate sheet, PDF
+  // --- Mutual Trust Bank --- MTB Islamic. Full official rate sheet, PDF
   // "MTB Islamic Savings Accounts, SND, Term Deposits & Savings Schemes".
-  // "MTB Islamic Term Deposit (Individual)" balance <50 Lac tier, effective
-  // Nov 7, 2024.
-  { institutionName: "Mutual Trust Bank", productType: "FDR", productNameHint: "MTB Yaqeen Mudaraba FDR", tenureMonths: 1, minAmount: 0, maxAmount: 5000000, interestRatePct: 3.5, sourceUrl: "https://www.mutualtrustbank.com/wp-content/uploads/2026/07/Profit-on-Deposit-Latest-july-26.pdf" },
-  { institutionName: "Mutual Trust Bank", productType: "FDR", productNameHint: "MTB Yaqeen Mudaraba FDR", tenureMonths: 3, minAmount: 0, maxAmount: 5000000, interestRatePct: 7.75, sourceUrl: "https://www.mutualtrustbank.com/wp-content/uploads/2026/07/Profit-on-Deposit-Latest-july-26.pdf" },
-  { institutionName: "Mutual Trust Bank", productType: "FDR", productNameHint: "MTB Yaqeen Mudaraba FDR", tenureMonths: 6, minAmount: 0, maxAmount: 5000000, interestRatePct: 8.0, sourceUrl: "https://www.mutualtrustbank.com/wp-content/uploads/2026/07/Profit-on-Deposit-Latest-july-26.pdf" },
-  { institutionName: "Mutual Trust Bank", productType: "FDR", productNameHint: "MTB Yaqeen Mudaraba FDR", tenureMonths: 12, minAmount: 0, maxAmount: 5000000, interestRatePct: 8.0, sourceUrl: "https://www.mutualtrustbank.com/wp-content/uploads/2026/07/Profit-on-Deposit-Latest-july-26.pdf" },
-  { institutionName: "Mutual Trust Bank", productType: "FDR", productNameHint: "MTB Yaqeen Mudaraba FDR", tenureMonths: 24, minAmount: 0, maxAmount: 5000000, interestRatePct: 8.0, sourceUrl: "https://www.mutualtrustbank.com/wp-content/uploads/2026/07/Profit-on-Deposit-Latest-july-26.pdf" },
-  { institutionName: "Mutual Trust Bank", productType: "FDR", productNameHint: "MTB Yaqeen Mudaraba FDR", tenureMonths: 36, minAmount: 0, maxAmount: 5000000, interestRatePct: 8.0, sourceUrl: "https://www.mutualtrustbank.com/wp-content/uploads/2026/07/Profit-on-Deposit-Latest-july-26.pdf" },
-  // "MTB Islamic Brick by Brick / Flexible / Angona Scheme" — recurring
-  // Islamic DPS-equivalent, effective Nov 7, 2024.
-  { institutionName: "Mutual Trust Bank", productType: "DPS", productNameHint: "MTB Yaqeen Mudaraba DPS", tenureMonths: 12, minAmount: 0, interestRatePct: 10.0, sourceUrl: "https://www.mutualtrustbank.com/wp-content/uploads/2026/07/Profit-on-Deposit-Latest-july-26.pdf" },
-  { institutionName: "Mutual Trust Bank", productType: "DPS", productNameHint: "MTB Yaqeen Mudaraba DPS", tenureMonths: 24, minAmount: 0, interestRatePct: 10.0, sourceUrl: "https://www.mutualtrustbank.com/wp-content/uploads/2026/07/Profit-on-Deposit-Latest-july-26.pdf" },
-  { institutionName: "Mutual Trust Bank", productType: "DPS", productNameHint: "MTB Yaqeen Mudaraba DPS", tenureMonths: 36, minAmount: 0, interestRatePct: 10.0, sourceUrl: "https://www.mutualtrustbank.com/wp-content/uploads/2026/07/Profit-on-Deposit-Latest-july-26.pdf" },
-  { institutionName: "Mutual Trust Bank", productType: "DPS", productNameHint: "MTB Yaqeen Mudaraba DPS", tenureMonths: 60, minAmount: 0, interestRatePct: 10.0, sourceUrl: "https://www.mutualtrustbank.com/wp-content/uploads/2026/07/Profit-on-Deposit-Latest-july-26.pdf" },
-  { institutionName: "Mutual Trust Bank", productType: "DPS", productNameHint: "MTB Yaqeen Mudaraba DPS", tenureMonths: 96, minAmount: 0, interestRatePct: 9.5, sourceUrl: "https://www.mutualtrustbank.com/wp-content/uploads/2026/07/Profit-on-Deposit-Latest-july-26.pdf" },
-  { institutionName: "Mutual Trust Bank", productType: "DPS", productNameHint: "MTB Yaqeen Mudaraba DPS", tenureMonths: 120, minAmount: 0, interestRatePct: 9.5, sourceUrl: "https://www.mutualtrustbank.com/wp-content/uploads/2026/07/Profit-on-Deposit-Latest-july-26.pdf" },
-  { institutionName: "Mutual Trust Bank", productType: "DPS", productNameHint: "MTB Yaqeen Mudaraba DPS", tenureMonths: 144, minAmount: 0, interestRatePct: 9.0, sourceUrl: "https://www.mutualtrustbank.com/wp-content/uploads/2026/07/Profit-on-Deposit-Latest-july-26.pdf" },
-  { institutionName: "Mutual Trust Bank", productType: "DPS", productNameHint: "MTB Yaqeen Mudaraba DPS", tenureMonths: 180, minAmount: 0, interestRatePct: 8.75, sourceUrl: "https://www.mutualtrustbank.com/wp-content/uploads/2026/07/Profit-on-Deposit-Latest-july-26.pdf" },
+  // Re-verified 2026-09-05, found via the bank's live mtb-yaqeen page
+  // linking a genuinely newer PDF (the July-2026 one this app had stored
+  // was superseded, not just re-labeled). "MTB Islamic Term Deposit
+  // (Individual) / MTB Islamic Angona Term Deposit" balance <50 Lac tier,
+  // effective Sep 3, 2026 -- real drift from the prior check: 1mo rose
+  // 3.5%->4.5%, other tenures unchanged.
+  { institutionName: "Mutual Trust Bank", productType: "FDR", productNameHint: "MTB Yaqeen Mudaraba FDR", tenureMonths: 1, minAmount: 0, maxAmount: 5000000, interestRatePct: 4.5, sourceUrl: "https://www.mutualtrustbank.com/wp-content/uploads/2026/09/Profit-on-Deposit-Latest-Sep-26v2.pdf" },
+  { institutionName: "Mutual Trust Bank", productType: "FDR", productNameHint: "MTB Yaqeen Mudaraba FDR", tenureMonths: 3, minAmount: 0, maxAmount: 5000000, interestRatePct: 7.75, sourceUrl: "https://www.mutualtrustbank.com/wp-content/uploads/2026/09/Profit-on-Deposit-Latest-Sep-26v2.pdf" },
+  { institutionName: "Mutual Trust Bank", productType: "FDR", productNameHint: "MTB Yaqeen Mudaraba FDR", tenureMonths: 6, minAmount: 0, maxAmount: 5000000, interestRatePct: 8.0, sourceUrl: "https://www.mutualtrustbank.com/wp-content/uploads/2026/09/Profit-on-Deposit-Latest-Sep-26v2.pdf" },
+  { institutionName: "Mutual Trust Bank", productType: "FDR", productNameHint: "MTB Yaqeen Mudaraba FDR", tenureMonths: 12, minAmount: 0, maxAmount: 5000000, interestRatePct: 8.0, sourceUrl: "https://www.mutualtrustbank.com/wp-content/uploads/2026/09/Profit-on-Deposit-Latest-Sep-26v2.pdf" },
+  { institutionName: "Mutual Trust Bank", productType: "FDR", productNameHint: "MTB Yaqeen Mudaraba FDR", tenureMonths: 24, minAmount: 0, maxAmount: 5000000, interestRatePct: 8.0, sourceUrl: "https://www.mutualtrustbank.com/wp-content/uploads/2026/09/Profit-on-Deposit-Latest-Sep-26v2.pdf" },
+  { institutionName: "Mutual Trust Bank", productType: "FDR", productNameHint: "MTB Yaqeen Mudaraba FDR", tenureMonths: 36, minAmount: 0, maxAmount: 5000000, interestRatePct: 8.0, sourceUrl: "https://www.mutualtrustbank.com/wp-content/uploads/2026/09/Profit-on-Deposit-Latest-Sep-26v2.pdf" },
+  // "MTB Islamic Brick by Brick Scheme / MTB Islamic Flexible Scheme
+  // (Individual)" — recurring Islamic DPS-equivalent, effective Sep 2,
+  // 2026. Real drift: every tenure dropped materially (was 8.75-10%, now
+  // 8.0-8.5%).
+  { institutionName: "Mutual Trust Bank", productType: "DPS", productNameHint: "MTB Yaqeen Mudaraba DPS", tenureMonths: 12, minAmount: 0, interestRatePct: 8.5, sourceUrl: "https://www.mutualtrustbank.com/wp-content/uploads/2026/09/Profit-on-Deposit-Latest-Sep-26v2.pdf" },
+  { institutionName: "Mutual Trust Bank", productType: "DPS", productNameHint: "MTB Yaqeen Mudaraba DPS", tenureMonths: 24, minAmount: 0, interestRatePct: 8.25, sourceUrl: "https://www.mutualtrustbank.com/wp-content/uploads/2026/09/Profit-on-Deposit-Latest-Sep-26v2.pdf" },
+  { institutionName: "Mutual Trust Bank", productType: "DPS", productNameHint: "MTB Yaqeen Mudaraba DPS", tenureMonths: 36, minAmount: 0, interestRatePct: 8.25, sourceUrl: "https://www.mutualtrustbank.com/wp-content/uploads/2026/09/Profit-on-Deposit-Latest-Sep-26v2.pdf" },
+  { institutionName: "Mutual Trust Bank", productType: "DPS", productNameHint: "MTB Yaqeen Mudaraba DPS", tenureMonths: 60, minAmount: 0, interestRatePct: 8.0, sourceUrl: "https://www.mutualtrustbank.com/wp-content/uploads/2026/09/Profit-on-Deposit-Latest-Sep-26v2.pdf" },
+  { institutionName: "Mutual Trust Bank", productType: "DPS", productNameHint: "MTB Yaqeen Mudaraba DPS", tenureMonths: 96, minAmount: 0, interestRatePct: 8.0, sourceUrl: "https://www.mutualtrustbank.com/wp-content/uploads/2026/09/Profit-on-Deposit-Latest-Sep-26v2.pdf" },
+  { institutionName: "Mutual Trust Bank", productType: "DPS", productNameHint: "MTB Yaqeen Mudaraba DPS", tenureMonths: 120, minAmount: 0, interestRatePct: 8.0, sourceUrl: "https://www.mutualtrustbank.com/wp-content/uploads/2026/09/Profit-on-Deposit-Latest-Sep-26v2.pdf" },
+  { institutionName: "Mutual Trust Bank", productType: "DPS", productNameHint: "MTB Yaqeen Mudaraba DPS", tenureMonths: 144, minAmount: 0, interestRatePct: 8.0, sourceUrl: "https://www.mutualtrustbank.com/wp-content/uploads/2026/09/Profit-on-Deposit-Latest-Sep-26v2.pdf" },
+  { institutionName: "Mutual Trust Bank", productType: "DPS", productNameHint: "MTB Yaqeen Mudaraba DPS", tenureMonths: 180, minAmount: 0, interestRatePct: 8.0, sourceUrl: "https://www.mutualtrustbank.com/wp-content/uploads/2026/09/Profit-on-Deposit-Latest-Sep-26v2.pdf" },
 
   // --- Bank Asia --- Bank Asia Islamic Banking. "Mudaraba Term Deposit
   // Account (MTDA)", Individual tier, effective August 09, 2026.

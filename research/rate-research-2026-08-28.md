@@ -948,3 +948,41 @@ Applied to local dev DB, verified (typecheck, lint, test suite, production
 build all passed; Playwright homepage check confirmed EBL/Jamuna/IFIC cards
 show the new values with zero console errors) before promotion to
 production.
+
+## Routine drift check: MTB Islamic rate sheet rolled over (2026-09-05)
+
+Proactive spot-check of the dated/monthly-rolling sources flagged in this
+project's own comments (UCB's Islamic PDF, MTB's Islamic PDF, Prime Bank's
+rate sheet) to see if any had gone stale since the last check (2026-09-01/02).
+
+**UCB**: re-confirmed still on the July-2026 sheet — verified directly via
+the bank's own rates listing page (`https://www.ucb.com.bd/rates/interest-rates/`)
+and by re-downloading the PDF (identical byte size, 1,010,490 bytes, to the
+copy fetched 2026-09-01). No change.
+
+**Prime Bank**: still on the Aug-31-2026 sheet (only 5 days old at check
+time), confirmed live. No change.
+
+**MTB (Mutual Trust Bank) Islamic**: genuinely superseded. The bank's
+`mtb-yaqeen` page now links a September PDF
+(`Profit-on-Deposit-Latest-Sep-26v2.pdf`) instead of the July one this app
+had stored — confirmed via direct PDF download and read (6 pages, effective
+dates Sep 2-3, 2026 for the term-deposit/savings-scheme tables). Real
+drift found and applied:
+- **FDR** ("MTB Islamic Term Deposit (Individual) / MTB Islamic Angona Term
+  Deposit", <50 Lac tier): 1mo rose 3.50%→4.50%; 3/6/12/24/36mo unchanged
+  at 7.75%/8.00%/8.00%/8.00%/8.00%.
+- **DPS** ("MTB Islamic Brick by Brick Scheme / Flexible Scheme,
+  Individual"): dropped materially across every tenure — 12mo 10%→8.5%,
+  24/36mo 10%→8.25%, 60/96/120/144/180mo 10%/9.5%/9.5%/9%/8.75%→flat 8.00%
+  at all of 60-180mo.
+
+Also re-checked MTB's *conventional* (non-Islamic) FDR/DPS rates while
+already on the bank's site — these also show a Sep 3/1, 2026 effective
+date, but the numbers for every tenure this app already tracks (3/12/24/36mo
+FDR at the <50 Lac tier) are unchanged from what was stored, so no update
+needed there; it happened to land on the same figures as the prior sheet.
+
+Applied to local dev DB, verified (typecheck, lint, test suite, production
+build all passed; MTB FDR/DPS values spot-checked against the source PDF
+and matched exactly) before promotion to production.
