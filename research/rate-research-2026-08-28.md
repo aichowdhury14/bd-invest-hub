@@ -986,3 +986,56 @@ needed there; it happened to land on the same figures as the prior sheet.
 Applied to local dev DB, verified (typecheck, lint, test suite, production
 build all passed; MTB FDR/DPS values spot-checked against the source PDF
 and matched exactly) before promotion to production.
+
+## Routine drift check #2: UCB Islamic rolled, MTB re-rolled (no change), UCB conventional URL refresh (2026-09-11)
+
+Second proactive spot-check of the dated/monthly-rolling sources (UCB
+Islamic, UCB conventional, Prime Bank, MTB, plus a new check on BRAC's
+ALCO-circular pattern), 6 days after the last one.
+
+**UCB Islamic — genuinely changed.** The rate sheet linked from
+`https://www.ucb.com.bd/rates/interest-rates/` rolled from
+`ucb-islamic-rate-sheet-july-2026.pdf` to `...-august-2026.pdf` (verified:
+different genuine PDF, 1,004,186 bytes vs July's 1,010,490). Real drift,
+every tenure rose — "General Product (Retail)", Aug-26 column:
+- FDR (Mudaraba Term Deposit): 1mo 3.79%→3.98%, 3/6/12/24/36mo
+  8.06%→8.45% flat.
+- DPS (Mudaraba Monthly DPS): 3yr 7.59%→7.95%, 5/7/10yr 8.06%→8.45% flat.
+
+**UCB conventional — numbers unchanged, source URL only.** UCB's linked
+circular moved from the old `instruction-circular-no1632full-...` filename
+to `instruction-circular-no1632-1633full-...pdf` (dated inside the
+document September 1, 2026). Read the new 11-page PDF directly and
+confirmed every tracked figure is identical to what was stored: Earning
+Plus FD (Regular, Quarterly, prefix 3428) still 9.50% at 1-3yr / 8.25% at
+4-10yr; Super Flex DPS (Regular, prefixes 3550/3580/3581/3582) still
+9.50%/9.75%/10.00%/10.00%. Updated only the source URL for traceability —
+this is exactly the kind of case the transactional-import-script's design
+anticipates (re-running with unchanged numbers is a safe no-op on the
+data, just refreshes the citation).
+
+**Prime Bank — still current**, confirmed via the earlier research agent
+pass (Aug-31-2026 sheet, no newer PDF found).
+
+**MTB Islamic — re-rolled again, numbers unchanged.** The PDF moved from
+`Profit-on-Deposit-Latest-Sep-26v2.pdf` to `...-Sep-v3.pdf` (effective
+date for the Term Deposit/Institutional tables moved Sep 3→Sep 10, 2026;
+Savings Schemes/Benefit Plans stayed at Sep 2). Read the new 6-page PDF
+directly and confirmed every tracked FDR and DPS-equivalent figure is
+byte-for-byte the same as the v2 sheet already in the database. Updated
+source URLs only, no rate changes.
+
+**BRAC Bank — confirmed still current, one false lead caught and
+discarded.** The stored Aug-25-2026 ALCO Circular 2026/07 PDF was
+re-verified genuine and still the latest. A search result appearing to be
+a "September 03, 2026" rollover
+(`BRAC_Bank_Deposit_Interest_Rate_w.e.f._September_03,_202568b6d71f5c545.pdf`)
+was fetched and found to actually be a *year-old*, mislabeled document —
+its real printed header reads "ALCO Circular: 2025/05, Effective Date:
+September 03, **2025**," not 2026. Correctly not treated as a real
+rollover; flagged here so a future check doesn't fall for the same
+stale/mislabeled search-cache URL.
+
+Applied to local dev DB, verified (typecheck, lint, test suite, production
+build all passed; UCB Islamic FDR/DPS values spot-checked against the
+source PDF and matched exactly) before promotion to production.

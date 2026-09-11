@@ -326,29 +326,25 @@ const entries: RateEntry[] = [
   { institutionName: "IFIC Bank", productType: "DPS", tenureMonths: 60, minAmount: 0, interestRatePct: 10.0, sourceUrl: "https://ificbank.com.bd/public/assets/home/interest/1786857538_Latest%20Deposit%20Advance%20Rate__16.08.2026.pdf" },
   { institutionName: "IFIC Bank", productType: "DPS", tenureMonths: 120, minAmount: 0, interestRatePct: 10.0, sourceUrl: "https://ificbank.com.bd/public/assets/home/interest/1786857538_Latest%20Deposit%20Advance%20Rate__16.08.2026.pdf" },
 
-  // --- United Commercial Bank (UCB) --- updated 2026-08-29 from UCB's official
-  // Treasury rate circular #1632 (effective Aug 24, 2026), cross-checked against
-  // the live product pages. Both flagship rates dropped since the last check:
-  // Earning Plus FD (Regular, Quarterly payout, prefix 3428) 1-3yr fell from
-  // 10.00% to 9.50% (4-10yr unchanged at 8.25%); Super Flex DPS's back-solved
-  // estimate is replaced entirely with the circular's directly-published,
-  // per-tenure rates (Regular customer group, prefixes 3550/3580/3581/3582) —
-  // real numbers now, not an estimate from a single maturity example. Note: the
-  // same circular explicitly lists the OLD "Retail UCB DPS Plus" product as
-  // discontinued — confirmed Super Flex DPS (not DPS Plus) is UCB's current
-  // general-retail recurring deposit product via its own product page.
-  { institutionName: "United Commercial Bank", productType: "FDR", tenureMonths: 12, minAmount: 0, interestRatePct: 9.5, sourceUrl: "https://www.ucb.com.bd/reports/interest-rates/instruction-circular-no1632full-deposit-productsucb-websi.pdf" },
-  { institutionName: "United Commercial Bank", productType: "FDR", tenureMonths: 24, minAmount: 0, interestRatePct: 9.5, sourceUrl: "https://www.ucb.com.bd/reports/interest-rates/instruction-circular-no1632full-deposit-productsucb-websi.pdf" },
-  { institutionName: "United Commercial Bank", productType: "FDR", tenureMonths: 36, minAmount: 0, interestRatePct: 9.5, sourceUrl: "https://www.ucb.com.bd/reports/interest-rates/instruction-circular-no1632full-deposit-productsucb-websi.pdf" },
-  { institutionName: "United Commercial Bank", productType: "FDR", tenureMonths: 48, minAmount: 0, interestRatePct: 8.25, sourceUrl: "https://www.ucb.com.bd/reports/interest-rates/instruction-circular-no1632full-deposit-productsucb-websi.pdf" },
-  { institutionName: "United Commercial Bank", productType: "FDR", tenureMonths: 60, minAmount: 0, interestRatePct: 8.25, sourceUrl: "https://www.ucb.com.bd/reports/interest-rates/instruction-circular-no1632full-deposit-productsucb-websi.pdf" },
-  { institutionName: "United Commercial Bank", productType: "FDR", tenureMonths: 84, minAmount: 0, interestRatePct: 8.25, sourceUrl: "https://www.ucb.com.bd/reports/interest-rates/instruction-circular-no1632full-deposit-productsucb-websi.pdf" },
-  { institutionName: "United Commercial Bank", productType: "FDR", tenureMonths: 120, minAmount: 0, interestRatePct: 8.25, sourceUrl: "https://www.ucb.com.bd/reports/interest-rates/instruction-circular-no1632full-deposit-productsucb-websi.pdf" },
-  { institutionName: "United Commercial Bank", productType: "DPS", tenureMonths: 12, minAmount: 0, interestRatePct: 9.5, sourceUrl: "https://www.ucb.com.bd/reports/interest-rates/instruction-circular-no1632full-deposit-productsucb-websi.pdf" },
-  { institutionName: "United Commercial Bank", productType: "DPS", tenureMonths: 24, minAmount: 0, interestRatePct: 9.5, sourceUrl: "https://www.ucb.com.bd/reports/interest-rates/instruction-circular-no1632full-deposit-productsucb-websi.pdf" },
-  { institutionName: "United Commercial Bank", productType: "DPS", tenureMonths: 36, minAmount: 0, interestRatePct: 9.75, sourceUrl: "https://www.ucb.com.bd/reports/interest-rates/instruction-circular-no1632full-deposit-productsucb-websi.pdf" },
-  { institutionName: "United Commercial Bank", productType: "DPS", tenureMonths: 60, minAmount: 0, interestRatePct: 10.0, sourceUrl: "https://www.ucb.com.bd/reports/interest-rates/instruction-circular-no1632full-deposit-productsucb-websi.pdf" },
-  { institutionName: "United Commercial Bank", productType: "DPS", tenureMonths: 120, minAmount: 0, interestRatePct: 10.0, sourceUrl: "https://www.ucb.com.bd/reports/interest-rates/instruction-circular-no1632full-deposit-productsucb-websi.pdf" },
+  // --- United Commercial Bank (UCB) --- re-verified 2026-09-11 against
+  // UCB's current conventional rate sheet (dated Sep 1, 2026, superseding
+  // the prior circular #1632-only file). Numbers UNCHANGED from the last
+  // check: Earning Plus FD (Regular, Quarterly payout, prefix 3428) 1-3yr
+  // still 9.50% (4-10yr still 8.25%); Super Flex DPS (Regular group,
+  // prefixes 3550/3580/3581/3582) still 9.50%/9.75%/10.00%/10.00% —
+  // only the source URL/filename changed, updated below for traceability.
+  { institutionName: "United Commercial Bank", productType: "FDR", tenureMonths: 12, minAmount: 0, interestRatePct: 9.5, sourceUrl: "https://www.ucb.com.bd/reports/interest-rates/instruction-circular-no1632-1633full-deposit-productsuc.pdf" },
+  { institutionName: "United Commercial Bank", productType: "FDR", tenureMonths: 24, minAmount: 0, interestRatePct: 9.5, sourceUrl: "https://www.ucb.com.bd/reports/interest-rates/instruction-circular-no1632-1633full-deposit-productsuc.pdf" },
+  { institutionName: "United Commercial Bank", productType: "FDR", tenureMonths: 36, minAmount: 0, interestRatePct: 9.5, sourceUrl: "https://www.ucb.com.bd/reports/interest-rates/instruction-circular-no1632-1633full-deposit-productsuc.pdf" },
+  { institutionName: "United Commercial Bank", productType: "FDR", tenureMonths: 48, minAmount: 0, interestRatePct: 8.25, sourceUrl: "https://www.ucb.com.bd/reports/interest-rates/instruction-circular-no1632-1633full-deposit-productsuc.pdf" },
+  { institutionName: "United Commercial Bank", productType: "FDR", tenureMonths: 60, minAmount: 0, interestRatePct: 8.25, sourceUrl: "https://www.ucb.com.bd/reports/interest-rates/instruction-circular-no1632-1633full-deposit-productsuc.pdf" },
+  { institutionName: "United Commercial Bank", productType: "FDR", tenureMonths: 84, minAmount: 0, interestRatePct: 8.25, sourceUrl: "https://www.ucb.com.bd/reports/interest-rates/instruction-circular-no1632-1633full-deposit-productsuc.pdf" },
+  { institutionName: "United Commercial Bank", productType: "FDR", tenureMonths: 120, minAmount: 0, interestRatePct: 8.25, sourceUrl: "https://www.ucb.com.bd/reports/interest-rates/instruction-circular-no1632-1633full-deposit-productsuc.pdf" },
+  { institutionName: "United Commercial Bank", productType: "DPS", tenureMonths: 12, minAmount: 0, interestRatePct: 9.5, sourceUrl: "https://www.ucb.com.bd/reports/interest-rates/instruction-circular-no1632-1633full-deposit-productsuc.pdf" },
+  { institutionName: "United Commercial Bank", productType: "DPS", tenureMonths: 24, minAmount: 0, interestRatePct: 9.5, sourceUrl: "https://www.ucb.com.bd/reports/interest-rates/instruction-circular-no1632-1633full-deposit-productsuc.pdf" },
+  { institutionName: "United Commercial Bank", productType: "DPS", tenureMonths: 36, minAmount: 0, interestRatePct: 9.75, sourceUrl: "https://www.ucb.com.bd/reports/interest-rates/instruction-circular-no1632-1633full-deposit-productsuc.pdf" },
+  { institutionName: "United Commercial Bank", productType: "DPS", tenureMonths: 60, minAmount: 0, interestRatePct: 10.0, sourceUrl: "https://www.ucb.com.bd/reports/interest-rates/instruction-circular-no1632-1633full-deposit-productsuc.pdf" },
+  { institutionName: "United Commercial Bank", productType: "DPS", tenureMonths: 120, minAmount: 0, interestRatePct: 10.0, sourceUrl: "https://www.ucb.com.bd/reports/interest-rates/instruction-circular-no1632-1633full-deposit-productsuc.pdf" },
 
   // --- Jamuna Bank --- Monthly Savings Scheme DPS (from official "Deposit
   // Schemes" PDF, cross-validated at two deposit amounts per tenure — clean fit).
@@ -635,25 +631,27 @@ const entries: RateEntry[] = [
   // was superseded, not just re-labeled). "MTB Islamic Term Deposit
   // (Individual) / MTB Islamic Angona Term Deposit" balance <50 Lac tier,
   // effective Sep 3, 2026 -- real drift from the prior check: 1mo rose
-  // 3.5%->4.5%, other tenures unchanged.
-  { institutionName: "Mutual Trust Bank", productType: "FDR", productNameHint: "MTB Yaqeen Mudaraba FDR", tenureMonths: 1, minAmount: 0, maxAmount: 5000000, interestRatePct: 4.5, sourceUrl: "https://www.mutualtrustbank.com/wp-content/uploads/2026/09/Profit-on-Deposit-Latest-Sep-26v2.pdf" },
-  { institutionName: "Mutual Trust Bank", productType: "FDR", productNameHint: "MTB Yaqeen Mudaraba FDR", tenureMonths: 3, minAmount: 0, maxAmount: 5000000, interestRatePct: 7.75, sourceUrl: "https://www.mutualtrustbank.com/wp-content/uploads/2026/09/Profit-on-Deposit-Latest-Sep-26v2.pdf" },
-  { institutionName: "Mutual Trust Bank", productType: "FDR", productNameHint: "MTB Yaqeen Mudaraba FDR", tenureMonths: 6, minAmount: 0, maxAmount: 5000000, interestRatePct: 8.0, sourceUrl: "https://www.mutualtrustbank.com/wp-content/uploads/2026/09/Profit-on-Deposit-Latest-Sep-26v2.pdf" },
-  { institutionName: "Mutual Trust Bank", productType: "FDR", productNameHint: "MTB Yaqeen Mudaraba FDR", tenureMonths: 12, minAmount: 0, maxAmount: 5000000, interestRatePct: 8.0, sourceUrl: "https://www.mutualtrustbank.com/wp-content/uploads/2026/09/Profit-on-Deposit-Latest-Sep-26v2.pdf" },
-  { institutionName: "Mutual Trust Bank", productType: "FDR", productNameHint: "MTB Yaqeen Mudaraba FDR", tenureMonths: 24, minAmount: 0, maxAmount: 5000000, interestRatePct: 8.0, sourceUrl: "https://www.mutualtrustbank.com/wp-content/uploads/2026/09/Profit-on-Deposit-Latest-Sep-26v2.pdf" },
-  { institutionName: "Mutual Trust Bank", productType: "FDR", productNameHint: "MTB Yaqeen Mudaraba FDR", tenureMonths: 36, minAmount: 0, maxAmount: 5000000, interestRatePct: 8.0, sourceUrl: "https://www.mutualtrustbank.com/wp-content/uploads/2026/09/Profit-on-Deposit-Latest-Sep-26v2.pdf" },
+  // 3.5%->4.5%, other tenures unchanged. Re-checked again 2026-09-11: the
+  // PDF rolled once more (v2 -> v3, effective date moved Sep 3 -> Sep 10)
+  // but every number is unchanged -- URL updated for traceability only.
+  { institutionName: "Mutual Trust Bank", productType: "FDR", productNameHint: "MTB Yaqeen Mudaraba FDR", tenureMonths: 1, minAmount: 0, maxAmount: 5000000, interestRatePct: 4.5, sourceUrl: "https://www.mutualtrustbank.com/wp-content/uploads/2026/09/Profit-on-Deposit-Latest-Sep-v3.pdf" },
+  { institutionName: "Mutual Trust Bank", productType: "FDR", productNameHint: "MTB Yaqeen Mudaraba FDR", tenureMonths: 3, minAmount: 0, maxAmount: 5000000, interestRatePct: 7.75, sourceUrl: "https://www.mutualtrustbank.com/wp-content/uploads/2026/09/Profit-on-Deposit-Latest-Sep-v3.pdf" },
+  { institutionName: "Mutual Trust Bank", productType: "FDR", productNameHint: "MTB Yaqeen Mudaraba FDR", tenureMonths: 6, minAmount: 0, maxAmount: 5000000, interestRatePct: 8.0, sourceUrl: "https://www.mutualtrustbank.com/wp-content/uploads/2026/09/Profit-on-Deposit-Latest-Sep-v3.pdf" },
+  { institutionName: "Mutual Trust Bank", productType: "FDR", productNameHint: "MTB Yaqeen Mudaraba FDR", tenureMonths: 12, minAmount: 0, maxAmount: 5000000, interestRatePct: 8.0, sourceUrl: "https://www.mutualtrustbank.com/wp-content/uploads/2026/09/Profit-on-Deposit-Latest-Sep-v3.pdf" },
+  { institutionName: "Mutual Trust Bank", productType: "FDR", productNameHint: "MTB Yaqeen Mudaraba FDR", tenureMonths: 24, minAmount: 0, maxAmount: 5000000, interestRatePct: 8.0, sourceUrl: "https://www.mutualtrustbank.com/wp-content/uploads/2026/09/Profit-on-Deposit-Latest-Sep-v3.pdf" },
+  { institutionName: "Mutual Trust Bank", productType: "FDR", productNameHint: "MTB Yaqeen Mudaraba FDR", tenureMonths: 36, minAmount: 0, maxAmount: 5000000, interestRatePct: 8.0, sourceUrl: "https://www.mutualtrustbank.com/wp-content/uploads/2026/09/Profit-on-Deposit-Latest-Sep-v3.pdf" },
   // "MTB Islamic Brick by Brick Scheme / MTB Islamic Flexible Scheme
   // (Individual)" — recurring Islamic DPS-equivalent, effective Sep 2,
   // 2026. Real drift: every tenure dropped materially (was 8.75-10%, now
   // 8.0-8.5%).
-  { institutionName: "Mutual Trust Bank", productType: "DPS", productNameHint: "MTB Yaqeen Mudaraba DPS", tenureMonths: 12, minAmount: 0, interestRatePct: 8.5, sourceUrl: "https://www.mutualtrustbank.com/wp-content/uploads/2026/09/Profit-on-Deposit-Latest-Sep-26v2.pdf" },
-  { institutionName: "Mutual Trust Bank", productType: "DPS", productNameHint: "MTB Yaqeen Mudaraba DPS", tenureMonths: 24, minAmount: 0, interestRatePct: 8.25, sourceUrl: "https://www.mutualtrustbank.com/wp-content/uploads/2026/09/Profit-on-Deposit-Latest-Sep-26v2.pdf" },
-  { institutionName: "Mutual Trust Bank", productType: "DPS", productNameHint: "MTB Yaqeen Mudaraba DPS", tenureMonths: 36, minAmount: 0, interestRatePct: 8.25, sourceUrl: "https://www.mutualtrustbank.com/wp-content/uploads/2026/09/Profit-on-Deposit-Latest-Sep-26v2.pdf" },
-  { institutionName: "Mutual Trust Bank", productType: "DPS", productNameHint: "MTB Yaqeen Mudaraba DPS", tenureMonths: 60, minAmount: 0, interestRatePct: 8.0, sourceUrl: "https://www.mutualtrustbank.com/wp-content/uploads/2026/09/Profit-on-Deposit-Latest-Sep-26v2.pdf" },
-  { institutionName: "Mutual Trust Bank", productType: "DPS", productNameHint: "MTB Yaqeen Mudaraba DPS", tenureMonths: 96, minAmount: 0, interestRatePct: 8.0, sourceUrl: "https://www.mutualtrustbank.com/wp-content/uploads/2026/09/Profit-on-Deposit-Latest-Sep-26v2.pdf" },
-  { institutionName: "Mutual Trust Bank", productType: "DPS", productNameHint: "MTB Yaqeen Mudaraba DPS", tenureMonths: 120, minAmount: 0, interestRatePct: 8.0, sourceUrl: "https://www.mutualtrustbank.com/wp-content/uploads/2026/09/Profit-on-Deposit-Latest-Sep-26v2.pdf" },
-  { institutionName: "Mutual Trust Bank", productType: "DPS", productNameHint: "MTB Yaqeen Mudaraba DPS", tenureMonths: 144, minAmount: 0, interestRatePct: 8.0, sourceUrl: "https://www.mutualtrustbank.com/wp-content/uploads/2026/09/Profit-on-Deposit-Latest-Sep-26v2.pdf" },
-  { institutionName: "Mutual Trust Bank", productType: "DPS", productNameHint: "MTB Yaqeen Mudaraba DPS", tenureMonths: 180, minAmount: 0, interestRatePct: 8.0, sourceUrl: "https://www.mutualtrustbank.com/wp-content/uploads/2026/09/Profit-on-Deposit-Latest-Sep-26v2.pdf" },
+  { institutionName: "Mutual Trust Bank", productType: "DPS", productNameHint: "MTB Yaqeen Mudaraba DPS", tenureMonths: 12, minAmount: 0, interestRatePct: 8.5, sourceUrl: "https://www.mutualtrustbank.com/wp-content/uploads/2026/09/Profit-on-Deposit-Latest-Sep-v3.pdf" },
+  { institutionName: "Mutual Trust Bank", productType: "DPS", productNameHint: "MTB Yaqeen Mudaraba DPS", tenureMonths: 24, minAmount: 0, interestRatePct: 8.25, sourceUrl: "https://www.mutualtrustbank.com/wp-content/uploads/2026/09/Profit-on-Deposit-Latest-Sep-v3.pdf" },
+  { institutionName: "Mutual Trust Bank", productType: "DPS", productNameHint: "MTB Yaqeen Mudaraba DPS", tenureMonths: 36, minAmount: 0, interestRatePct: 8.25, sourceUrl: "https://www.mutualtrustbank.com/wp-content/uploads/2026/09/Profit-on-Deposit-Latest-Sep-v3.pdf" },
+  { institutionName: "Mutual Trust Bank", productType: "DPS", productNameHint: "MTB Yaqeen Mudaraba DPS", tenureMonths: 60, minAmount: 0, interestRatePct: 8.0, sourceUrl: "https://www.mutualtrustbank.com/wp-content/uploads/2026/09/Profit-on-Deposit-Latest-Sep-v3.pdf" },
+  { institutionName: "Mutual Trust Bank", productType: "DPS", productNameHint: "MTB Yaqeen Mudaraba DPS", tenureMonths: 96, minAmount: 0, interestRatePct: 8.0, sourceUrl: "https://www.mutualtrustbank.com/wp-content/uploads/2026/09/Profit-on-Deposit-Latest-Sep-v3.pdf" },
+  { institutionName: "Mutual Trust Bank", productType: "DPS", productNameHint: "MTB Yaqeen Mudaraba DPS", tenureMonths: 120, minAmount: 0, interestRatePct: 8.0, sourceUrl: "https://www.mutualtrustbank.com/wp-content/uploads/2026/09/Profit-on-Deposit-Latest-Sep-v3.pdf" },
+  { institutionName: "Mutual Trust Bank", productType: "DPS", productNameHint: "MTB Yaqeen Mudaraba DPS", tenureMonths: 144, minAmount: 0, interestRatePct: 8.0, sourceUrl: "https://www.mutualtrustbank.com/wp-content/uploads/2026/09/Profit-on-Deposit-Latest-Sep-v3.pdf" },
+  { institutionName: "Mutual Trust Bank", productType: "DPS", productNameHint: "MTB Yaqeen Mudaraba DPS", tenureMonths: 180, minAmount: 0, interestRatePct: 8.0, sourceUrl: "https://www.mutualtrustbank.com/wp-content/uploads/2026/09/Profit-on-Deposit-Latest-Sep-v3.pdf" },
 
   // --- Bank Asia --- Bank Asia Islamic Banking. "Mudaraba Term Deposit
   // Account (MTDA)", Individual tier, effective August 09, 2026.
@@ -700,27 +698,29 @@ const entries: RateEntry[] = [
   { institutionName: "IFIC Bank", productType: "FDR", productNameHint: "IFIC Islamic Mudaraba FDR", tenureMonths: 24, minAmount: 0, interestRatePct: 8.0, sourceUrl: "https://ificbank.com.bd/public/islamic/Latest-Deposit-Rate-Islamic-16-08-2026.pdf" },
   { institutionName: "IFIC Bank", productType: "FDR", productNameHint: "IFIC Islamic Mudaraba FDR", tenureMonths: 36, minAmount: 0, interestRatePct: 8.0, sourceUrl: "https://ificbank.com.bd/public/islamic/Latest-Deposit-Rate-Islamic-16-08-2026.pdf" },
 
-  // --- United Commercial Bank (UCB Taqwa) --- found 2026-09-01: UCB's own
-  // "income-sharing-ratio-and-deposit" page still explains only the ISR
-  // *methodology* with no numbers, but a separate, actively-updated monthly
-  // rate-sheet PDF exists (analogous to UCB's conventional instruction-
-  // circular pattern) publishing both the ISR% and the resulting computed
-  // Profit Rate% -- a real percentage, same shape as every other bank here.
-  // Using the most recent column (Jul-26) from "General Product (Retail)".
-  // Note: this PDF's filename is dated and gets replaced monthly (e.g.
-  // ...june-2026.pdf -> ...july-2026.pdf) -- if this exact URL 404s on a
-  // future re-check, look for the current one via https://www.ucb.com.bd/rates/interest-rates/
+  // --- United Commercial Bank (UCB Taqwa) --- found 2026-09-01, rolled
+  // again 2026-09-11: UCB's own "income-sharing-ratio-and-deposit" page
+  // still explains only the ISR *methodology* with no numbers, but a
+  // separate, actively-updated monthly rate-sheet PDF exists (analogous to
+  // UCB's conventional instruction-circular pattern) publishing both the
+  // ISR% and the resulting computed Profit Rate% -- a real percentage,
+  // same shape as every other bank here. Using the most recent column
+  // (Aug-26) from "General Product (Retail)" -- real drift from the prior
+  // check: every tenure rose (e.g. 12mo 8.06%->8.45%). Note: this PDF's
+  // filename is dated and gets replaced monthly (e.g. ...july-2026.pdf ->
+  // ...august-2026.pdf) -- if this exact URL 404s on a future re-check,
+  // look for the current one via https://www.ucb.com.bd/rates/interest-rates/
   // rather than assuming no data exists again.
-  { institutionName: "United Commercial Bank", productType: "FDR", productNameHint: "UCB Taqwa Mudaraba FDR", tenureMonths: 1, minAmount: 0, interestRatePct: 3.79, sourceUrl: "https://www.ucb.com.bd/reports/interest-rates/ucb-islamic-rate-sheet-july-2026.pdf" },
-  { institutionName: "United Commercial Bank", productType: "FDR", productNameHint: "UCB Taqwa Mudaraba FDR", tenureMonths: 3, minAmount: 0, interestRatePct: 8.06, sourceUrl: "https://www.ucb.com.bd/reports/interest-rates/ucb-islamic-rate-sheet-july-2026.pdf" },
-  { institutionName: "United Commercial Bank", productType: "FDR", productNameHint: "UCB Taqwa Mudaraba FDR", tenureMonths: 6, minAmount: 0, interestRatePct: 8.06, sourceUrl: "https://www.ucb.com.bd/reports/interest-rates/ucb-islamic-rate-sheet-july-2026.pdf" },
-  { institutionName: "United Commercial Bank", productType: "FDR", productNameHint: "UCB Taqwa Mudaraba FDR", tenureMonths: 12, minAmount: 0, interestRatePct: 8.06, sourceUrl: "https://www.ucb.com.bd/reports/interest-rates/ucb-islamic-rate-sheet-july-2026.pdf" },
-  { institutionName: "United Commercial Bank", productType: "FDR", productNameHint: "UCB Taqwa Mudaraba FDR", tenureMonths: 24, minAmount: 0, interestRatePct: 8.06, sourceUrl: "https://www.ucb.com.bd/reports/interest-rates/ucb-islamic-rate-sheet-july-2026.pdf" },
-  { institutionName: "United Commercial Bank", productType: "FDR", productNameHint: "UCB Taqwa Mudaraba FDR", tenureMonths: 36, minAmount: 0, interestRatePct: 8.06, sourceUrl: "https://www.ucb.com.bd/reports/interest-rates/ucb-islamic-rate-sheet-july-2026.pdf" },
-  { institutionName: "United Commercial Bank", productType: "DPS", productNameHint: "UCB Taqwa Mudaraba DPS", tenureMonths: 36, minAmount: 0, interestRatePct: 7.59, sourceUrl: "https://www.ucb.com.bd/reports/interest-rates/ucb-islamic-rate-sheet-july-2026.pdf" },
-  { institutionName: "United Commercial Bank", productType: "DPS", productNameHint: "UCB Taqwa Mudaraba DPS", tenureMonths: 60, minAmount: 0, interestRatePct: 8.06, sourceUrl: "https://www.ucb.com.bd/reports/interest-rates/ucb-islamic-rate-sheet-july-2026.pdf" },
-  { institutionName: "United Commercial Bank", productType: "DPS", productNameHint: "UCB Taqwa Mudaraba DPS", tenureMonths: 84, minAmount: 0, interestRatePct: 8.06, sourceUrl: "https://www.ucb.com.bd/reports/interest-rates/ucb-islamic-rate-sheet-july-2026.pdf" },
-  { institutionName: "United Commercial Bank", productType: "DPS", productNameHint: "UCB Taqwa Mudaraba DPS", tenureMonths: 120, minAmount: 0, interestRatePct: 8.06, sourceUrl: "https://www.ucb.com.bd/reports/interest-rates/ucb-islamic-rate-sheet-july-2026.pdf" },
+  { institutionName: "United Commercial Bank", productType: "FDR", productNameHint: "UCB Taqwa Mudaraba FDR", tenureMonths: 1, minAmount: 0, interestRatePct: 3.98, sourceUrl: "https://www.ucb.com.bd/reports/interest-rates/ucb-islamic-rate-sheet-august-2026.pdf" },
+  { institutionName: "United Commercial Bank", productType: "FDR", productNameHint: "UCB Taqwa Mudaraba FDR", tenureMonths: 3, minAmount: 0, interestRatePct: 8.45, sourceUrl: "https://www.ucb.com.bd/reports/interest-rates/ucb-islamic-rate-sheet-august-2026.pdf" },
+  { institutionName: "United Commercial Bank", productType: "FDR", productNameHint: "UCB Taqwa Mudaraba FDR", tenureMonths: 6, minAmount: 0, interestRatePct: 8.45, sourceUrl: "https://www.ucb.com.bd/reports/interest-rates/ucb-islamic-rate-sheet-august-2026.pdf" },
+  { institutionName: "United Commercial Bank", productType: "FDR", productNameHint: "UCB Taqwa Mudaraba FDR", tenureMonths: 12, minAmount: 0, interestRatePct: 8.45, sourceUrl: "https://www.ucb.com.bd/reports/interest-rates/ucb-islamic-rate-sheet-august-2026.pdf" },
+  { institutionName: "United Commercial Bank", productType: "FDR", productNameHint: "UCB Taqwa Mudaraba FDR", tenureMonths: 24, minAmount: 0, interestRatePct: 8.45, sourceUrl: "https://www.ucb.com.bd/reports/interest-rates/ucb-islamic-rate-sheet-august-2026.pdf" },
+  { institutionName: "United Commercial Bank", productType: "FDR", productNameHint: "UCB Taqwa Mudaraba FDR", tenureMonths: 36, minAmount: 0, interestRatePct: 8.45, sourceUrl: "https://www.ucb.com.bd/reports/interest-rates/ucb-islamic-rate-sheet-august-2026.pdf" },
+  { institutionName: "United Commercial Bank", productType: "DPS", productNameHint: "UCB Taqwa Mudaraba DPS", tenureMonths: 36, minAmount: 0, interestRatePct: 7.95, sourceUrl: "https://www.ucb.com.bd/reports/interest-rates/ucb-islamic-rate-sheet-august-2026.pdf" },
+  { institutionName: "United Commercial Bank", productType: "DPS", productNameHint: "UCB Taqwa Mudaraba DPS", tenureMonths: 60, minAmount: 0, interestRatePct: 8.45, sourceUrl: "https://www.ucb.com.bd/reports/interest-rates/ucb-islamic-rate-sheet-august-2026.pdf" },
+  { institutionName: "United Commercial Bank", productType: "DPS", productNameHint: "UCB Taqwa Mudaraba DPS", tenureMonths: 84, minAmount: 0, interestRatePct: 8.45, sourceUrl: "https://www.ucb.com.bd/reports/interest-rates/ucb-islamic-rate-sheet-august-2026.pdf" },
+  { institutionName: "United Commercial Bank", productType: "DPS", productNameHint: "UCB Taqwa Mudaraba DPS", tenureMonths: 120, minAmount: 0, interestRatePct: 8.45, sourceUrl: "https://www.ucb.com.bd/reports/interest-rates/ucb-islamic-rate-sheet-august-2026.pdf" },
 
   // --- Eastern Bank (EBL) Islamic --- found 2026-09-01: EBL's profit-
   // distribution page (previously 403-blocked, now live) now publishes a
