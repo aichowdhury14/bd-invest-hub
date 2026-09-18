@@ -749,22 +749,25 @@ const entries: RateEntry[] = [
   { institutionName: "Bank Asia", productType: "DPS", productNameHint: "Bank Asia Islamic Banking Mudaraba DPS", tenureMonths: 36, minAmount: 0, interestRatePct: 6.45, sourceUrl: "https://www.bankasia-bd.com/islamic/product/Profit-on-Deposit" },
   { institutionName: "Bank Asia", productType: "DPS", productNameHint: "Bank Asia Islamic Banking Mudaraba DPS", tenureMonths: 144, minAmount: 0, interestRatePct: 6.45, sourceUrl: "https://www.bankasia-bd.com/islamic/product/Profit-on-Deposit" },
 
-  // --- Trust Bank --- Trust Islamic Banking (TIB). "Mudaraba Term Deposit
-  // (MTDR)", Individuals & Provident Funds category, effective August 10, 2026.
-  { institutionName: "Trust Bank", productType: "FDR", productNameHint: "Trust Islamic Banking Mudaraba FDR", tenureMonths: 1, minAmount: 0, interestRatePct: 3.0, sourceUrl: "https://www.tblbd.com/rates-and-charges/mudaraba-deposit-rates" },
-  { institutionName: "Trust Bank", productType: "FDR", productNameHint: "Trust Islamic Banking Mudaraba FDR", tenureMonths: 3, minAmount: 0, interestRatePct: 7.5, sourceUrl: "https://www.tblbd.com/rates-and-charges/mudaraba-deposit-rates" },
-  { institutionName: "Trust Bank", productType: "FDR", productNameHint: "Trust Islamic Banking Mudaraba FDR", tenureMonths: 6, minAmount: 0, interestRatePct: 7.5, sourceUrl: "https://www.tblbd.com/rates-and-charges/mudaraba-deposit-rates" },
-  { institutionName: "Trust Bank", productType: "FDR", productNameHint: "Trust Islamic Banking Mudaraba FDR", tenureMonths: 12, minAmount: 0, interestRatePct: 7.5, sourceUrl: "https://www.tblbd.com/rates-and-charges/mudaraba-deposit-rates" },
-  // "Mudaraba Monthly Savings Scheme (MMSS)" — single flat rate published
-  // across the scheme's stated 3/5/8/10/12-year tenure options.
-  // Rate drift re-confirmed 2026-09-01: MMSS now a flat 6.00% p.a. across all
-  // tenures (was 8.00% at prior check) -- verbatim from the page: "Present
-  // Provisional Profit rate for MMSS is 6.00% p.a."
-  { institutionName: "Trust Bank", productType: "DPS", productNameHint: "Trust Islamic Banking Mudaraba DPS", tenureMonths: 36, minAmount: 0, interestRatePct: 6.0, sourceUrl: "https://www.tblbd.com/islamic-banking/deposit-accounts/mudaraba-monthly-savings-scheme" },
-  { institutionName: "Trust Bank", productType: "DPS", productNameHint: "Trust Islamic Banking Mudaraba DPS", tenureMonths: 60, minAmount: 0, interestRatePct: 6.0, sourceUrl: "https://www.tblbd.com/islamic-banking/deposit-accounts/mudaraba-monthly-savings-scheme" },
-  { institutionName: "Trust Bank", productType: "DPS", productNameHint: "Trust Islamic Banking Mudaraba DPS", tenureMonths: 96, minAmount: 0, interestRatePct: 6.0, sourceUrl: "https://www.tblbd.com/islamic-banking/deposit-accounts/mudaraba-monthly-savings-scheme" },
-  { institutionName: "Trust Bank", productType: "DPS", productNameHint: "Trust Islamic Banking Mudaraba DPS", tenureMonths: 120, minAmount: 0, interestRatePct: 6.0, sourceUrl: "https://www.tblbd.com/islamic-banking/deposit-accounts/mudaraba-monthly-savings-scheme" },
-  { institutionName: "Trust Bank", productType: "DPS", productNameHint: "Trust Islamic Banking Mudaraba DPS", tenureMonths: 144, minAmount: 0, interestRatePct: 6.0, sourceUrl: "https://www.tblbd.com/islamic-banking/deposit-accounts/mudaraba-monthly-savings-scheme" },
+  // --- Trust Bank Islamic (TIB) --- ALL ENTRIES REMOVED 2026-09-18.
+  //
+  // Both source URLs this section relied on now 404, found by sweeping every
+  // sourceUrl in this file rather than by spot-checking:
+  //   /rates-and-charges/mudaraba-deposit-rates  (was: MTDR 1/3/6/12mo =
+  //     3.00/7.50/7.50/7.50%, Individuals & Provident Funds, eff. 10-Aug-2026)
+  //   /islamic-banking/deposit-accounts/mudaraba-monthly-savings-scheme
+  //     (was: MMSS flat 6.00% across 3/5/8/10/12yr)
+  //
+  // Trust Bank reorganised its site in the 15-Sep-2026 repricing (the same
+  // move that relocated its conventional rates to /rates/). Its Islamic
+  // section survives at https://www.tblbd.com/islamic/ but publishes no rate
+  // figures at all -- zero percentage values and no Mudaraba product links
+  // anywhere in the page -- and /islamic/rates/ does not exist. So there is
+  // currently no live source for any Trust Bank Islamic rate.
+  //
+  // Left as shells, consistent with how this file treats every other
+  // unpublished rate, and with the conventional Trust Bank DPS removed in the
+  // same sweep. Re-add if the bank republishes a Mudaraba rate table.
 
   // --- IFIC Bank --- IFIC Islamic. "Mudaraba Term Deposit", Provisional
   // Rates W.E.F. 16.08.2026 (read directly from the bank's own PDF).

@@ -1175,3 +1175,34 @@ next run, and the run after that was a clean no-op.
 Applied to local dev DB and verified (typecheck, lint, 34 tests, production
 build; every changed figure read back from the database and matched against
 its source document) before promotion to production.
+
+### Follow-up: swept every sourceUrl, found Trust Bank Islamic also dead
+
+The sweep above fixed Trust Bank's *conventional* URL but spot-checking
+missed that its two *Islamic* URLs were dead too. Re-running the check
+across all 46 distinct `sourceUrl` values in the file (not a sample)
+caught both:
+- `/rates-and-charges/mudaraba-deposit-rates` → 404 (was MTDR
+  1/3/6/12mo = 3.00/7.50/7.50/7.50%)
+- `/islamic-banking/deposit-accounts/mudaraba-monthly-savings-scheme` →
+  404 (was MMSS flat 6.00% across 3/5/8/10/12yr)
+
+Trust Bank reorganised its whole site in the 15-Sep-2026 repricing — the
+same move that relocated conventional rates to `/rates/`. The Islamic
+section survives at `https://www.tblbd.com/islamic/` but publishes **no
+rate figures at all**: zero percentage values and no Mudaraba product
+links anywhere in the page. `/islamic/rates/` does not exist. So all 9
+Trust Bank Islamic entries were removed and the products left as shells,
+matching how the conventional DPS was handled in the same sweep.
+
+This is also where the new `clearOrphanedManualTiers` guard proved itself
+a second time: it caught all 9 stale tiers automatically on the next run
+(4 FDR + 5 DPS), naming each product, with a clean no-op run after.
+Without it those numbers would have kept serving from the database with a
+404 behind them.
+
+**Sweep method worth keeping:** check every `sourceUrl` in the file, and
+treat three signals as failures, not just non-200 — a non-200 status, a
+200 with a suspiciously small body (WAF block pages), and a `.pdf` URL
+answered with `text/html`. That last one correctly flagged IFIC's two
+captcha-walled PDFs as needing browser-style fetching rather than as dead.
