@@ -1039,3 +1039,40 @@ stale/mislabeled search-cache URL.
 Applied to local dev DB, verified (typecheck, lint, test suite, production
 build all passed; UCB Islamic FDR/DPS values spot-checked against the
 source PDF and matched exactly) before promotion to production.
+
+## BRAC Bank rolled to ALCO Circular 2026/09 (2026-09-18)
+
+The 2026-09-11 pass reported BRAC as "still current" and flagged a
+suspicious search result as a false lead. That call was right about the
+false lead but wrong about currency: BRAC **has** since published a real
+new circular, and the automated pass missed it because it searched rather
+than reading the bank's own page.
+
+**Method note (why this was missed before, and how to avoid repeating
+it):** the correct source is the PDF link embedded in
+`https://www.bracbank.com/en/page/deposit-interest-rate` — extract the
+`.pdf` href from that page's HTML and fetch it. Do NOT rely on search
+results for BRAC: its S3 filenames are unreliable as dating evidence, and
+one cached result had a filename saying 2026 while the document inside was
+the 2025/05 circular. Always confirm against the `ALCO Circular: <n>` and
+`Effective Date:` header printed on page 1 of the PDF itself.
+
+**Current source:** ALCO Circular 2026/09, Effective Date September 13,
+2026 —
+`https://brackweb.s3.ap-southeast-1.amazonaws.com/uploads/all/BRAC_Bank_Deposit_Interest_Rate_13.09.20266aa159b705cdd.pdf`
+(read directly; header verified). Supersedes 2026/07 (Aug 25, 2026).
+
+Real drift in both tracked products:
+- **Retail Monthly Interest FD (FRABR)** — down 0.50pp at every tenure:
+  6mo 8.00%→7.50%; 12/24/36/60/84mo 8.25%→7.75%. Published tenure list
+  unchanged (6/12/14/18/24/36/60/84mo).
+- **FRFLX DPS** — the band structure itself changed, not just the values.
+  Previously Yr1 8.50%, Yr2 8.75%, then flat 9.00% from Yr3 onward. Now a
+  rising ladder that doesn't reach 8.00% until Yr5: Yr1 7.00%, Yr2 7.25%,
+  Yr3 7.50%, Yr4 7.75%, Yr5-9 8.00%, Yr10 8.25%. Added a 48mo (Yr4) row,
+  which the old flat-from-Yr3 shape made redundant but the new ladder makes
+  a distinct rate — BRAC DPS went from 6 to 7 tiers.
+
+Applied to local dev DB, verified (typecheck, lint, 34 tests, production
+build all passed; every BRAC FDR/DPS value read back from the database and
+matched against the circular one-for-one) before promotion to production.
