@@ -37,3 +37,21 @@ export const bankingModeLabels: Record<BankingMode, string> = {
 export function rateLabel(isIslamic: boolean): string {
   return isIslamic ? "Profit rate" : "Interest rate";
 }
+
+/**
+ * Shown where a product has neither a percentage rate nor a profit-sharing
+ * ratio — i.e. the bank genuinely publishes no figure we could verify.
+ *
+ * A bare em-dash reads as "missing data" (as if we forgot, or the page is
+ * broken). These products are deliberately empty: this app never fills a
+ * gap with an estimate, so the absence is itself the honest answer and
+ * should say so. Overwhelmingly these are Islamic-banking windows whose
+ * banks disclose nothing publicly — see research/rate-research-2026-08-28.md
+ * for the per-bank findings behind each one.
+ */
+export const NOT_PUBLISHED_LABEL = "Not published";
+
+export function notPublishedTooltip(isIslamic: boolean): string {
+  const kind = isIslamic ? "profit rate or sharing ratio" : "rate";
+  return `This bank does not publish a ${kind} for this product. We show nothing rather than an estimate.`;
+}

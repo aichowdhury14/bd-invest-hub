@@ -5,7 +5,12 @@ import {
   bestRateForProduct,
   headlineRatioForProduct,
 } from "@/lib/products";
-import { institutionTypeLabels, productTypeLabels } from "@/lib/labels";
+import {
+  institutionTypeLabels,
+  productTypeLabels,
+  NOT_PUBLISHED_LABEL,
+  notPublishedTooltip,
+} from "@/lib/labels";
 import { institutionTypeStyle, islamicBadgeClass } from "@/lib/institution-style";
 import { Container } from "@/components/Container";
 import { InstitutionLogo } from "@/components/InstitutionLogo";
@@ -182,7 +187,12 @@ export default async function HomePage() {
                                     : `${ratio.tenureMonths}mo`}
                                 </span>
                               ) : (
-                                <span className="shrink-0 text-muted">—</span>
+                                <span
+                                  className="shrink-0 rounded-full px-2 py-0.5 text-[11px] font-medium text-muted/70 bg-foreground/[0.04]"
+                                  title={notPublishedTooltip(product.isIslamic)}
+                                >
+                                  {NOT_PUBLISHED_LABEL}
+                                </span>
                               )}
                             </li>
                           );
