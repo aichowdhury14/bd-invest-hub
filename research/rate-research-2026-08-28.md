@@ -1076,3 +1076,102 @@ Real drift in both tracked products:
 Applied to local dev DB, verified (typecheck, lint, 34 tests, production
 build all passed; every BRAC FDR/DPS value read back from the database and
 matched against the circular one-for-one) before promotion to production.
+
+## Sector-wide repricing around 15-Sep-2026 — full sweep (2026-09-18)
+
+The BRAC miss prompted re-checking every bank with the corrected method
+(read the bank's own page; verify the date printed inside the document).
+This surfaced something bigger than one stale bank: **a sector-wide
+repricing dated 15-Sep-2026**, visible as an explicit effective date on
+Uttara, Bank Asia, Trust Bank and EBL. Most conventional rates fell.
+
+### Why a liveness check alone is not enough
+Four different failure modes appeared, only one of which is a plain 404:
+- **Plain 404** — IFIC conventional, Jamuna.
+- **200 OK that is actually a block** — Southeast returns HTTP 200 with a
+  245-byte "Request Rejected" WAF page. A naive check reads this as
+  healthy. With full browser headers it resolves to a true 404.
+- **403 that is only bot-blocking** — Rupali and Uttara reject plain
+  fetches but serve normally to a browser User-Agent. Rupali's content was
+  fine all along.
+- **Still-live URL that has been superseded** — Dhaka Bank's Aug-06 PDF
+  still returns 200, but the bank now links a Sep-16 one. A 404-only sweep
+  would have missed this entirely.
+Conclusion: always resolve the current document from the bank's own page,
+then compare the date printed inside it. Never infer from filename or
+HTTP status alone.
+
+### Changes applied
+- **Trust Bank** — URL moved (`/rates-and-charges/deposit-rates` → `/rates/`).
+  Individuals FDR fell 0.75pp at every tier/tenure: 7.00/7.25/7.50/7.75
+  across 3/6/12mo. **Conventional DPS rows removed**: the live page has no
+  DPS rate table at all, only a product link, so the stored 9.50% quartet
+  had no source. Left as a shell rather than shown unsourced.
+- **Bank Asia** — every tenure fell, and the page is now amount-tiered
+  (below 1 Cr / 1 Cr+) where stored data was untiered. Now 7.00/7.00/7.50/
+  7.50/7.50 base, 7.50/7.50/7.75/7.75/7.75 upper. Both bands captured.
+- **Uttara Bank** — 3mo 8.50→7.50, 6mo 8.75→7.75, 1-5yr band 9.00→8.00.
+- **Southeast Bank** — new undated URL (`All_Deposit_list_of_SEBPLC.pdf`,
+  "Last Updated September 01, 2026"). FDR tier **structure** changed: five
+  amount bands became three (breakpoints 10L/50L/1cr/5cr → 50L/150L), so
+  the old upper-band rates no longer exist as published figures and were
+  replaced, not carried forward. Base rates unchanged; 18/24/36mo tenures
+  added. Shohoz DPS re-read and confirmed unchanged.
+- **Dhaka Bank** — source refreshed to the Sep-16-2026 treasury sheet.
+  Conventional FDR figures **confirmed unchanged** (Regular Fixed Deposit:
+  4.00/7.75/8.00/8.25/8.25/8.25). Noted that this sheet also prices a
+  separate Islamic "Regular Fixed Deposit" at a flat 6.00%, which is a
+  *different* product from the MSDS scheme the Islamic rows track — the two
+  are deliberately not merged.
+- **Jamuna Bank** — source refreshed to `..._20260913.pdf`. MSS 3Y 9.50%
+  confirmed; 5Y and 10Y confirmed 9.00%. The **84mo row was dropped**: MSS
+  tenors are 3/5/8/10 years, so a 7-year row has no source. (A separate
+  lump-sum Pension Deposit Scheme does have a 7-year tenor at 9.50%, but
+  mapping the row there would silently change what the number means.)
+- **IFIC Bank** — conventional source refreshed (W.E.F. 07.09.2026); all
+  FDR tiers confirmed unchanged. Islamic sheet still current, unchanged.
+- **Confirmed unchanged, no edit:** Dutch-Bangla (FDR 7.00/7.10/7.20 and
+  the blanket 9.50% DPS covering 3/5/8/10yr both already correct), Rupali
+  (circular re-read: 8.25/8.50/8.75), Agrani (FDR and Lakhpoti DPS).
+
+### Extraction pitfalls worth remembering
+- `pdftotext -layout` shifts Jamuna's MSS rate column by one row, making 3Y
+  and 5Y both read 9.50%. Caught by back-solving the printed maturity
+  figure; `-simple` and `-table` agree on the true alignment. The same
+  misalignment affects IFIC's Islamic table, where `-table` is correct.
+- EBL's Sep-15 rate-sheet PDF has a structurally scrambled text layer
+  (labels offset from rate rows). Its 3/6/12mo values appear to match
+  stored, but tier alignment could not be trusted, so **EBL was left
+  untouched pending a manual read** rather than updated on a guess.
+
+### Structural fix to the import script
+Removing Trust Bank's DPS rows exposed a real bug: `importByProduct` only
+deletes-then-recreates tiers for products still listed in the file, so
+deleting a product's rows left its old tiers **orphaned in the database**
+while the import reported success — unsourced numbers serving live, the
+worst failure mode for this project, and silent. Added
+`clearOrphanedManualTiers`, which removes MANUAL tiers for any product no
+longer listed and logs an `ORPHANED:` warning naming the institution and
+product. Verified: it cleared exactly Trust Bank's 4 stale tiers on the
+next run, and the run after that was a clean no-op.
+
+### Still open
+- **IDLC Finance** — `idlc.com/term-deposit` is a client-rendered SPA with
+  no percentages in the HTML and no JSON endpoint found. All five stored
+  figures unverifiable by automation; needs a manual read.
+- **LankaBangla** — page states "Effective April 27, 2025" (~17 months
+  old). Its Classic TDR (10.00/10.50/10.75/10.50/10.50) matches none of the
+  stored values, nor does Earn First TDR. Which product the app intends to
+  track needs a decision before any update.
+- **Prime NOW** — stored 3mo=9.0% has no matching row (nearest is "90 Days
+  7.00%", not equivalent); 13-36mo band now reads 9.75% vs stored 9.5%.
+- **City Bank** — tier boundaries differ from the app's schema (page uses
+  "Below 1 Crore"; schema splits at 50L), so values can't be mapped
+  one-to-one without a schema decision. DPS block confirmed unchanged.
+- **IFIC DPS** — sheet has no tenure-keyed DPS table; stored 10.00% matches
+  "Aamar Bhobishawt" but "Pension Savings Scheme" is 9.50%. Which product
+  these rows track needs confirming.
+
+Applied to local dev DB and verified (typecheck, lint, 34 tests, production
+build; every changed figure read back from the database and matched against
+its source document) before promotion to production.

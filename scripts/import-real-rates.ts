@@ -199,12 +199,12 @@ const entries: RateEntry[] = [
   // more representative general-public product, and it extends to 24mo. Confirmed
   // via re-audit that NO Dhaka Bank FDR product (Regular/Plus/Senior/Aroni/Obiram/
   // Corporate Supreme) exceeds 24 months — 24mo is the genuine ceiling.
-  { institutionName: "Dhaka Bank", productType: "FDR", tenureMonths: 1, minAmount: 0, interestRatePct: 4.0, sourceUrl: "https://dhakabank.com.bd/wp-content/uploads/2026/08/Deposit-Rate-Effective-from-Aug-06-2026.pdf" },
-  { institutionName: "Dhaka Bank", productType: "FDR", tenureMonths: 3, minAmount: 0, interestRatePct: 7.75, sourceUrl: "https://dhakabank.com.bd/wp-content/uploads/2026/08/Deposit-Rate-Effective-from-Aug-06-2026.pdf" },
-  { institutionName: "Dhaka Bank", productType: "FDR", tenureMonths: 6, minAmount: 0, interestRatePct: 8.0, sourceUrl: "https://dhakabank.com.bd/wp-content/uploads/2026/08/Deposit-Rate-Effective-from-Aug-06-2026.pdf" },
-  { institutionName: "Dhaka Bank", productType: "FDR", tenureMonths: 12, minAmount: 0, interestRatePct: 8.25, sourceUrl: "https://dhakabank.com.bd/wp-content/uploads/2026/08/Deposit-Rate-Effective-from-Aug-06-2026.pdf" },
-  { institutionName: "Dhaka Bank", productType: "FDR", tenureMonths: 18, minAmount: 0, interestRatePct: 8.25, sourceUrl: "https://dhakabank.com.bd/wp-content/uploads/2026/08/Deposit-Rate-Effective-from-Aug-06-2026.pdf" },
-  { institutionName: "Dhaka Bank", productType: "FDR", tenureMonths: 24, minAmount: 0, interestRatePct: 8.25, sourceUrl: "https://dhakabank.com.bd/wp-content/uploads/2026/08/Deposit-Rate-Effective-from-Aug-06-2026.pdf" },
+  { institutionName: "Dhaka Bank", productType: "FDR", tenureMonths: 1, minAmount: 0, interestRatePct: 4.0, sourceUrl: "https://dhakabank.com.bd/wp-content/uploads/2026/09/Deposit-Rate-Effective-from-Sep-16-2026.pdf" },
+  { institutionName: "Dhaka Bank", productType: "FDR", tenureMonths: 3, minAmount: 0, interestRatePct: 7.75, sourceUrl: "https://dhakabank.com.bd/wp-content/uploads/2026/09/Deposit-Rate-Effective-from-Sep-16-2026.pdf" },
+  { institutionName: "Dhaka Bank", productType: "FDR", tenureMonths: 6, minAmount: 0, interestRatePct: 8.0, sourceUrl: "https://dhakabank.com.bd/wp-content/uploads/2026/09/Deposit-Rate-Effective-from-Sep-16-2026.pdf" },
+  { institutionName: "Dhaka Bank", productType: "FDR", tenureMonths: 12, minAmount: 0, interestRatePct: 8.25, sourceUrl: "https://dhakabank.com.bd/wp-content/uploads/2026/09/Deposit-Rate-Effective-from-Sep-16-2026.pdf" },
+  { institutionName: "Dhaka Bank", productType: "FDR", tenureMonths: 18, minAmount: 0, interestRatePct: 8.25, sourceUrl: "https://dhakabank.com.bd/wp-content/uploads/2026/09/Deposit-Rate-Effective-from-Sep-16-2026.pdf" },
+  { institutionName: "Dhaka Bank", productType: "FDR", tenureMonths: 24, minAmount: 0, interestRatePct: 8.25, sourceUrl: "https://dhakabank.com.bd/wp-content/uploads/2026/09/Deposit-Rate-Effective-from-Sep-16-2026.pdf" },
   // Dhaka Bank DPS: the bank only publishes a maturity-VALUE chart (no percentage
   // rate anywhere), so these rates were back-solved from that chart — found the
   // rate R (monthly-compounded annuity, i=R/12) that makes our own maturity formula
@@ -257,11 +257,19 @@ const entries: RateEntry[] = [
   { institutionName: "NCC Bank", productType: "DPS", tenureMonths: 240, minAmount: 0, interestRatePct: 10.0, sourceUrl: "https://www.nccbank.com.bd/assets/files/rates_files/Deposit_Rates.pdf" },
 
   // --- Bank Asia --- FDR ladder + DPS+ (flagship DPS, from official brochure PDF)
-  { institutionName: "Bank Asia", productType: "FDR", tenureMonths: 3, minAmount: 0, interestRatePct: 8.0, sourceUrl: "https://www.bankasia-bd.com/other/interestrates" },
-  { institutionName: "Bank Asia", productType: "FDR", tenureMonths: 6, minAmount: 0, interestRatePct: 8.5, sourceUrl: "https://www.bankasia-bd.com/other/interestrates" },
-  { institutionName: "Bank Asia", productType: "FDR", tenureMonths: 12, minAmount: 0, interestRatePct: 8.25, sourceUrl: "https://www.bankasia-bd.com/other/interestrates" },
-  { institutionName: "Bank Asia", productType: "FDR", tenureMonths: 24, minAmount: 0, interestRatePct: 8.25, sourceUrl: "https://www.bankasia-bd.com/other/interestrates" },
-  { institutionName: "Bank Asia", productType: "FDR", tenureMonths: 36, minAmount: 0, interestRatePct: 8.25, sourceUrl: "https://www.bankasia-bd.com/other/interestrates" },
+  // Updated 2026-09-18 (sector-wide repricing around 15-Sep-2026): every
+  // tenure fell, and the page is now amount-tiered (below Tk 1 Cr / Tk 1 Cr &
+  // above) where the stored data was untiered -- both bands captured below.
+  { institutionName: "Bank Asia", productType: "FDR", tenureMonths: 3, minAmount: 0, maxAmount: 1 * CRORE, interestRatePct: 7.0, sourceUrl: "https://www.bankasia-bd.com/other/interestrates" },
+  { institutionName: "Bank Asia", productType: "FDR", tenureMonths: 3, minAmount: 1 * CRORE, interestRatePct: 7.5, sourceUrl: "https://www.bankasia-bd.com/other/interestrates" },
+  { institutionName: "Bank Asia", productType: "FDR", tenureMonths: 6, minAmount: 0, maxAmount: 1 * CRORE, interestRatePct: 7.0, sourceUrl: "https://www.bankasia-bd.com/other/interestrates" },
+  { institutionName: "Bank Asia", productType: "FDR", tenureMonths: 6, minAmount: 1 * CRORE, interestRatePct: 7.5, sourceUrl: "https://www.bankasia-bd.com/other/interestrates" },
+  { institutionName: "Bank Asia", productType: "FDR", tenureMonths: 12, minAmount: 0, maxAmount: 1 * CRORE, interestRatePct: 7.5, sourceUrl: "https://www.bankasia-bd.com/other/interestrates" },
+  { institutionName: "Bank Asia", productType: "FDR", tenureMonths: 12, minAmount: 1 * CRORE, interestRatePct: 7.75, sourceUrl: "https://www.bankasia-bd.com/other/interestrates" },
+  { institutionName: "Bank Asia", productType: "FDR", tenureMonths: 24, minAmount: 0, maxAmount: 1 * CRORE, interestRatePct: 7.5, sourceUrl: "https://www.bankasia-bd.com/other/interestrates" },
+  { institutionName: "Bank Asia", productType: "FDR", tenureMonths: 24, minAmount: 1 * CRORE, interestRatePct: 7.75, sourceUrl: "https://www.bankasia-bd.com/other/interestrates" },
+  { institutionName: "Bank Asia", productType: "FDR", tenureMonths: 36, minAmount: 0, maxAmount: 1 * CRORE, interestRatePct: 7.5, sourceUrl: "https://www.bankasia-bd.com/other/interestrates" },
+  { institutionName: "Bank Asia", productType: "FDR", tenureMonths: 36, minAmount: 1 * CRORE, interestRatePct: 7.75, sourceUrl: "https://www.bankasia-bd.com/other/interestrates" },
   // DPS+ (ডিপিএস+), effective from 01 Feb 2026 per the brochure
   { institutionName: "Bank Asia", productType: "DPS", tenureMonths: 36, minAmount: 0, interestRatePct: 9.81, sourceUrl: "https://www.bankasia-bd.com/downloads/Bank_Asia_DPS_Brochure.pdf" },
   { institutionName: "Bank Asia", productType: "DPS", tenureMonths: 60, minAmount: 0, interestRatePct: 9.96, sourceUrl: "https://www.bankasia-bd.com/downloads/Bank_Asia_DPS_Brochure.pdf" },
@@ -270,69 +278,104 @@ const entries: RateEntry[] = [
   { institutionName: "Bank Asia", productType: "DPS", tenureMonths: 144, minAmount: 0, interestRatePct: 9.34, sourceUrl: "https://www.bankasia-bd.com/downloads/Bank_Asia_DPS_Brochure.pdf" },
 
   // --- Trust Bank --- base FDR (tiered) + Trust Smart Savers DPS
-  { institutionName: "Trust Bank", productType: "FDR", tenureMonths: 3, minAmount: 0, maxAmount: 50 * LAC, interestRatePct: 7.75, sourceUrl: "https://www.tblbd.com/rates-and-charges/deposit-rates" },
-  { institutionName: "Trust Bank", productType: "FDR", tenureMonths: 3, minAmount: 50 * LAC, maxAmount: 1 * CRORE, interestRatePct: 8.0, sourceUrl: "https://www.tblbd.com/rates-and-charges/deposit-rates" },
-  { institutionName: "Trust Bank", productType: "FDR", tenureMonths: 3, minAmount: 1 * CRORE, maxAmount: 5 * CRORE, interestRatePct: 8.25, sourceUrl: "https://www.tblbd.com/rates-and-charges/deposit-rates" },
-  { institutionName: "Trust Bank", productType: "FDR", tenureMonths: 3, minAmount: 5 * CRORE, interestRatePct: 8.5, sourceUrl: "https://www.tblbd.com/rates-and-charges/deposit-rates" },
-  { institutionName: "Trust Bank", productType: "FDR", tenureMonths: 6, minAmount: 0, maxAmount: 50 * LAC, interestRatePct: 7.75, sourceUrl: "https://www.tblbd.com/rates-and-charges/deposit-rates" },
-  { institutionName: "Trust Bank", productType: "FDR", tenureMonths: 6, minAmount: 50 * LAC, maxAmount: 1 * CRORE, interestRatePct: 8.0, sourceUrl: "https://www.tblbd.com/rates-and-charges/deposit-rates" },
-  { institutionName: "Trust Bank", productType: "FDR", tenureMonths: 6, minAmount: 1 * CRORE, maxAmount: 5 * CRORE, interestRatePct: 8.25, sourceUrl: "https://www.tblbd.com/rates-and-charges/deposit-rates" },
-  { institutionName: "Trust Bank", productType: "FDR", tenureMonths: 6, minAmount: 5 * CRORE, interestRatePct: 8.5, sourceUrl: "https://www.tblbd.com/rates-and-charges/deposit-rates" },
-  { institutionName: "Trust Bank", productType: "FDR", tenureMonths: 12, minAmount: 0, maxAmount: 50 * LAC, interestRatePct: 7.75, sourceUrl: "https://www.tblbd.com/rates-and-charges/deposit-rates" },
-  { institutionName: "Trust Bank", productType: "FDR", tenureMonths: 12, minAmount: 50 * LAC, maxAmount: 1 * CRORE, interestRatePct: 8.0, sourceUrl: "https://www.tblbd.com/rates-and-charges/deposit-rates" },
-  { institutionName: "Trust Bank", productType: "FDR", tenureMonths: 12, minAmount: 1 * CRORE, maxAmount: 5 * CRORE, interestRatePct: 8.25, sourceUrl: "https://www.tblbd.com/rates-and-charges/deposit-rates" },
-  { institutionName: "Trust Bank", productType: "FDR", tenureMonths: 12, minAmount: 5 * CRORE, interestRatePct: 8.5, sourceUrl: "https://www.tblbd.com/rates-and-charges/deposit-rates" },
-  { institutionName: "Trust Bank", productType: "DPS", tenureMonths: 36, minAmount: 0, interestRatePct: 9.5, sourceUrl: "https://www.tblbd.com/rates-and-charges/deposit-rates" },
-  { institutionName: "Trust Bank", productType: "DPS", tenureMonths: 60, minAmount: 0, interestRatePct: 9.5, sourceUrl: "https://www.tblbd.com/rates-and-charges/deposit-rates" },
-  { institutionName: "Trust Bank", productType: "DPS", tenureMonths: 84, minAmount: 0, interestRatePct: 9.5, sourceUrl: "https://www.tblbd.com/rates-and-charges/deposit-rates" },
-  { institutionName: "Trust Bank", productType: "DPS", tenureMonths: 120, minAmount: 0, interestRatePct: 9.5, sourceUrl: "https://www.tblbd.com/rates-and-charges/deposit-rates" },
+  // Updated 2026-09-18. The old URL (/rates-and-charges/deposit-rates) now
+  // 404s; the live page is https://www.tblbd.com/rates/. Part of the
+  // sector-wide repricing around 15-Sep-2026: the Individuals FDR table fell
+  // 0.75pp at every tier and every tenure (3/6/12mo all share one rate per
+  // amount band), read directly off the live table.
+  { institutionName: "Trust Bank", productType: "FDR", tenureMonths: 3, minAmount: 0, maxAmount: 50 * LAC, interestRatePct: 7.0, sourceUrl: "https://www.tblbd.com/rates/" },
+  { institutionName: "Trust Bank", productType: "FDR", tenureMonths: 3, minAmount: 50 * LAC, maxAmount: 1 * CRORE, interestRatePct: 7.25, sourceUrl: "https://www.tblbd.com/rates/" },
+  { institutionName: "Trust Bank", productType: "FDR", tenureMonths: 3, minAmount: 1 * CRORE, maxAmount: 5 * CRORE, interestRatePct: 7.5, sourceUrl: "https://www.tblbd.com/rates/" },
+  { institutionName: "Trust Bank", productType: "FDR", tenureMonths: 3, minAmount: 5 * CRORE, interestRatePct: 7.75, sourceUrl: "https://www.tblbd.com/rates/" },
+  { institutionName: "Trust Bank", productType: "FDR", tenureMonths: 6, minAmount: 0, maxAmount: 50 * LAC, interestRatePct: 7.0, sourceUrl: "https://www.tblbd.com/rates/" },
+  { institutionName: "Trust Bank", productType: "FDR", tenureMonths: 6, minAmount: 50 * LAC, maxAmount: 1 * CRORE, interestRatePct: 7.25, sourceUrl: "https://www.tblbd.com/rates/" },
+  { institutionName: "Trust Bank", productType: "FDR", tenureMonths: 6, minAmount: 1 * CRORE, maxAmount: 5 * CRORE, interestRatePct: 7.5, sourceUrl: "https://www.tblbd.com/rates/" },
+  { institutionName: "Trust Bank", productType: "FDR", tenureMonths: 6, minAmount: 5 * CRORE, interestRatePct: 7.75, sourceUrl: "https://www.tblbd.com/rates/" },
+  { institutionName: "Trust Bank", productType: "FDR", tenureMonths: 12, minAmount: 0, maxAmount: 50 * LAC, interestRatePct: 7.0, sourceUrl: "https://www.tblbd.com/rates/" },
+  { institutionName: "Trust Bank", productType: "FDR", tenureMonths: 12, minAmount: 50 * LAC, maxAmount: 1 * CRORE, interestRatePct: 7.25, sourceUrl: "https://www.tblbd.com/rates/" },
+  { institutionName: "Trust Bank", productType: "FDR", tenureMonths: 12, minAmount: 1 * CRORE, maxAmount: 5 * CRORE, interestRatePct: 7.5, sourceUrl: "https://www.tblbd.com/rates/" },
+  { institutionName: "Trust Bank", productType: "FDR", tenureMonths: 12, minAmount: 5 * CRORE, interestRatePct: 7.75, sourceUrl: "https://www.tblbd.com/rates/" },
+  // Conventional DPS entries REMOVED 2026-09-18. They carried 9.50% at
+  // 36/60/84/120mo sourced to the old deposit-rates URL, but that page is gone
+  // and the current /rates/ page publishes no DPS rate table at all -- only a
+  // "Trust Student DPS" product link with no figures (verified by reading the
+  // live page, not inferred). Rather than keep four unsourceable numbers on a
+  // public comparison site, the product is left as a shell, consistent with how
+  // every other unpublished rate in this file is handled. Re-add if Trust Bank
+  // publishes a DPS rate table again.
 
-  // --- Southeast Bank --- Retail FDR (tiered) + Shohoz DPS
-  { institutionName: "Southeast Bank", productType: "FDR", tenureMonths: 3, minAmount: 0, maxAmount: 10 * LAC, interestRatePct: 8.0, sourceUrl: "https://www.southeastbank.com.bd/documents/deposit_rates/All_Deposit_list_of_SEBPLC-June-07-2026.pdf" },
-  { institutionName: "Southeast Bank", productType: "FDR", tenureMonths: 3, minAmount: 10 * LAC, maxAmount: 50 * LAC, interestRatePct: 8.25, sourceUrl: "https://www.southeastbank.com.bd/documents/deposit_rates/All_Deposit_list_of_SEBPLC-June-07-2026.pdf" },
-  { institutionName: "Southeast Bank", productType: "FDR", tenureMonths: 3, minAmount: 50 * LAC, maxAmount: 1 * CRORE, interestRatePct: 8.75, sourceUrl: "https://www.southeastbank.com.bd/documents/deposit_rates/All_Deposit_list_of_SEBPLC-June-07-2026.pdf" },
-  { institutionName: "Southeast Bank", productType: "FDR", tenureMonths: 3, minAmount: 1 * CRORE, maxAmount: 5 * CRORE, interestRatePct: 9.25, sourceUrl: "https://www.southeastbank.com.bd/documents/deposit_rates/All_Deposit_list_of_SEBPLC-June-07-2026.pdf" },
-  { institutionName: "Southeast Bank", productType: "FDR", tenureMonths: 3, minAmount: 5 * CRORE, interestRatePct: 9.5, sourceUrl: "https://www.southeastbank.com.bd/documents/deposit_rates/All_Deposit_list_of_SEBPLC-June-07-2026.pdf" },
-  { institutionName: "Southeast Bank", productType: "FDR", tenureMonths: 6, minAmount: 0, maxAmount: 10 * LAC, interestRatePct: 8.0, sourceUrl: "https://www.southeastbank.com.bd/documents/deposit_rates/All_Deposit_list_of_SEBPLC-June-07-2026.pdf" },
-  { institutionName: "Southeast Bank", productType: "FDR", tenureMonths: 6, minAmount: 10 * LAC, maxAmount: 50 * LAC, interestRatePct: 8.25, sourceUrl: "https://www.southeastbank.com.bd/documents/deposit_rates/All_Deposit_list_of_SEBPLC-June-07-2026.pdf" },
-  { institutionName: "Southeast Bank", productType: "FDR", tenureMonths: 6, minAmount: 50 * LAC, maxAmount: 1 * CRORE, interestRatePct: 8.75, sourceUrl: "https://www.southeastbank.com.bd/documents/deposit_rates/All_Deposit_list_of_SEBPLC-June-07-2026.pdf" },
-  { institutionName: "Southeast Bank", productType: "FDR", tenureMonths: 6, minAmount: 1 * CRORE, maxAmount: 5 * CRORE, interestRatePct: 9.25, sourceUrl: "https://www.southeastbank.com.bd/documents/deposit_rates/All_Deposit_list_of_SEBPLC-June-07-2026.pdf" },
-  { institutionName: "Southeast Bank", productType: "FDR", tenureMonths: 6, minAmount: 5 * CRORE, interestRatePct: 9.75, sourceUrl: "https://www.southeastbank.com.bd/documents/deposit_rates/All_Deposit_list_of_SEBPLC-June-07-2026.pdf" },
-  { institutionName: "Southeast Bank", productType: "FDR", tenureMonths: 12, minAmount: 0, maxAmount: 10 * LAC, interestRatePct: 8.25, sourceUrl: "https://www.southeastbank.com.bd/documents/deposit_rates/All_Deposit_list_of_SEBPLC-June-07-2026.pdf" },
-  { institutionName: "Southeast Bank", productType: "FDR", tenureMonths: 12, minAmount: 10 * LAC, maxAmount: 50 * LAC, interestRatePct: 8.5, sourceUrl: "https://www.southeastbank.com.bd/documents/deposit_rates/All_Deposit_list_of_SEBPLC-June-07-2026.pdf" },
-  { institutionName: "Southeast Bank", productType: "FDR", tenureMonths: 12, minAmount: 50 * LAC, maxAmount: 1 * CRORE, interestRatePct: 9.0, sourceUrl: "https://www.southeastbank.com.bd/documents/deposit_rates/All_Deposit_list_of_SEBPLC-June-07-2026.pdf" },
-  { institutionName: "Southeast Bank", productType: "FDR", tenureMonths: 12, minAmount: 1 * CRORE, maxAmount: 5 * CRORE, interestRatePct: 9.5, sourceUrl: "https://www.southeastbank.com.bd/documents/deposit_rates/All_Deposit_list_of_SEBPLC-June-07-2026.pdf" },
-  { institutionName: "Southeast Bank", productType: "FDR", tenureMonths: 12, minAmount: 5 * CRORE, interestRatePct: 9.75, sourceUrl: "https://www.southeastbank.com.bd/documents/deposit_rates/All_Deposit_list_of_SEBPLC-June-07-2026.pdf" },
-  { institutionName: "Southeast Bank", productType: "DPS", tenureMonths: 24, minAmount: 0, interestRatePct: 9.9248, sourceUrl: "https://www.southeastbank.com.bd/documents/deposit_rates/All_Deposit_list_of_SEBPLC-June-07-2026.pdf" },
-  { institutionName: "Southeast Bank", productType: "DPS", tenureMonths: 36, minAmount: 0, interestRatePct: 9.3807, sourceUrl: "https://www.southeastbank.com.bd/documents/deposit_rates/All_Deposit_list_of_SEBPLC-June-07-2026.pdf" },
-  { institutionName: "Southeast Bank", productType: "DPS", tenureMonths: 60, minAmount: 0, interestRatePct: 9.1096, sourceUrl: "https://www.southeastbank.com.bd/documents/deposit_rates/All_Deposit_list_of_SEBPLC-June-07-2026.pdf" },
-  { institutionName: "Southeast Bank", productType: "DPS", tenureMonths: 84, minAmount: 0, interestRatePct: 8.8391, sourceUrl: "https://www.southeastbank.com.bd/documents/deposit_rates/All_Deposit_list_of_SEBPLC-June-07-2026.pdf" },
-  { institutionName: "Southeast Bank", productType: "DPS", tenureMonths: 120, minAmount: 0, interestRatePct: 8.5692, sourceUrl: "https://www.southeastbank.com.bd/documents/deposit_rates/All_Deposit_list_of_SEBPLC-June-07-2026.pdf" },
+  // --- Southeast Bank --- Retail FDR (tiered) + Shohoz DPS. Updated 2026-09-18
+  // from the current sheet ("Interest/Profit Rate of Deposit Products", Last
+  // Updated September 01, 2026). The old dated URL (...-June-07-2026.pdf) now
+  // 404s; the bank switched to an UNDATED, stable filename, so the content now
+  // changes silently under a fixed URL -- future checks must compare the "Last
+  // Updated" line printed on every page, not the filename.
+  //   Note on how the dead link presented: a plain automated GET returned
+  //   HTTP 200 with a 245-byte "Request Rejected" WAF page, which naive
+  //   liveness checks read as healthy. Only with full browser headers does it
+  //   resolve to a true 404. Treat a suspiciously tiny 200 from this host as a
+  //   block, not a success.
+  // The FDR tier STRUCTURE changed: the June sheet had five amount bands
+  // (10L/50L/1cr/5cr breakpoints); the September sheet publishes three
+  // (<50 lac / 50-150 lac / 150 lac+). Base-tier rates are unchanged, but the
+  // old upper bands (8.75/9.25/9.5/9.75) no longer exist as published rates,
+  // so they are replaced rather than carried forward.
+  { institutionName: "Southeast Bank", productType: "FDR", tenureMonths: 3, minAmount: 0, maxAmount: 50 * LAC, interestRatePct: 8.0, sourceUrl: "https://www.southeastbank.com.bd/documents/deposit_rates/All_Deposit_list_of_SEBPLC.pdf" },
+  { institutionName: "Southeast Bank", productType: "FDR", tenureMonths: 3, minAmount: 50 * LAC, maxAmount: 150 * LAC, interestRatePct: 8.25, sourceUrl: "https://www.southeastbank.com.bd/documents/deposit_rates/All_Deposit_list_of_SEBPLC.pdf" },
+  { institutionName: "Southeast Bank", productType: "FDR", tenureMonths: 3, minAmount: 150 * LAC, interestRatePct: 8.75, sourceUrl: "https://www.southeastbank.com.bd/documents/deposit_rates/All_Deposit_list_of_SEBPLC.pdf" },
+  { institutionName: "Southeast Bank", productType: "FDR", tenureMonths: 6, minAmount: 0, maxAmount: 50 * LAC, interestRatePct: 8.0, sourceUrl: "https://www.southeastbank.com.bd/documents/deposit_rates/All_Deposit_list_of_SEBPLC.pdf" },
+  { institutionName: "Southeast Bank", productType: "FDR", tenureMonths: 6, minAmount: 50 * LAC, maxAmount: 150 * LAC, interestRatePct: 8.25, sourceUrl: "https://www.southeastbank.com.bd/documents/deposit_rates/All_Deposit_list_of_SEBPLC.pdf" },
+  { institutionName: "Southeast Bank", productType: "FDR", tenureMonths: 6, minAmount: 150 * LAC, interestRatePct: 8.75, sourceUrl: "https://www.southeastbank.com.bd/documents/deposit_rates/All_Deposit_list_of_SEBPLC.pdf" },
+  { institutionName: "Southeast Bank", productType: "FDR", tenureMonths: 12, minAmount: 0, maxAmount: 50 * LAC, interestRatePct: 8.25, sourceUrl: "https://www.southeastbank.com.bd/documents/deposit_rates/All_Deposit_list_of_SEBPLC.pdf" },
+  { institutionName: "Southeast Bank", productType: "FDR", tenureMonths: 12, minAmount: 50 * LAC, maxAmount: 150 * LAC, interestRatePct: 8.5, sourceUrl: "https://www.southeastbank.com.bd/documents/deposit_rates/All_Deposit_list_of_SEBPLC.pdf" },
+  { institutionName: "Southeast Bank", productType: "FDR", tenureMonths: 12, minAmount: 150 * LAC, interestRatePct: 9.0, sourceUrl: "https://www.southeastbank.com.bd/documents/deposit_rates/All_Deposit_list_of_SEBPLC.pdf" },
+  // 18mo/24mo/36mo now published too (the June sheet's captured range stopped
+  // at 12mo); 24 & 36mo share the same band rates.
+  { institutionName: "Southeast Bank", productType: "FDR", tenureMonths: 18, minAmount: 0, maxAmount: 50 * LAC, interestRatePct: 8.0, sourceUrl: "https://www.southeastbank.com.bd/documents/deposit_rates/All_Deposit_list_of_SEBPLC.pdf" },
+  { institutionName: "Southeast Bank", productType: "FDR", tenureMonths: 24, minAmount: 0, maxAmount: 50 * LAC, interestRatePct: 8.0, sourceUrl: "https://www.southeastbank.com.bd/documents/deposit_rates/All_Deposit_list_of_SEBPLC.pdf" },
+  { institutionName: "Southeast Bank", productType: "FDR", tenureMonths: 36, minAmount: 0, maxAmount: 50 * LAC, interestRatePct: 8.0, sourceUrl: "https://www.southeastbank.com.bd/documents/deposit_rates/All_Deposit_list_of_SEBPLC.pdf" },
+  // Shohoz DPS effective rates — re-read from the September sheet and
+  // confirmed unchanged from the June figures.
+  { institutionName: "Southeast Bank", productType: "DPS", tenureMonths: 24, minAmount: 0, interestRatePct: 9.9248, sourceUrl: "https://www.southeastbank.com.bd/documents/deposit_rates/All_Deposit_list_of_SEBPLC.pdf" },
+  { institutionName: "Southeast Bank", productType: "DPS", tenureMonths: 36, minAmount: 0, interestRatePct: 9.3807, sourceUrl: "https://www.southeastbank.com.bd/documents/deposit_rates/All_Deposit_list_of_SEBPLC.pdf" },
+  { institutionName: "Southeast Bank", productType: "DPS", tenureMonths: 60, minAmount: 0, interestRatePct: 9.1096, sourceUrl: "https://www.southeastbank.com.bd/documents/deposit_rates/All_Deposit_list_of_SEBPLC.pdf" },
+  { institutionName: "Southeast Bank", productType: "DPS", tenureMonths: 84, minAmount: 0, interestRatePct: 8.8391, sourceUrl: "https://www.southeastbank.com.bd/documents/deposit_rates/All_Deposit_list_of_SEBPLC.pdf" },
+  { institutionName: "Southeast Bank", productType: "DPS", tenureMonths: 120, minAmount: 0, interestRatePct: 8.5692, sourceUrl: "https://www.southeastbank.com.bd/documents/deposit_rates/All_Deposit_list_of_SEBPLC.pdf" },
 
   // --- IFIC Bank --- Term Deposit (tiered) + Aamar Bhobishawt DPS
-  { institutionName: "IFIC Bank", productType: "FDR", tenureMonths: 1, minAmount: 0, interestRatePct: 9.0, sourceUrl: "https://ificbank.com.bd/public/assets/home/interest/1786857538_Latest%20Deposit%20Advance%20Rate__16.08.2026.pdf" },
-  { institutionName: "IFIC Bank", productType: "FDR", tenureMonths: 3, minAmount: 0, maxAmount: 1 * LAC, interestRatePct: 9.0, sourceUrl: "https://ificbank.com.bd/public/assets/home/interest/1786857538_Latest%20Deposit%20Advance%20Rate__16.08.2026.pdf" },
-  { institutionName: "IFIC Bank", productType: "FDR", tenureMonths: 3, minAmount: 1 * LAC, maxAmount: 5 * LAC, interestRatePct: 9.5, sourceUrl: "https://ificbank.com.bd/public/assets/home/interest/1786857538_Latest%20Deposit%20Advance%20Rate__16.08.2026.pdf" },
-  { institutionName: "IFIC Bank", productType: "FDR", tenureMonths: 3, minAmount: 5 * LAC, maxAmount: 20 * LAC, interestRatePct: 9.5, sourceUrl: "https://ificbank.com.bd/public/assets/home/interest/1786857538_Latest%20Deposit%20Advance%20Rate__16.08.2026.pdf" },
-  { institutionName: "IFIC Bank", productType: "FDR", tenureMonths: 3, minAmount: 20 * LAC, maxAmount: 50 * LAC, interestRatePct: 9.75, sourceUrl: "https://ificbank.com.bd/public/assets/home/interest/1786857538_Latest%20Deposit%20Advance%20Rate__16.08.2026.pdf" },
-  { institutionName: "IFIC Bank", productType: "FDR", tenureMonths: 3, minAmount: 50 * LAC, interestRatePct: 10.0, sourceUrl: "https://ificbank.com.bd/public/assets/home/interest/1786857538_Latest%20Deposit%20Advance%20Rate__16.08.2026.pdf" },
-  { institutionName: "IFIC Bank", productType: "FDR", tenureMonths: 6, minAmount: 0, maxAmount: 1 * LAC, interestRatePct: 9.0, sourceUrl: "https://ificbank.com.bd/public/assets/home/interest/1786857538_Latest%20Deposit%20Advance%20Rate__16.08.2026.pdf" },
-  { institutionName: "IFIC Bank", productType: "FDR", tenureMonths: 6, minAmount: 1 * LAC, maxAmount: 5 * LAC, interestRatePct: 9.5, sourceUrl: "https://ificbank.com.bd/public/assets/home/interest/1786857538_Latest%20Deposit%20Advance%20Rate__16.08.2026.pdf" },
-  { institutionName: "IFIC Bank", productType: "FDR", tenureMonths: 6, minAmount: 5 * LAC, maxAmount: 20 * LAC, interestRatePct: 9.75, sourceUrl: "https://ificbank.com.bd/public/assets/home/interest/1786857538_Latest%20Deposit%20Advance%20Rate__16.08.2026.pdf" },
-  { institutionName: "IFIC Bank", productType: "FDR", tenureMonths: 6, minAmount: 20 * LAC, interestRatePct: 10.0, sourceUrl: "https://ificbank.com.bd/public/assets/home/interest/1786857538_Latest%20Deposit%20Advance%20Rate__16.08.2026.pdf" },
-  { institutionName: "IFIC Bank", productType: "FDR", tenureMonths: 12, minAmount: 0, maxAmount: 1 * LAC, interestRatePct: 9.0, sourceUrl: "https://ificbank.com.bd/public/assets/home/interest/1786857538_Latest%20Deposit%20Advance%20Rate__16.08.2026.pdf" },
-  { institutionName: "IFIC Bank", productType: "FDR", tenureMonths: 12, minAmount: 1 * LAC, maxAmount: 5 * LAC, interestRatePct: 9.5, sourceUrl: "https://ificbank.com.bd/public/assets/home/interest/1786857538_Latest%20Deposit%20Advance%20Rate__16.08.2026.pdf" },
-  { institutionName: "IFIC Bank", productType: "FDR", tenureMonths: 12, minAmount: 5 * LAC, interestRatePct: 10.0, sourceUrl: "https://ificbank.com.bd/public/assets/home/interest/1786857538_Latest%20Deposit%20Advance%20Rate__16.08.2026.pdf" },
-  { institutionName: "IFIC Bank", productType: "FDR", tenureMonths: 24, minAmount: 0, maxAmount: 1 * LAC, interestRatePct: 9.0, sourceUrl: "https://ificbank.com.bd/public/assets/home/interest/1786857538_Latest%20Deposit%20Advance%20Rate__16.08.2026.pdf" },
-  { institutionName: "IFIC Bank", productType: "FDR", tenureMonths: 24, minAmount: 1 * LAC, maxAmount: 5 * LAC, interestRatePct: 9.5, sourceUrl: "https://ificbank.com.bd/public/assets/home/interest/1786857538_Latest%20Deposit%20Advance%20Rate__16.08.2026.pdf" },
-  { institutionName: "IFIC Bank", productType: "FDR", tenureMonths: 24, minAmount: 5 * LAC, interestRatePct: 10.0, sourceUrl: "https://ificbank.com.bd/public/assets/home/interest/1786857538_Latest%20Deposit%20Advance%20Rate__16.08.2026.pdf" },
-  { institutionName: "IFIC Bank", productType: "FDR", tenureMonths: 36, minAmount: 0, maxAmount: 1 * LAC, interestRatePct: 9.0, sourceUrl: "https://ificbank.com.bd/public/assets/home/interest/1786857538_Latest%20Deposit%20Advance%20Rate__16.08.2026.pdf" },
-  { institutionName: "IFIC Bank", productType: "FDR", tenureMonths: 36, minAmount: 1 * LAC, maxAmount: 5 * LAC, interestRatePct: 9.5, sourceUrl: "https://ificbank.com.bd/public/assets/home/interest/1786857538_Latest%20Deposit%20Advance%20Rate__16.08.2026.pdf" },
-  { institutionName: "IFIC Bank", productType: "FDR", tenureMonths: 36, minAmount: 5 * LAC, interestRatePct: 10.0, sourceUrl: "https://ificbank.com.bd/public/assets/home/interest/1786857538_Latest%20Deposit%20Advance%20Rate__16.08.2026.pdf" },
-  { institutionName: "IFIC Bank", productType: "DPS", tenureMonths: 12, minAmount: 0, interestRatePct: 10.0, sourceUrl: "https://ificbank.com.bd/public/assets/home/interest/1786857538_Latest%20Deposit%20Advance%20Rate__16.08.2026.pdf" },
-  { institutionName: "IFIC Bank", productType: "DPS", tenureMonths: 36, minAmount: 0, interestRatePct: 10.0, sourceUrl: "https://ificbank.com.bd/public/assets/home/interest/1786857538_Latest%20Deposit%20Advance%20Rate__16.08.2026.pdf" },
-  { institutionName: "IFIC Bank", productType: "DPS", tenureMonths: 60, minAmount: 0, interestRatePct: 10.0, sourceUrl: "https://ificbank.com.bd/public/assets/home/interest/1786857538_Latest%20Deposit%20Advance%20Rate__16.08.2026.pdf" },
-  { institutionName: "IFIC Bank", productType: "DPS", tenureMonths: 120, minAmount: 0, interestRatePct: 10.0, sourceUrl: "https://ificbank.com.bd/public/assets/home/interest/1786857538_Latest%20Deposit%20Advance%20Rate__16.08.2026.pdf" },
+  { institutionName: "IFIC Bank", productType: "FDR", tenureMonths: 1, minAmount: 0, interestRatePct: 9.0, sourceUrl: "https://ificbank.com.bd/public/assets/home/interest/1789540414_IFIC%20Bank%20Latest%20Deposit__07.09.2026.pdf" },
+  { institutionName: "IFIC Bank", productType: "FDR", tenureMonths: 3, minAmount: 0, maxAmount: 1 * LAC, interestRatePct: 9.0, sourceUrl: "https://ificbank.com.bd/public/assets/home/interest/1789540414_IFIC%20Bank%20Latest%20Deposit__07.09.2026.pdf" },
+  { institutionName: "IFIC Bank", productType: "FDR", tenureMonths: 3, minAmount: 1 * LAC, maxAmount: 5 * LAC, interestRatePct: 9.5, sourceUrl: "https://ificbank.com.bd/public/assets/home/interest/1789540414_IFIC%20Bank%20Latest%20Deposit__07.09.2026.pdf" },
+  { institutionName: "IFIC Bank", productType: "FDR", tenureMonths: 3, minAmount: 5 * LAC, maxAmount: 20 * LAC, interestRatePct: 9.5, sourceUrl: "https://ificbank.com.bd/public/assets/home/interest/1789540414_IFIC%20Bank%20Latest%20Deposit__07.09.2026.pdf" },
+  { institutionName: "IFIC Bank", productType: "FDR", tenureMonths: 3, minAmount: 20 * LAC, maxAmount: 50 * LAC, interestRatePct: 9.75, sourceUrl: "https://ificbank.com.bd/public/assets/home/interest/1789540414_IFIC%20Bank%20Latest%20Deposit__07.09.2026.pdf" },
+  { institutionName: "IFIC Bank", productType: "FDR", tenureMonths: 3, minAmount: 50 * LAC, interestRatePct: 10.0, sourceUrl: "https://ificbank.com.bd/public/assets/home/interest/1789540414_IFIC%20Bank%20Latest%20Deposit__07.09.2026.pdf" },
+  { institutionName: "IFIC Bank", productType: "FDR", tenureMonths: 6, minAmount: 0, maxAmount: 1 * LAC, interestRatePct: 9.0, sourceUrl: "https://ificbank.com.bd/public/assets/home/interest/1789540414_IFIC%20Bank%20Latest%20Deposit__07.09.2026.pdf" },
+  { institutionName: "IFIC Bank", productType: "FDR", tenureMonths: 6, minAmount: 1 * LAC, maxAmount: 5 * LAC, interestRatePct: 9.5, sourceUrl: "https://ificbank.com.bd/public/assets/home/interest/1789540414_IFIC%20Bank%20Latest%20Deposit__07.09.2026.pdf" },
+  { institutionName: "IFIC Bank", productType: "FDR", tenureMonths: 6, minAmount: 5 * LAC, maxAmount: 20 * LAC, interestRatePct: 9.75, sourceUrl: "https://ificbank.com.bd/public/assets/home/interest/1789540414_IFIC%20Bank%20Latest%20Deposit__07.09.2026.pdf" },
+  { institutionName: "IFIC Bank", productType: "FDR", tenureMonths: 6, minAmount: 20 * LAC, interestRatePct: 10.0, sourceUrl: "https://ificbank.com.bd/public/assets/home/interest/1789540414_IFIC%20Bank%20Latest%20Deposit__07.09.2026.pdf" },
+  { institutionName: "IFIC Bank", productType: "FDR", tenureMonths: 12, minAmount: 0, maxAmount: 1 * LAC, interestRatePct: 9.0, sourceUrl: "https://ificbank.com.bd/public/assets/home/interest/1789540414_IFIC%20Bank%20Latest%20Deposit__07.09.2026.pdf" },
+  { institutionName: "IFIC Bank", productType: "FDR", tenureMonths: 12, minAmount: 1 * LAC, maxAmount: 5 * LAC, interestRatePct: 9.5, sourceUrl: "https://ificbank.com.bd/public/assets/home/interest/1789540414_IFIC%20Bank%20Latest%20Deposit__07.09.2026.pdf" },
+  { institutionName: "IFIC Bank", productType: "FDR", tenureMonths: 12, minAmount: 5 * LAC, interestRatePct: 10.0, sourceUrl: "https://ificbank.com.bd/public/assets/home/interest/1789540414_IFIC%20Bank%20Latest%20Deposit__07.09.2026.pdf" },
+  { institutionName: "IFIC Bank", productType: "FDR", tenureMonths: 24, minAmount: 0, maxAmount: 1 * LAC, interestRatePct: 9.0, sourceUrl: "https://ificbank.com.bd/public/assets/home/interest/1789540414_IFIC%20Bank%20Latest%20Deposit__07.09.2026.pdf" },
+  { institutionName: "IFIC Bank", productType: "FDR", tenureMonths: 24, minAmount: 1 * LAC, maxAmount: 5 * LAC, interestRatePct: 9.5, sourceUrl: "https://ificbank.com.bd/public/assets/home/interest/1789540414_IFIC%20Bank%20Latest%20Deposit__07.09.2026.pdf" },
+  { institutionName: "IFIC Bank", productType: "FDR", tenureMonths: 24, minAmount: 5 * LAC, interestRatePct: 10.0, sourceUrl: "https://ificbank.com.bd/public/assets/home/interest/1789540414_IFIC%20Bank%20Latest%20Deposit__07.09.2026.pdf" },
+  { institutionName: "IFIC Bank", productType: "FDR", tenureMonths: 36, minAmount: 0, maxAmount: 1 * LAC, interestRatePct: 9.0, sourceUrl: "https://ificbank.com.bd/public/assets/home/interest/1789540414_IFIC%20Bank%20Latest%20Deposit__07.09.2026.pdf" },
+  { institutionName: "IFIC Bank", productType: "FDR", tenureMonths: 36, minAmount: 1 * LAC, maxAmount: 5 * LAC, interestRatePct: 9.5, sourceUrl: "https://ificbank.com.bd/public/assets/home/interest/1789540414_IFIC%20Bank%20Latest%20Deposit__07.09.2026.pdf" },
+  { institutionName: "IFIC Bank", productType: "FDR", tenureMonths: 36, minAmount: 5 * LAC, interestRatePct: 10.0, sourceUrl: "https://ificbank.com.bd/public/assets/home/interest/1789540414_IFIC%20Bank%20Latest%20Deposit__07.09.2026.pdf" },
+  // Re-verified 2026-09-18 against IFIC's current sheet (W.E.F. 07.09.2026;
+  // the 16.08.2026 file 404s). All FDR tiers above CONFIRMED UNCHANGED.
+  //   Open question on these DPS rows, flagged rather than silently "fixed":
+  //   the sheet has no tenure-keyed DPS table. Its "Deposit Scheme" section
+  //   lists only IFIC Aamar Bhobishawt at 10.00% and Pension Savings Scheme
+  //   (PSS) at 9.50%. The stored 10.00% matches Aamar Bhobishawt, so it is
+  //   left as-is; but if these rows were ever meant to track PSS, the right
+  //   figure is 9.50%. Worth confirming which product the app intends here.
+  //   Fetch note: ificbank.com.bd sits behind a botguard/captcha wall and
+  //   returns text/html for .pdf paths to plain automated requests.
+  { institutionName: "IFIC Bank", productType: "DPS", tenureMonths: 12, minAmount: 0, interestRatePct: 10.0, sourceUrl: "https://ificbank.com.bd/public/assets/home/interest/1789540414_IFIC%20Bank%20Latest%20Deposit__07.09.2026.pdf" },
+  { institutionName: "IFIC Bank", productType: "DPS", tenureMonths: 36, minAmount: 0, interestRatePct: 10.0, sourceUrl: "https://ificbank.com.bd/public/assets/home/interest/1789540414_IFIC%20Bank%20Latest%20Deposit__07.09.2026.pdf" },
+  { institutionName: "IFIC Bank", productType: "DPS", tenureMonths: 60, minAmount: 0, interestRatePct: 10.0, sourceUrl: "https://ificbank.com.bd/public/assets/home/interest/1789540414_IFIC%20Bank%20Latest%20Deposit__07.09.2026.pdf" },
+  { institutionName: "IFIC Bank", productType: "DPS", tenureMonths: 120, minAmount: 0, interestRatePct: 10.0, sourceUrl: "https://ificbank.com.bd/public/assets/home/interest/1789540414_IFIC%20Bank%20Latest%20Deposit__07.09.2026.pdf" },
 
   // --- United Commercial Bank (UCB) --- re-verified 2026-09-11 against
   // UCB's current conventional rate sheet (dated Sep 1, 2026, superseding
@@ -371,10 +414,26 @@ const entries: RateEntry[] = [
   { institutionName: "Jamuna Bank", productType: "FDR", tenureMonths: 9, minAmount: 1 * CRORE, interestRatePct: 9.5, sourceUrl: "jamuna-bank-fd-freedom-table (user-supplied image)" },
   { institutionName: "Jamuna Bank", productType: "FDR", tenureMonths: 12, minAmount: 0, maxAmount: 1 * CRORE, interestRatePct: 9.3, sourceUrl: "jamuna-bank-fd-freedom-table (user-supplied image)" },
   { institutionName: "Jamuna Bank", productType: "FDR", tenureMonths: 12, minAmount: 1 * CRORE, interestRatePct: 9.4, sourceUrl: "jamuna-bank-fd-freedom-table (user-supplied image)" },
-  { institutionName: "Jamuna Bank", productType: "DPS", tenureMonths: 36, minAmount: 0, interestRatePct: 9.5, sourceUrl: "https://jamunabankbd.com/wp-content/uploads/2026/08/Rates-of-Deposit-Schemes_PP-1.pdf" },
-  { institutionName: "Jamuna Bank", productType: "DPS", tenureMonths: 60, minAmount: 0, interestRatePct: 9.0, sourceUrl: "https://jamunabankbd.com/wp-content/uploads/2026/08/Rates-of-Deposit-Schemes_PP-1.pdf" },
-  { institutionName: "Jamuna Bank", productType: "DPS", tenureMonths: 96, minAmount: 0, interestRatePct: 9.0, sourceUrl: "https://jamunabankbd.com/wp-content/uploads/2026/08/Rates-of-Deposit-Schemes_PP-1.pdf" },
-  { institutionName: "Jamuna Bank", productType: "DPS", tenureMonths: 120, minAmount: 0, interestRatePct: 9.0, sourceUrl: "https://jamunabankbd.com/wp-content/uploads/2026/08/Rates-of-Deposit-Schemes_PP-1.pdf" },
+  // Updated 2026-09-18: the Aug PDF 404s; current sheet is
+  // Jamuna_Bank_Deposit_Schemes_20260913.pdf (found via the bank's own rates
+  // page). Caveat recorded deliberately: this PDF prints NO effective date
+  // anywhere inside it, so the date rests on filename + server Last-Modified
+  // (both 13-14 Sep 2026) rather than the usual printed-header standard.
+  //   These rows track "Monthly Savings Scheme" (MSS), the monthly-installment
+  //   product. Its published tenors are 3/5/8/10 years — there is no 7-year
+  //   MSS tenor, so the former 84mo row has no source and is dropped rather
+  //   than carried forward. (Jamuna does have a separate lump-sum Pension
+  //   Deposit Scheme with a 7-year tenor at 9.50%, but that is a different
+  //   product and mapping this row to it would silently change what the
+  //   number means.)
+  //   Extraction note: `pdftotext -layout` shifts this table's rate column by
+  //   one row, which makes 3Y and 5Y both read 9.50%. The true alignment
+  //   (confirmed by back-solving the printed maturity figures, and by -simple
+  //   and -table modes agreeing) is 3Y 9.50%, 5Y 9.00%, 10Y 9.00%.
+  { institutionName: "Jamuna Bank", productType: "DPS", tenureMonths: 36, minAmount: 0, interestRatePct: 9.5, sourceUrl: "https://jamunabankbd.com/wp-content/uploads/2026/09/Jamuna_Bank_Deposit_Schemes_20260913.pdf" },
+  { institutionName: "Jamuna Bank", productType: "DPS", tenureMonths: 60, minAmount: 0, interestRatePct: 9.0, sourceUrl: "https://jamunabankbd.com/wp-content/uploads/2026/09/Jamuna_Bank_Deposit_Schemes_20260913.pdf" },
+  { institutionName: "Jamuna Bank", productType: "DPS", tenureMonths: 96, minAmount: 0, interestRatePct: 9.0, sourceUrl: "https://jamunabankbd.com/wp-content/uploads/2026/09/Jamuna_Bank_Deposit_Schemes_20260913.pdf" },
+  { institutionName: "Jamuna Bank", productType: "DPS", tenureMonths: 120, minAmount: 0, interestRatePct: 9.0, sourceUrl: "https://jamunabankbd.com/wp-content/uploads/2026/09/Jamuna_Bank_Deposit_Schemes_20260913.pdf" },
 
   // --- Mutual Trust Bank --- base FDR (tiered) + Brick by Brick DPS
   { institutionName: "Mutual Trust Bank", productType: "FDR", tenureMonths: 3, minAmount: 0, maxAmount: 50 * LAC, interestRatePct: 7.75, sourceUrl: "https://www.mutualtrustbank.com/interest-rates/" },
@@ -395,11 +454,18 @@ const entries: RateEntry[] = [
   { institutionName: "Mutual Trust Bank", productType: "DPS", tenureMonths: 120, minAmount: 0, interestRatePct: 9.5, sourceUrl: "https://www.mutualtrustbank.com/interest-rates/" },
 
   // --- Uttara Bank --- Standard FDR only; DPS skipped (MDS rate has no stated tenure)
-  { institutionName: "Uttara Bank", productType: "FDR", tenureMonths: 3, minAmount: 0, interestRatePct: 8.5, sourceUrl: "https://www.uttarabank-bd.com/home/interestrate" },
-  { institutionName: "Uttara Bank", productType: "FDR", tenureMonths: 6, minAmount: 0, interestRatePct: 8.75, sourceUrl: "https://www.uttarabank-bd.com/home/interestrate" },
-  { institutionName: "Uttara Bank", productType: "FDR", tenureMonths: 12, minAmount: 0, interestRatePct: 9.0, sourceUrl: "https://www.uttarabank-bd.com/home/interestrate" },
-  { institutionName: "Uttara Bank", productType: "FDR", tenureMonths: 24, minAmount: 0, interestRatePct: 9.0, sourceUrl: "https://www.uttarabank-bd.com/home/interestrate" },
-  { institutionName: "Uttara Bank", productType: "FDR", tenureMonths: 36, minAmount: 0, interestRatePct: 9.0, sourceUrl: "https://www.uttarabank-bd.com/home/interestrate" },
+  // Updated 2026-09-18. The page prints an effective date per row, and every
+  // standard-FDR row now reads 15-Sep-2026 -- the same date Bank Asia, Trust
+  // Bank and EBL repriced on, i.e. a sector-wide move, not a one-bank change.
+  // Rates fell across the board: 3mo 8.50->7.50, 6mo 8.75->7.75, and the
+  // "1 year to 5 years" band 9.00->8.00 (covers the 12/24/36mo rows).
+  // Note: this host 403s a plain automated fetch but serves normally to a
+  // browser User-Agent.
+  { institutionName: "Uttara Bank", productType: "FDR", tenureMonths: 3, minAmount: 0, interestRatePct: 7.5, sourceUrl: "https://www.uttarabank-bd.com/home/interestrate" },
+  { institutionName: "Uttara Bank", productType: "FDR", tenureMonths: 6, minAmount: 0, interestRatePct: 7.75, sourceUrl: "https://www.uttarabank-bd.com/home/interestrate" },
+  { institutionName: "Uttara Bank", productType: "FDR", tenureMonths: 12, minAmount: 0, interestRatePct: 8.0, sourceUrl: "https://www.uttarabank-bd.com/home/interestrate" },
+  { institutionName: "Uttara Bank", productType: "FDR", tenureMonths: 24, minAmount: 0, interestRatePct: 8.0, sourceUrl: "https://www.uttarabank-bd.com/home/interestrate" },
+  { institutionName: "Uttara Bank", productType: "FDR", tenureMonths: 36, minAmount: 0, interestRatePct: 8.0, sourceUrl: "https://www.uttarabank-bd.com/home/interestrate" },
   // Monthly Deposit Scheme (MDS): tenure (5/10yr) came from the dedicated product
   // page, rate (flat 10.00%, no per-tenure breakdown given) from the bank's rate
   // summary page — combining two of the bank's own official pages, not a guess.
@@ -582,6 +648,13 @@ const entries: RateEntry[] = [
   // (Tayyebah Kotipoti, Mudaraba Deposit Pension Scheme) publish only a
   // 8.50%-10.00% range with no per-tenure breakdown, so they're skipped
   // rather than guessing where in that range each tenure falls.
+  //   Checked 2026-09-18: the bank's Sep-16-2026 treasury sheet does carry a
+  //   "Fixed Deposit Rates-Islamic Banking" table, but it prices a DIFFERENT
+  //   product — "Regular Fixed Deposit (Retail)/(SME)/(Corporate)" at a flat
+  //   6.00% for 3/6/12/18/24mo (1mo 4.00%). That is Dhaka Bank's plain
+  //   Islamic term deposit, not the MSDS scheme the rows below track, so the
+  //   two are deliberately NOT merged. If the app ever adds a second Islamic
+  //   FDR product for this bank, that table is the source for it.
   { institutionName: "Dhaka Bank", productType: "FDR", productNameHint: "Tayyebah Dhaka Islamic Banking Mudaraba FDR", tenureMonths: 12, minAmount: 0, interestRatePct: 9.6, sourceUrl: "https://dhakabank.com.bd/mudaraba-special-deposit-pension-scheme-msds/" },
   { institutionName: "Dhaka Bank", productType: "FDR", productNameHint: "Tayyebah Dhaka Islamic Banking Mudaraba FDR", tenureMonths: 24, minAmount: 0, interestRatePct: 9.0, sourceUrl: "https://dhakabank.com.bd/mudaraba-special-deposit-pension-scheme-msds/" },
   { institutionName: "Dhaka Bank", productType: "FDR", productNameHint: "Tayyebah Dhaka Islamic Banking Mudaraba FDR", tenureMonths: 36, minAmount: 0, interestRatePct: 9.0, sourceUrl: "https://dhakabank.com.bd/mudaraba-special-deposit-pension-scheme-msds/" },
@@ -953,6 +1026,43 @@ async function importByProduct<T>(
   return created;
 }
 
+/**
+ * Clears MANUAL rate tiers belonging to products this file no longer lists.
+ *
+ * `importByProduct` only deletes-then-recreates for products that appear in
+ * `entries`, so DELETING a product's rows from this file used to leave its old
+ * tiers orphaned in the database forever -- the import would report success
+ * while the site kept serving numbers with no source behind them. That is the
+ * worst possible failure mode for a no-fabrication project, and it is silent.
+ *
+ * Caught for real on 2026-09-18: Trust Bank's conventional DPS rows were
+ * removed (the bank stopped publishing a DPS rate table), yet four 9.50%
+ * tiers stayed live in the database through a full import run.
+ */
+async function clearOrphanedManualTiers(keepProductIds: Set<string>): Promise<number> {
+  const orphaned = await prisma.rateTier.findMany({
+    where: { source: "MANUAL", productId: { notIn: Array.from(keepProductIds) } },
+    select: { id: true, productId: true },
+  });
+  if (orphaned.length === 0) return 0;
+
+  const byProduct = new Map<string, number>();
+  for (const t of orphaned) byProduct.set(t.productId, (byProduct.get(t.productId) ?? 0) + 1);
+  for (const [productId, count] of byProduct) {
+    const product = await prisma.rateProduct.findUnique({
+      where: { id: productId },
+      select: { name: true, institution: { select: { name: true } } },
+    });
+    console.warn(
+      `ORPHANED: clearing ${count} MANUAL tier(s) for ${product?.institution.name ?? "?"} / ${product?.name ?? productId} — no longer listed in this file.`
+    );
+  }
+  await prisma.rateTier.deleteMany({
+    where: { source: "MANUAL", productId: { notIn: Array.from(keepProductIds) } },
+  });
+  return orphaned.length;
+}
+
 async function main() {
   const byProduct = await groupByProduct(entries, "");
   const created = await importByProduct(
@@ -972,6 +1082,11 @@ async function main() {
       })
   );
   console.log(`Imported ${created} rate tiers across ${byProduct.size} products.`);
+
+  const orphaned = await clearOrphanedManualTiers(new Set(byProduct.keys()));
+  if (orphaned > 0) {
+    console.log(`Cleared ${orphaned} orphaned MANUAL rate tier(s) (see ORPHANED warnings above).`);
+  }
 
   const byRatioProduct = await groupByProduct(ratioEntries, " (ratio)");
   const ratiosCreated = await importByProduct(
