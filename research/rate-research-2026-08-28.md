@@ -1206,3 +1206,88 @@ treat three signals as failures, not just non-200 — a non-200 status, a
 200 with a suspiciously small body (WAF block pages), and a `.pdf` URL
 answered with `text/html`. That last one correctly flagged IFIC's two
 captcha-walled PDFs as needing browser-style fetching rather than as dead.
+
+## Full re-verification sweep — 2026-10-10
+
+Three weeks after the 18-Sep sweep. Every institution re-checked against its
+own live source; 44 source URLs health-swept first, then values verified.
+
+**Result: 5 banks changed, 1 transcription gap found, 1 bank unverifiable.**
+
+### Changes applied
+
+- **UCB conventional** — circular **#1634, eff. 1-Oct-2026** (stored
+  #1632-1633 URL began 404ing). Earning Plus FD 1-3yr 9.50%->9.00%,
+  4-10yr 8.25%->7.75%. Super Flex DPS all tenures -> flat 8.50%.
+  *Structural:* Super Flex dropped its 1yr and 2yr tenures entirely
+  (prefix 3550 absent from the circular) — both rows removed, no source.
+- **UCB Islamic** — **September** sheet (August URL 404s). The rolling
+  4-month window advanced and yield fell 9.94 -> 9.38, so everything
+  dropped: FDR 3-36mo 8.45%->7.97%, 1mo 3.98%->3.75%; DPS 3yr
+  7.95%->7.50%, 5/7/10yr 8.45%->7.97%.
+- **Islami Bank Bangladesh** — new quarterly sheet **w.e.f. 01.10.2026**
+  (the predicted revision landed). MTDR unchanged. Mudaraba Special
+  Savings (Pension) **+0.50% at all nine tenors** (6mo 5.25->5.75 through
+  180mo 8.00->8.50). The sheet prints Existing vs Revised columns and
+  every Existing value matched our stored figure exactly — a clean
+  independent validation of the whole stored baseline for this bank.
+- **Prime Bank Islamic** — new sheet **eff. 24-Sep-2026**. Term Deposit
+  12mo 7.00->6.75, 24mo and 36mo 6.50->6.75; **6M is now amount-banded**
+  (6.80% below 1cr / 7.00% at 1cr+) where it was a single rate, so that
+  row was split. Edu DPS cut from a flat 9.25% to 8.25% (60mo) and 8.75%
+  (120/180/240mo).
+- **Jamuna Bank** — new sheet (`..._20260930.pdf`). MSS 3Y **9.50%->9.00%**;
+  the grid is now a uniform 9.00%. Still prints **no effective date inside
+  the document** — vintage rests on the filename datestamp alone.
+- **MTB Islamic** — new October sheet. Term Deposit **1mo 4.50%->3.00%**;
+  everything else unchanged. Note the new sheet's 2-month row is 4.50%,
+  i.e. the old stored value now sits one row down — worth watching.
+- **BRAC Bank** — new **ALCO Circular 2026/10, eff. 1-Oct-2026**, but
+  every tracked figure unchanged. Source URL refreshed only.
+
+### Transcription gap found (not a repricing)
+
+**Southeast Bank** 18/24/36mo were stored as base-band-only. The PDF
+publishes all three amount bands for those tenures (18mo 8.00/8.25/8.50;
+24mo and 36mo 8.00/8.25/8.25). The sheet's "Last Updated: September 01,
+2026" line never moved, so this was **our** extraction error, not a bank
+change — the app was understating 18/24/36mo for deposits over 50 lac.
+Six rows added.
+
+### Confirmed unchanged
+
+Dutch-Bangla, Trust Bank, Bank Asia, Agrani, Uttara, Dhaka Bank
+(conventional and Islamic), IFIC (conventional and Islamic), Southeast
+Shohoz DPS, BRAC, MTB's remaining tenures, IBBL MTDR. Bank Asia and
+Uttara both stamp **15-Sep-2026**, confirming the September repricing is
+fully reflected with no further move since.
+
+### Could not verify
+
+**The City Bank** — the entire `citybankplc.com` domain now sits behind a
+JS-execution challenge ("One moment, please... verifying"). Every path,
+including an RSC/flight request, returns the same ~12KB interstitial; the
+raw-HTML flight payload the previous pass relied on is gone. Browser UA,
+full Sec-Fetch headers, cookie jars and two-pass warming all failed.
+**Its stored figures are now unverifiable without a headless browser, and
+its band-boundary question ("Below 1 Crore" vs the app's 50 Lac split)
+stays open.** Left untouched rather than guessed.
+
+### Extraction hazards — `pdftotext -layout` is now known-bad on four docs
+
+`-layout` misaligned rate columns again this pass, on **Southeast**
+(rates floated into a separate stream, the likely cause of the gap above),
+**Jamuna**, and **Prime** (shifted the MID block by one row, attributing
+another product's values to Edu DPS). Add these to the existing IFIC and
+UCB cases. **Use `-table`, cross-check with `-simple`, and where a table
+is ambiguous, back-solve against a printed maturity figure** — that is how
+Jamuna's cut was confirmed (3Y maturity on a 500/mo installment fell from
+20,730 to 20,575, which only fits 9.00%).
+
+### Method note worth keeping
+
+A blanket filename substitution across source URLs silently produced a 404
+here: Jamuna's new PDF moved from the `/2026/09/` to the `/2026/10/`
+upload path, and replacing only the filename left a dead link that
+typechecked fine. **Always re-run the URL health sweep after editing
+source URLs**, not just before.
