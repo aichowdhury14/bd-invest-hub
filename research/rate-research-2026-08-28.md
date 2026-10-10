@@ -1273,6 +1273,19 @@ full Sec-Fetch headers, cookie jars and two-pass warming all failed.
 its band-boundary question ("Below 1 Crore" vs the app's 50 Lac split)
 stays open.** Left untouched rather than guessed.
 
+**Headless browser tried, 2026-10-10 — also blocked.** Playwright/Chromium
+was attempted twice: once plainly, and once with `webdriver`/`languages`/
+`plugins` spoofing, `--disable-blink-features=AutomationControlled`, a
+Dhaka timezone, and a homepage warm-up with a 15s dwell before navigating.
+Both runs still landed on the "One moment, please..." interstitial — the
+second returned a 51-character body with zero rate-like figures. So this
+is **not** a technique gap that a headless browser closes; the challenge
+appears to fingerprint automation itself. Do not spend another pass on
+UA/stealth/warming variations. Realistic options if City Bank's figures
+matter: a real (headed, human-driven) browser session, a manual copy of
+the tables into the file, or dropping the bank's conventional rows to
+shells until it publishes somewhere fetchable. Needs a human decision.
+
 ### Extraction hazards — `pdftotext -layout` is now known-bad on four docs
 
 `-layout` misaligned rate columns again this pass, on **Southeast**
