@@ -1304,3 +1304,36 @@ here: Jamuna's new PDF moved from the `/2026/09/` to the `/2026/10/`
 upload path, and replacing only the filename left a dead link that
 typechecked fine. **Always re-run the URL health sweep after editing
 source URLs**, not just before.
+
+## 2026-10-31 — Supabase: revoked `anon`/`authenticated` table privileges
+
+Supabase's default grants gave the two PostgREST roles (`anon`, reachable with the
+public publishable key, and `authenticated`) full `SELECT/INSERT/UPDATE/DELETE/
+TRUNCATE/REFERENCES/TRIGGER` on all 12 tables in `public`. Row-level security was
+enabled with zero policies, which denied reads and writes — verified by querying as
+`anon` and getting 0 rows from `AdminUser`, `RateTier` and `PageViewEvent`.
+
+The gap: **RLS does not filter `TRUNCATE`.** It constrains which *rows* a statement
+sees, and `TRUNCATE` is a table-level operation, so the `TRUNCATE` grant was live and
+unprotected. The 433 verified rate tiers rested on a single layer of defence that did
+not cover the one statement that could delete all of them at once.
+
+Not remotely exploitable as it stood — PostgREST exposes SQL verbs, not raw `TRUNCATE`
+— so this was a latent hole rather than an active breach. Fixed anyway, because the app
+connects as `postgres` (table owner, bypasses RLS) and so never used these grants:
+revoking them costs nothing. Migration `20261031000000_revoke_anon_table_privileges`
+revokes all table and sequence privileges from both roles and uses `ALTER DEFAULT
+PRIVILEGES` so the next `prisma migrate` does not silently restore them. RLS stays on
+as the second layer. Verified after: 0 remaining grants for either role, all row counts
+unchanged.
+
+### The `datalab` schema is not ours and is correctly configured
+The advisor also flags `datalab.visits` and the `SECURITY DEFINER` functions
+`public.datalab_record_visit` / `public.datalab_stats` as `anon`-executable (WARN).
+These belong to a **different project** (`../data-lab`), which shares this Supabase
+instance for its visitor counter; `data-lab/src/live/config.ts` points at this project
+id deliberately. Left in place — the `anon` grant is the feature, and the design is
+sound: `search_path=''`, `datalab` schema has no `USAGE` for `anon` (confirmed), the
+functions return only aggregate counts, and visits dedupe per visitor per 30 minutes.
+Revoking would break a live site for no security gain. Verified the counter still
+answers as `anon` after this change (126 views / 112 visitors, unchanged).
