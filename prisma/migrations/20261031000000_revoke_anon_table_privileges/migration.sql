@@ -14,10 +14,17 @@
 -- Also revoke the default privileges for future tables, otherwise the next `prisma
 -- migrate` hands the same grants straight back.
 
+-- `anon` and `authenticated` only exist on Supabase. Skip everything on a plain
+-- Postgres (local dev, and the shadow database `prisma migrate dev` replays every
+-- migration into), where a REVOKE naming a missing role is an error.
 DO $$
 DECLARE
   t text;
 BEGIN
+  IF (SELECT count(*) FROM pg_roles WHERE rolname IN ('anon', 'authenticated')) < 2 THEN
+    RETURN;
+  END IF;
+
   FOR t IN SELECT unnest(ARRAY[
     'AdminUser', 'CalculatorEvent', 'CompareEvent', 'Institution',
     'PageViewEvent', 'ProfitSharingRatio', 'RateDriftFlag', 'RateHistory',
@@ -27,11 +34,11 @@ BEGIN
       EXECUTE format('REVOKE ALL ON TABLE public.%I FROM anon, authenticated', t);
     END IF;
   END LOOP;
+
+  -- Sequences are not used by the public roles either.
+  REVOKE ALL ON ALL SEQUENCES IN SCHEMA public FROM anon, authenticated;
+
+  -- Stop future Prisma-created tables from inheriting the grants again.
+  ALTER DEFAULT PRIVILEGES IN SCHEMA public REVOKE ALL ON TABLES FROM anon, authenticated;
+  ALTER DEFAULT PRIVILEGES IN SCHEMA public REVOKE ALL ON SEQUENCES FROM anon, authenticated;
 END $$;
-
--- Sequences and functions are not used by the public roles either.
-REVOKE ALL ON ALL SEQUENCES IN SCHEMA public FROM anon, authenticated;
-
--- Stop future Prisma-created tables from inheriting the grants again.
-ALTER DEFAULT PRIVILEGES IN SCHEMA public REVOKE ALL ON TABLES FROM anon, authenticated;
-ALTER DEFAULT PRIVILEGES IN SCHEMA public REVOKE ALL ON SEQUENCES FROM anon, authenticated;

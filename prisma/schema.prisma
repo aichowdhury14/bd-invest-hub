@@ -182,6 +182,7 @@ model CalculatorEvent {
 
   @@index([createdAt])
   @@index([sessionId])
+  @@index([productId])
 }
 
 model PageViewEvent {
