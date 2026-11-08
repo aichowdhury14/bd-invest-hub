@@ -53,7 +53,8 @@ interface InsightsRateTier {
  * dynamic route once `searchParams.mode` is read, so there's no cache to
  * fall back on and every click re-pays the full queueing cost. Fetching
  * every tier once and deriving all charts from it in JS turns 7 round-trips
- * into 1, independent of pool size.
+ * into 1, independent of pool size. (The page now also caches these loaders
+ * at the data layer — see `insights-cache.ts`.)
  */
 async function getInsightsRateTiers(bankingMode: BankingMode = "ALL"): Promise<InsightsRateTier[]> {
   const tiers = await prisma.rateTier.findMany({

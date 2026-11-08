@@ -2,11 +2,11 @@ import Link from "next/link";
 import { BrainCircuit, Crown, LayoutGrid, Lightbulb, TrendingUp, Trophy } from "lucide-react";
 import { Container } from "@/components/Container";
 import {
-  getGovernmentInstrumentRates,
-  getInsightsData,
-  getInstitutionComposition,
-  getTrendStatus,
-} from "@/lib/insights";
+  getCachedGovernmentInstrumentRates,
+  getCachedInsightsData,
+  getCachedInstitutionComposition,
+  getCachedTrendStatus,
+} from "@/lib/insights-cache";
 import { bankingModeLabels, institutionTypeLabels, type BankingMode } from "@/lib/labels";
 import { institutionTypeStyle } from "@/lib/institution-style";
 import {
@@ -41,10 +41,10 @@ export default async function InsightsPage({
   const bankingMode = parseBankingMode((await searchParams).mode);
 
   const [insights, trendStatus, composition, govtRates] = await Promise.all([
-    getInsightsData(bankingMode),
-    getTrendStatus(),
-    getInstitutionComposition(),
-    getGovernmentInstrumentRates(bankingMode),
+    getCachedInsightsData(bankingMode),
+    getCachedTrendStatus(),
+    getCachedInstitutionComposition(),
+    getCachedGovernmentInstrumentRates(bankingMode),
   ]);
   const { fdrCurve, dpsCurve, fdrStats, dpsStats, topRates, heatmap, marketInsights } = insights;
   const topRate = topRates[0] ?? null;

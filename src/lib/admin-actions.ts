@@ -1,9 +1,10 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { revalidatePath, updateTag } from "next/cache";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
+import { INSIGHTS_CACHE_TAG } from "@/lib/insights-cache";
 
 async function requireAdmin() {
   const session = await auth();
@@ -16,6 +17,8 @@ function revalidateAdminAndPublic() {
   revalidatePath("/");
   revalidatePath("/calculator");
   revalidatePath("/compare");
+  revalidatePath("/insights");
+  updateTag(INSIGHTS_CACHE_TAG);
 }
 
 // ---------- Institutions ----------
