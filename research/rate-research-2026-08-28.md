@@ -1337,3 +1337,87 @@ sound: `search_path=''`, `datalab` schema has no `USAGE` for `anon` (confirmed),
 functions return only aggregate counts, and visits dedupe per visitor per 30 minutes.
 Revoking would break a live site for no security gain. Verified the counter still
 answers as `anon` after this change (126 views / 112 visitors, unchanged).
+
+## Full re-verification sweep — 2026-11-11
+
+A month after the 10-Oct sweep. Every institution re-checked against its own
+current document, which meant finding each bank's newest document first. Many
+stored URLs still returned 200 but had been replaced by a newer one. A second
+wave of repricing landed around **15-Oct to 05-Nov-2026**, and nearly every
+change was downward.
+
+**Result: 33 products changed across 17 institutions, 1 new Islamic product
+filled, 1 Islamic product emptied, 3 institutions unverifiable.** Import:
+429 tiers / 76 products; the orphan guard cleared exactly the 7 EBL Islamic
+DPS tiers, and the second run was a clean no-op. Every file row was compared
+against the database: all 429 match, apart from the DB's 3-decimal rounding
+of the 4-decimal treasury figures.
+
+### Changes applied
+
+| Institution | Source (effective) | Change |
+|---|---|---|
+| BRAC | ALCO 2026/11 (15-Oct) | Monthly FD 6mo 7.50→7.00, 12-84mo 7.75→7.25; DPS unchanged |
+| Dhaka Bank | treasury sheet (15-Oct) | Regular FD 3mo 7.75→7.50, 6mo 8.00→7.25, 12-24mo 8.25→7.25 |
+| MTB | rate page (FDR 15-Oct; DPS 01-Sep) | 12mo upper bands −0.25; 24/36mo flat 8.00; **Brick by Brick 10.00/9.50 → 8.50…8.00 (stale since 1-Sep)** |
+| Jamuna | own PDFs (05-Nov) | FD Freedom now bank-published, ~1pp below the user image; Islamic MTDR switched from BB ranges to bank's own slabs |
+| Prime | conventional + Islamic sheets (01-Nov) | FD 6-36mo → 7.50; Hasanah TD 12-36mo → 6.50, 6M bands collapse to 6.50 |
+| UCB | circular #1635 (01-Nov); Islamic Oct-26 | Super Flex 1yr/2yr **restored** at 7.00; Taqwa yield 9.38→8.74, everything ~−0.5 |
+| City Bank | live page (undated) | JS wall gone; FDR remapped to named tenures (3mo 6.15/6.35, 6mo 6.35, 1-3yr 9.25/9.50); Islamic switched to new forward "Expected Rate" table (w.e.f. 01-Nov) |
+| EBL | rate sheet (01-Nov); Islamic table (01-Nov) | FD 2/3yr bands collapse to 7.25; **Confidence DPS 9.00/8.75 → 7.50/7.25**; Islamic TD −0.75…−1.25; **Islamic DPS removed (product no longer published)** |
+| Bank Asia | rate sheet (17-Sep); Islamic Sep-2026 table | FDR bands collapse (7.00/7.00/7.25/7.25/7.50); DPS+ brochure figures → 8.25 from the dated sheet; MTDA 3.73/6.33/6.50 |
+| NCC | Deposit_rate_chart_05.11.2026 | **Stored URL was the Jul-2025 sheet.** FD 3/6mo 7.75, 12mo 7.75/8.00, +24/36mo 7.25; Kotipoti 10.00 → 8.50/8.25; **Islamic FDR filled for the first time** |
+| Agrani | FD page (undated) | 8.50/8.75/9.00 → 8.00/8.25/8.50 |
+| Janata | circular 1433/26 (01-Oct) | 8.50/8.75/9.00 → 8.00/8.25/8.50 (scanned Bangla circular, read visually) |
+| LankaBangla | page (10-Nov) | Earn First confirmed exact; **Money Builder 10.75 → 11.00** (old figure was the neighbouring Swasti product) |
+| IPDC | card rates (15-Oct) | Extra Value 9.00-9.25 → 8.00-8.50; DPS 9.75 → 9.00 |
+| IDLC | public API (rows updated 06-Oct) | TD 9.00-9.25 → 8.00-8.25; DPS 9.00 → 8.50 |
+| Prime NOW | rate page ("Jan 5, 2026" header now stale) | FD 9.25-10.00 → 8.75-9.00; DPS re-banded |
+| T-bills / T-bonds | BB auctions (09-Nov / Oct-Nov) | 91/182/364d 8.12/8.29/8.34; bonds 8.47-9.39 |
+
+URL-only refreshes, values unchanged: Uttara (site rebuilt, both old URLs 404),
+MTB Islamic (Oct-15 sheet), BRAC DPS, Prime DPS, UCB Earning Plus, Jamuna MSS.
+
+### Confirmed unchanged
+Dutch-Bangla, Trust Bank, Sonali (circular 18, 16-Jun-2026, read visually),
+Rupali (Oct-2025 circular is still the newest found), Islami Bank (01-Oct sheet
+still newest), Dhaka Bank DPS chart + MSDS Islamic, Agrani Islamic + Lakhpoti,
+Janata JBDPS (10.00% compound), Uttara, Sanchayapatra (held for Jul-Dec 2026).
+
+### Could not verify — left untouched
+- **Southeast Bank** and **IFIC Bank**: the whole site, not just the PDFs, now
+  answers with an image captcha ("What code is in the image?"). An attempt to
+  get past it with a session cookie was refused by the session's permission
+  policy as bot-check circumvention. That is the right call, so it was not
+  pursued. These need a human in a browser.
+- **Pubali Bank**: still Cloudflare "Just a moment..." (403). Rows remain on
+  the user-supplied PDF.
+- **Bangladesh Bank** also serves the captcha to curl. The treasury figures
+  were read through a web-fetch tool instead, twice, with both reads agreeing.
+
+### Judgement calls worth reviewing
+- **City Bank FDR**: named calendar tenures were chosen over the day-count
+  rows. That makes 3mo look weak (6.15%) next to the bank's own "90 Days"
+  product (8.00%). Both are real, published figures; the choice follows the
+  Prime NOW precedent.
+- **City Islamic**: switched from backward-looking IISR actuals to the new
+  forward "Expected Rate" table, for consistency with every other bank. The
+  October actuals are recorded in the code comment.
+- **Bank Asia Islamic**: a "Proposed" table at ~5% sits beside the declared
+  September table. Declared rates are used; if the proposed ones take effect,
+  expect another ~1.5pp drop.
+- **IPDC 24/36/60mo**: the plain FD is N/A at those tenures, so the rows carry
+  the Cumulative Profit Scheme rate (8.50%).
+
+### Method notes
+- **Still-200-but-superseded was the dominant failure this time**: NCC (16
+  months stale), Janata, Dhaka, BRAC, MTB Islamic, Prime and EBL all had a
+  newer document behind a still-working old URL. Always resolve the newest
+  document from the bank's own listing page.
+- WordPress banks expose their uploads at `/wp-json/wp/v2/media?search=...`
+  (Dhaka Bank). That is the fastest way to find an unlinked new sheet.
+- Scanned circulars (Sonali, Janata, Rupali) have no text layer. Read them
+  visually; do not trust `pdftotext` output on them.
+- The sweep's small-body heuristic missed Bangladesh Bank's captcha because
+  the page is about 45 KB. Add a content check for "testing whether you are
+  a human visitor" next time.
