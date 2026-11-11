@@ -1141,9 +1141,19 @@ async function groupByProduct<T extends ResolvableEntry>(
   const byProduct = new Map<string, T[]>();
   let skippedNoInstitution = 0;
   let skippedNoProduct = 0;
+  // Resolve each distinct institution/type/hint once rather than once per
+  // row: ~80 lookups instead of ~860. Run serially against the Seoul pooler,
+  // the per-row version took 25+ minutes and died on P1017 before writing
+  // anything (2026-11-11).
+  const resolvedByKey = new Map<string, Awaited<ReturnType<typeof resolveProduct>>>();
 
   for (const entry of entries) {
-    const resolved = await resolveProduct(entry);
+    const key = `${entry.institutionName}\u0000${entry.productType}\u0000${entry.productNameHint ?? ""}`;
+    let resolved = resolvedByKey.get(key);
+    if (!resolved) {
+      resolved = await resolveProduct(entry);
+      resolvedByKey.set(key, resolved);
+    }
     if ("error" in resolved) {
       if (resolved.error === "no-institution") {
         console.warn(`SKIP${label}: institution not found: ${entry.institutionName}`);
