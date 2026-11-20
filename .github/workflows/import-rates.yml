@@ -1,0 +1,94 @@
+name: Import rates to production
+
+# Any push to master that changes the rates file loads it into the production
+# database, then proves the database matches the file row by row. Only after
+# that are the sources the push touched marked verified for the weekly check,
+# and the weekly-check issue is closed if nothing else is left on it.
+
+on:
+  push:
+    branches: [master]
+    paths: [scripts/import-real-rates.ts]
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+  issues: write
+
+concurrency:
+  group: import-rates
+  cancel-in-progress: false
+
+jobs:
+  import:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      DIRECT_URL: ${{ secrets.DIRECT_URL }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+
+      # A file that does not typecheck or breaks the calculators never
+      # reaches production.
+      - run: npx tsc --noEmit
+      - run: npx vitest run
+
+      - name: Import into production
+        run: npm run import-rates
+
+      - name: Verify production matches the file
+        run: npm run verify-import
+
+      - name: Sources this push touched
+        if: github.event_name == 'push'
+        run: |
+          before="${{ github.event.before }}"
+          if ! git cat-file -e "$before^{commit}" 2>/dev/null; then before="HEAD~1"; fi
+          git diff "$before" HEAD -- scripts/import-real-rates.ts \
+            | grep '^+' | grep -o 'sourceUrl: "https\?://[^"]*"' \
+            | sed -E 's/^sourceUrl: "//; s/"$//' | sort -u > touched-sources.txt || true
+          echo "Sources touched:"; cat touched-sources.txt
+
+      - name: Mark them verified and re-check
+        id: check
+        run: npm run weekly-check -- --verified-file touched-sources.txt
+
+      - name: Commit the baseline
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add monitoring/baseline.json
+          if git diff --cached --quiet; then
+            echo "Baseline unchanged."
+          else
+            git commit -m "monitoring: mark sources verified after import ${GITHUB_SHA::7}"
+            git pull --rebase
+            git push
+          fi
+
+      - name: Close the weekly-check issue if nothing is left
+        if: steps.check.outputs.attention == '0'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          for n in $(gh issue list --label weekly-check --state open --json number --jq '.[].number'); do
+            gh issue close "$n" --comment "Resolved: rates imported and verified in production by ${GITHUB_SHA::7}; the re-check found nothing left to do."
+          done
+
+      - name: Otherwise post what is left on the open issue
+        if: steps.check.outputs.attention != '0'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          n=$(gh issue list --label weekly-check --state open --json number --jq '.[0].number')
+          if [ -n "$n" ]; then
+            gh issue comment "$n" --body-file monitoring/weekly-report.md
+          fi

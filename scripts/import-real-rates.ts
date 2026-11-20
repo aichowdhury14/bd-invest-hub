@@ -218,12 +218,14 @@ const entries: RateEntry[] = [
   // sheet (found via the WordPress media listing; the bank's pages don't
   // link it). Regular FD: 3mo 7.75%->7.50%, 6mo 8.00%->7.25%, 12/18/24mo
   // 8.25%->7.25%; 1mo unchanged at 4.00%.
-  { institutionName: "Dhaka Bank", productType: "FDR", tenureMonths: 1, minAmount: 0, interestRatePct: 4.0, sourceUrl: "https://dhakabank.com.bd/wp-content/uploads/2026/10/Rates-of-Deposit-Effective-from-October-15-2026.pdf" },
-  { institutionName: "Dhaka Bank", productType: "FDR", tenureMonths: 3, minAmount: 0, interestRatePct: 7.5, sourceUrl: "https://dhakabank.com.bd/wp-content/uploads/2026/10/Rates-of-Deposit-Effective-from-October-15-2026.pdf" },
-  { institutionName: "Dhaka Bank", productType: "FDR", tenureMonths: 6, minAmount: 0, interestRatePct: 7.25, sourceUrl: "https://dhakabank.com.bd/wp-content/uploads/2026/10/Rates-of-Deposit-Effective-from-October-15-2026.pdf" },
-  { institutionName: "Dhaka Bank", productType: "FDR", tenureMonths: 12, minAmount: 0, interestRatePct: 7.25, sourceUrl: "https://dhakabank.com.bd/wp-content/uploads/2026/10/Rates-of-Deposit-Effective-from-October-15-2026.pdf" },
-  { institutionName: "Dhaka Bank", productType: "FDR", tenureMonths: 18, minAmount: 0, interestRatePct: 7.25, sourceUrl: "https://dhakabank.com.bd/wp-content/uploads/2026/10/Rates-of-Deposit-Effective-from-October-15-2026.pdf" },
-  { institutionName: "Dhaka Bank", productType: "FDR", tenureMonths: 24, minAmount: 0, interestRatePct: 7.25, sourceUrl: "https://dhakabank.com.bd/wp-content/uploads/2026/10/Rates-of-Deposit-Effective-from-October-15-2026.pdf" },
+  // Updated 2026-11-20 to the "Effective from November 15, 2026" sheet (flagged
+  // by the weekly check): 3mo 7.50%->7.25%, 6-24mo 7.25%->7.00%; 1mo 4.00%.
+  { institutionName: "Dhaka Bank", productType: "FDR", tenureMonths: 1, minAmount: 0, interestRatePct: 4.0, sourceUrl: "https://dhakabank.com.bd/wp-content/uploads/2026/11/Rates-of-Deposit-Effective-from-November-15-2026.pdf" },
+  { institutionName: "Dhaka Bank", productType: "FDR", tenureMonths: 3, minAmount: 0, interestRatePct: 7.25, sourceUrl: "https://dhakabank.com.bd/wp-content/uploads/2026/11/Rates-of-Deposit-Effective-from-November-15-2026.pdf" },
+  { institutionName: "Dhaka Bank", productType: "FDR", tenureMonths: 6, minAmount: 0, interestRatePct: 7.0, sourceUrl: "https://dhakabank.com.bd/wp-content/uploads/2026/11/Rates-of-Deposit-Effective-from-November-15-2026.pdf" },
+  { institutionName: "Dhaka Bank", productType: "FDR", tenureMonths: 12, minAmount: 0, interestRatePct: 7.0, sourceUrl: "https://dhakabank.com.bd/wp-content/uploads/2026/11/Rates-of-Deposit-Effective-from-November-15-2026.pdf" },
+  { institutionName: "Dhaka Bank", productType: "FDR", tenureMonths: 18, minAmount: 0, interestRatePct: 7.0, sourceUrl: "https://dhakabank.com.bd/wp-content/uploads/2026/11/Rates-of-Deposit-Effective-from-November-15-2026.pdf" },
+  { institutionName: "Dhaka Bank", productType: "FDR", tenureMonths: 24, minAmount: 0, interestRatePct: 7.0, sourceUrl: "https://dhakabank.com.bd/wp-content/uploads/2026/11/Rates-of-Deposit-Effective-from-November-15-2026.pdf" },
   // Dhaka Bank DPS: the bank only publishes a maturity-VALUE chart (no percentage
   // rate anywhere), so these rates were back-solved from that chart — found the
   // rate R (monthly-compounded annuity, i=R/12) that makes our own maturity formula

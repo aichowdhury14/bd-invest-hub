@@ -6,9 +6,14 @@
 //   npm run weekly-check                      report only
 //   npm run weekly-check -- --update-baseline also record today's source
 //                                             fingerprints as "verified"
+//   npm run weekly-check -- --verified <url> [--verified <url> ...]
+//   npm run weekly-check -- --verified-file <file of URLs, one per line>
+//                                             mark only these sources verified
 //
-// Run --update-baseline only after the rates have been re-verified and
-// imported; otherwise a real change gets accepted unread.
+// Mark a source verified only after its document has been re-read and the
+// rates file updated (or confirmed unchanged) -- otherwise a real change gets
+// accepted unread. Prefer --verified over --update-baseline: the import
+// workflow passes exactly the URLs a commit touched.
 import { createHash } from "node:crypto";
 import { appendFileSync, existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { PrismaClient } from "@prisma/client";
@@ -25,7 +30,20 @@ const SNAPSHOT_STALE_HOURS = 36;
 const RATES_REVERIFY_DAYS = 35;
 const SLOW_PAGE_MS = 3000;
 
-const updateBaseline = process.argv.includes("--update-baseline");
+const argv = process.argv.slice(2);
+const updateAll = argv.includes("--update-baseline");
+const verifiedUrls = new Set<string>();
+argv.forEach((arg, i) => {
+  if (arg === "--verified" && argv[i + 1]) verifiedUrls.add(argv[i + 1]);
+  if (arg === "--verified-file" && argv[i + 1] && existsSync(argv[i + 1]))
+    readFileSync(argv[i + 1], "utf8")
+      .split(/\r?\n/)
+      .map((l) => l.trim())
+      .filter(Boolean)
+      .forEach((u) => verifiedUrls.add(u));
+});
+const updateBaseline = updateAll || verifiedUrls.size > 0;
+const accepts = (url: string) => updateAll || verifiedUrls.has(url);
 
 type Level = "action" | "blocked";
 interface Finding {
@@ -281,7 +299,7 @@ function report(baseline: Baseline): string {
     `# Weekly rate & site check: ${today}`,
     "",
     actions.length
-      ? `**${actions.length} item(s) need attention.** Nothing was changed automatically: re-read each flagged source, update \`${RATES_FILE}\`, import, then run \`npm run weekly-check -- --update-baseline\`.`
+      ? `**${actions.length} item(s) need attention.** Nothing was changed automatically: re-read each flagged source, update \`${RATES_FILE}\` and push; the import workflow then loads production and marks the touched sources verified.`
       : "**All clear.** Every readable source matches its last verified state.",
     "",
     ...(actions.length ? ["## Needs attention", byArea(actions), ""] : []),
@@ -301,21 +319,26 @@ async function main() {
   await Promise.all([checkSources(sources, baseline, fresh), checkListings(sources), checkSite(), checkDatabase()]);
 
   if (updateBaseline) {
-    // Keep the old fingerprint for anything unreadable today rather than drop it.
+    // Only accepted sources take today's fingerprint; everything else keeps its
+    // last verified one (and anything unreadable today keeps its old one too).
+    const accepted = Object.fromEntries(Object.entries(fresh).filter(([url]) => accepts(url)));
     const next: Baseline = {
       updatedAt: new Date().toISOString(),
       fingerprints: Object.fromEntries(
-        Object.entries({ ...baseline.fingerprints, ...fresh })
+        Object.entries({ ...baseline.fingerprints, ...accepted })
           .filter(([url]) => sources.has(url) || extraFingerprintTargets.some((t) => t.url === url))
           .sort(([a], [b]) => a.localeCompare(b))
       ),
     };
     mkdirSync("monitoring", { recursive: true });
     writeFileSync(BASELINE_FILE, JSON.stringify(next, null, 2) + "\n");
-    console.log(`Baseline updated: ${Object.keys(next.fingerprints).length} fingerprints.`);
-    // A fresh baseline accepts today's content, so these are no longer findings.
-    for (let i = findings.length - 1; i >= 0; i--)
-      if (/changed since last verified|No verified fingerprint/.test(findings[i].text)) findings.splice(i, 1);
+    console.log(`Baseline: accepted ${Object.keys(accepted).length} source(s); ${Object.keys(next.fingerprints).length} total.`);
+    // Accepted sources are no longer findings.
+    for (let i = findings.length - 1; i >= 0; i--) {
+      const url = findings[i].text.match(/https?:\S+$/)?.[0];
+      if (/changed since last verified|No verified fingerprint/.test(findings[i].text) && url && accepts(url))
+        findings.splice(i, 1);
+    }
   }
 
   const md = report(updateBaseline ? loadBaseline() : baseline);

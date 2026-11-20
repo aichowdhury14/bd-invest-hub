@@ -17,6 +17,7 @@
     "scrape": "tsx scripts/scrapers/run-all.ts",
     "import-rates": "tsx scripts/import-real-rates.ts",
     "snapshot-history": "tsx scripts/snapshot-rate-history.ts",
+    "verify-import": "tsx scripts/verify-import.ts",
     "weekly-check": "tsx scripts/weekly-check/run.ts"
   },
   "prisma": {
