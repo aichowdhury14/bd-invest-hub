@@ -1,0 +1,70 @@
+name: Weekly rate & site check
+
+# Detects, never edits rates: every stored rate must trace to a document a
+# person has read. When something needs attention this opens a GitHub issue
+# (closing last week's), so it arrives as a notification; an all-clear week
+# only writes the run summary.
+
+on:
+  schedule:
+    - cron: "17 3 * * 5" # Friday 09:17 Dhaka, after the Sun-Thu working week's circulars
+  workflow_dispatch:
+    inputs:
+      update_baseline:
+        description: "Record today's sources as verified (only after re-verifying and importing the rates)"
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+  issues: write
+
+concurrency:
+  group: weekly-check
+  cancel-in-progress: false
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+
+      - name: Check sources, bank listing pages, live site and database
+        id: check
+        run: npm run weekly-check -- ${{ inputs.update_baseline && '--update-baseline' || '' }}
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          DIRECT_URL: ${{ secrets.DIRECT_URL }}
+
+      - name: Commit the new baseline
+        if: inputs.update_baseline
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add monitoring/baseline.json
+          if git diff --cached --quiet; then
+            echo "Baseline unchanged."
+          else
+            git commit -m "monitoring: record verified source baseline"
+            git push
+          fi
+
+      - name: Open an issue if anything needs attention
+        if: steps.check.outputs.attention != '0'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ATTENTION: ${{ steps.check.outputs.attention }}
+        run: |
+          gh label create weekly-check --color FBCA04 --description "Automated weekly rate & site check" --force
+          for n in $(gh issue list --label weekly-check --state open --json number --jq '.[].number'); do
+            gh issue close "$n" --comment "Superseded by this week's check."
+          done
+          gh issue create --label weekly-check \
+            --title "Weekly check $(date -u +%F): ${ATTENTION} item(s) need attention" \
+            --body-file monitoring/weekly-report.md

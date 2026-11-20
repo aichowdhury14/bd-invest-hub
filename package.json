@@ -16,7 +16,8 @@
     "db:seed": "tsx prisma/seed.ts",
     "scrape": "tsx scripts/scrapers/run-all.ts",
     "import-rates": "tsx scripts/import-real-rates.ts",
-    "snapshot-history": "tsx scripts/snapshot-rate-history.ts"
+    "snapshot-history": "tsx scripts/snapshot-rate-history.ts",
+    "weekly-check": "tsx scripts/weekly-check/run.ts"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"
