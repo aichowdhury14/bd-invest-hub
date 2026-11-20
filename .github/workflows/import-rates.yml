@@ -38,6 +38,8 @@ jobs:
 
       # A file that does not typecheck or breaks the calculators never
       # reaches production.
+      # LayoutProps and friends are generated into .next/ by Next.js.
+      - run: npx next typegen
       - run: npx tsc --noEmit
       - run: npx vitest run
 
