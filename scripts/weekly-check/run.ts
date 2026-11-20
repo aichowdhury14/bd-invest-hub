@@ -68,6 +68,13 @@ async function get(url: string): Promise<Fetched | { error: string }> {
 const BLOCK_PATTERNS =
   /testing whether you are a human|What code is in the image|<title>Just a moment|Security check required|Request Rejected/i;
 
+// Answers that mean "this network may not look", not "the document is gone":
+// GitHub's US runners time out on some BD hosts (Islami Bank, Janata) and get
+// 403 from others (UCB) that serve normally from Bangladesh.
+const REFUSED_STATUS = new Set([401, 403, 429, 451, 503]);
+const refusedText = (error: string) =>
+  `Unreachable from the checker's network (${error}); check from Bangladesh or a browser`;
+
 const isPdf = (f: Fetched) => f.contentType.includes("pdf") || f.body.subarray(0, 5).toString() === "%PDF-";
 const text = (f: Fetched) => f.body.toString("utf8");
 const sha = (s: string | Buffer) => createHash("sha256").update(s).digest("hex").slice(0, 16);
@@ -143,9 +150,10 @@ async function checkSources(sources: Map<string, Set<string>>, baseline: Baselin
   let ok = 0;
   await pool(targets, 6, async ({ key, url, label }) => {
     const res = await get(url);
-    if ("error" in res) return flag("action", label, `Source unreachable (${res.error}): ${url}`);
+    if ("error" in res) return flag("blocked", label, `${refusedText(res.error)}: ${url}`);
     if (BLOCK_PATTERNS.test(isPdf(res) ? "" : text(res)))
       return flag("blocked", label, `Behind a captcha/bot wall, not checked: ${url}`);
+    if (REFUSED_STATUS.has(res.status)) return flag("blocked", label, `${refusedText(`HTTP ${res.status}`)}: ${url}`);
     if (res.status !== 200) return flag("action", label, `Source returns HTTP ${res.status}: ${url}`);
     if (/\.pdf($|\?)/i.test(url) && !isPdf(res))
       return flag("action", label, `PDF link now serves ${res.contentType || "non-PDF content"}: ${url}`);
@@ -165,9 +173,11 @@ async function checkListings(sources: Map<string, Set<string>>) {
   let ok = 0;
   await pool(listingWatches, 4, async (w) => {
     const res = await get(w.page);
-    if ("error" in res) return flag("action", w.institution, `Listing page unreachable (${res.error}): ${w.page}`);
+    if ("error" in res) return flag("blocked", w.institution, `${refusedText(res.error)}: ${w.page}`);
     const body = text(res);
     if (BLOCK_PATTERNS.test(body)) return flag("blocked", w.institution, `Listing page behind a captcha: ${w.page}`);
+    if (REFUSED_STATUS.has(res.status))
+      return flag("blocked", w.institution, `${refusedText(`HTTP ${res.status}`)}: ${w.page}`);
     if (res.status !== 200) return flag("action", w.institution, `Listing page returns HTTP ${res.status}: ${w.page}`);
 
     const links = [...new Set([...body.matchAll(w.pattern)].map((m) => normalizeUrl(m[0], w.page)))];
@@ -275,7 +285,7 @@ function report(baseline: Baseline): string {
       : "**All clear.** Every readable source matches its last verified state.",
     "",
     ...(actions.length ? ["## Needs attention", byArea(actions), ""] : []),
-    ...(blocked.length ? ["## Could not check (captcha or bot wall; needs a person in a browser)", byArea(blocked), ""] : []),
+    ...(blocked.length ? ["## Could not check this week (captcha, bot wall or network refusal)", byArea(blocked), ""] : []),
     "## Healthy",
     ...healthy.map((h) => `- ${h}`),
     "",
