@@ -49,11 +49,13 @@ jobs:
       - name: Verify production matches the file
         run: npm run verify-import
 
+      # On a manual run, "this push" means the last commit that changed the file.
       - name: Sources this push touched
-        if: github.event_name == 'push'
         run: |
           before="${{ github.event.before }}"
-          if ! git cat-file -e "$before^{commit}" 2>/dev/null; then before="HEAD~1"; fi
+          if [ "${{ github.event_name }}" != "push" ] || ! git cat-file -e "$before^{commit}" 2>/dev/null; then
+            before="$(git log -1 --format=%H -- scripts/import-real-rates.ts)~1"
+          fi
           git diff "$before" HEAD -- scripts/import-real-rates.ts \
             | grep '^+' | grep -o 'sourceUrl: "https\?://[^"]*"' \
             | sed -E 's/^sourceUrl: "//; s/"$//' | sort -u > touched-sources.txt || true
