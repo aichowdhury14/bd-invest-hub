@@ -166,12 +166,14 @@ async function checkSources(sources: Map<string, Set<string>>, baseline: Baselin
     ...extraFingerprintTargets.map((t) => ({ key: t.url, url: t.url, label: t.label })),
   ];
   let ok = 0;
+  let readable = 0;
   await pool(targets, 6, async ({ key, url, label }) => {
     const res = await get(url);
     if ("error" in res) return flag("blocked", label, `${refusedText(res.error)}: ${url}`);
     if (BLOCK_PATTERNS.test(isPdf(res) ? "" : text(res)))
       return flag("blocked", label, `Behind a captcha/bot wall, not checked: ${url}`);
     if (REFUSED_STATUS.has(res.status)) return flag("blocked", label, `${refusedText(`HTTP ${res.status}`)}: ${url}`);
+    readable++;
     if (res.status !== 200) return flag("action", label, `Source returns HTTP ${res.status}: ${url}`);
     if (/\.pdf($|\?)/i.test(url) && !isPdf(res))
       return flag("action", label, `PDF link now serves ${res.contentType || "non-PDF content"}: ${url}`);
@@ -184,6 +186,15 @@ async function checkSources(sources: Map<string, Set<string>>, baseline: Baselin
     ok++;
   });
   healthy.push(`${ok}/${targets.length} sources unchanged since last verification`);
+  // Individual banks block us; most of them at once means the checker's own
+  // network is restricted (a sandbox with no outbound access put all 56 under
+  // "could not check" on 2026-11-20). That week's result proves nothing.
+  if (readable < targets.length / 2)
+    flag(
+      "action",
+      "Checker",
+      `Only ${readable}/${targets.length} sources were readable; this run's network is probably restricted, so this week was not actually checked`
+    );
 }
 
 async function checkListings(sources: Map<string, Set<string>>) {
